@@ -1,1 +1,1 @@
-export { usersTable } from "./user";
+export { usersTable, rolesEnum } from "./user";

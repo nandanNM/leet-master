@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieparser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
 
 const app = express();
@@ -7,6 +8,12 @@ dotenv.config({
   path: "./.env",
 });
 app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+app.use(cookieparser());
 const PORT = process.env.PORT || 3000;
 app
   .listen(PORT, () => {

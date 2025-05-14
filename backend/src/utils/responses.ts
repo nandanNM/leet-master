@@ -1,16 +1,19 @@
 import type { Response } from "express";
+export class ApiResponse<T = any> {
+  constructor(
+    public statusCode: number,
+    public data: T | null = null,
+    public message: string = "🎉 Operation completed successfully!",
+    public success: boolean = true
+  ) {}
 
-export class ApiResponse<T> {
-  statusCode: number;
-  data: T;
-  message: string;
-  success: boolean;
-
-  constructor(statusCode: number, data: T, message: string = "Success") {
-    this.statusCode = statusCode;
-    this.data = data;
-    this.message = message;
-    this.success = statusCode < 400;
+  send(res: Response) {
+    return res.status(this.statusCode).json({
+      statusCode: this.statusCode,
+      success: this.success,
+      message: this.message,
+      data: this.data,
+    });
   }
 }
 
