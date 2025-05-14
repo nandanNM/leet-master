@@ -1,7 +1,6 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file .env ./src/index.ts",
@@ -13,13 +12,17 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.43.1",
+    "express": "^5.1.0"
+  },
   "devDependencies": {
     "@types/express": "^5.0.1",
-    "@types/node": "^22.15.17",
+    "@types/node": "^22.15.18",
+    "drizzle-kit": "^0.31.1",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "express": "^5.1.0"
   }
 }

@@ -1,0 +1,1 @@
+export { usersTable } from "./user";
