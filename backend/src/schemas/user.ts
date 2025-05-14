@@ -10,5 +10,9 @@ export const UserSchema = z.object({
   password: z.string().max(255).optional(),
   role: z.enum(rolesEnum).default("user"),
 });
-
-export type User = z.infer<typeof UserSchema>;
+export const LoginSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().max(255),
+});
+export type RegisterUser = z.infer<typeof UserSchema>;
+export type LoginUser = z.infer<typeof LoginSchema>;

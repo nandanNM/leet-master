@@ -9,7 +9,8 @@
     "strict": true, // Enables strict type-checking
     "skipLibCheck": true, // Skip type-checking declaration files (faster builds)
     "outDir": "./dist", // Specifies output directory for compiled files
-    "baseUrl": "./",
+    "baseUrl": "./", // Base directory to resolve non-relative module names
+    "rootDir": "./",
     "paths": {
       "*": ["node_modules/*"]
     },

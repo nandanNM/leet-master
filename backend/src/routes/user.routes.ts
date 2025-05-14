@@ -6,12 +6,12 @@ import {
   getUserSessions,
 } from "../controllers/user.controllers";
 import { validate } from "../middlewares/validate";
-import { UserSchema } from "../schemas/user";
+import { LoginSchema, UserSchema } from "../schemas/user";
 
 const userRoutes = express.Router();
 
 userRoutes.post("/register", validate(UserSchema), register);
-userRoutes.post("/login", login);
+userRoutes.post("/login", validate(LoginSchema), login);
 userRoutes.post("/logout", logout);
 userRoutes.get("/sessions", getUserSessions);
 
