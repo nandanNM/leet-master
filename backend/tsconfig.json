@@ -3,6 +3,7 @@
     "module": "ESNext", // Use ESNext module system (ES modules)
     "target": "ESNext", // Compile to the latest ECMAScript version
     "moduleResolution": "node", // Resolve modules using Node.js style
+    "types": ["node"],
     "esModuleInterop": true, // Enables interop between ES modules and CommonJS
     "allowSyntheticDefaultImports": true, // Allows default imports from modules with no default export
     "strict": true, // Enables strict type-checking
@@ -15,5 +16,5 @@
     "allowImportingTsExtensions": true, // Allows importing TypeScript files without specifying the extension
     "noEmit": true // Do not emit outputs
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts", "*.ts"] // Include all TypeScript files in src and tests directories
 }
