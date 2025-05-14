@@ -117,8 +117,13 @@ export async function logout(
   next: NextFunction
 ): Promise<any> {
   try {
-    res.clearCookie("leet-master-token");
-    return new ApiResponse(200, true, "Logged out successfully").send(res);
+    res.clearCookie("leet-master-token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return new ApiResponse(204, true, "Logged out successfully").send(res);
   } catch (error) {
     next(error);
   }
