@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieparser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
+import problemRoutes from "./routes/problem.routes";
 
 const app = express();
 dotenv.config({
@@ -33,3 +34,4 @@ app.use("/api/v1/health", (req, res) => {
   });
 });
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/problems", problemRoutes);

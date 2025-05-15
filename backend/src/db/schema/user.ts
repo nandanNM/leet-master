@@ -7,7 +7,12 @@ export const usersTable = table("users", {
   name: t.varchar({ length: 255 }).notNull(),
   email: t.varchar({ length: 255 }).notNull().unique(),
   password: t.varchar({ length: 255 }),
+  image: t.text("image"),
   role: rolesEnum().default("user").notNull(),
+
   createdAt: t.timestamp("created_at").defaultNow(),
-  updatedAt: t.timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });

@@ -24,12 +24,36 @@ export async function authMiddleware(
     const { id, email } = decoded as jwt.JwtPayload;
     const user = await db.query.usersTable.findFirst({
       where: (usersTable, { eq }) => eq(usersTable.email, email),
+      columns: {
+        id: true,
+        email: true,
+        role: true,
+      },
     });
     if (!user) {
       return res.status(401).json({ message: " Unauthorized Access" });
     }
 
     req.user = user;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function checkAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized Access" });
+    }
+    if (user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied - Admins only" });
+    }
     next();
   } catch (error) {
     next(error);
