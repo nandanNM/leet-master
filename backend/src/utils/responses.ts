@@ -2,9 +2,9 @@ import type { Response } from "express";
 export class ApiResponse<T = any> {
   constructor(
     public statusCode: number,
-    public data: T | null = null,
     public message: string = "🎉 Operation completed successfully!",
-    public success: boolean = true
+    public success: boolean = true,
+    public data: T | null = null
   ) {}
 
   send(res: Response) {

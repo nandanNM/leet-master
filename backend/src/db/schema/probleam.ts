@@ -4,7 +4,7 @@ import { usersTable } from "./user";
 import { relations } from "drizzle-orm";
 export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
-export const problamsTable = table("problems", {
+export const problemsTable = table("probleams", {
   id: t.uuid("id").primaryKey().defaultRandom(),
   title: t.varchar({ length: 255 }).notNull(),
   description: t.text("description").notNull(),
@@ -28,9 +28,9 @@ export const problamsTable = table("problems", {
     .$onUpdate(() => new Date()),
 });
 
-export const problemsRelations = relations(problamsTable, ({ one, many }) => ({
+export const probleamsRelations = relations(problemsTable, ({ one, many }) => ({
   user: one(usersTable, {
-    fields: [problamsTable.userId],
+    fields: [problemsTable.userId],
     references: [usersTable.id],
   }),
 }));

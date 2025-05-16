@@ -49,7 +49,7 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
     console.log("Data:", data);
 
     const result = data.submissions;
-    console.log("Result:", result);
+    if (!result) throw new Error("No result found  for the given tokens.");
     const isAllCompleted = result.every(
       (submission: any) =>
         submission.status.id !== 1 && submission.status.id !== 2

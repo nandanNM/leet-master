@@ -1,6 +1,6 @@
-CREATE TYPE "public"."difficulty" AS ENUM('easy', 'medium', 'hard');--> statement-breakpoint
-CREATE TYPE "public"."role" AS ENUM('admin', 'user');--> statement-breakpoint
-CREATE TABLE "problems" (
+CREATE TYPE "public"."difficulty" AS ENUM('EASY', 'MEDIUM', 'HARD');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('ADMIN', 'USER');--> statement-breakpoint
+CREATE TABLE "probleams" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"description" text NOT NULL,
@@ -24,10 +24,10 @@ CREATE TABLE "users" (
 	"email" varchar(255) NOT NULL,
 	"password" varchar(255),
 	"image" text,
-	"role" "role" DEFAULT 'user' NOT NULL,
+	"role" "role" DEFAULT 'USER' NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "problems" ADD CONSTRAINT "problems_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "probleams" ADD CONSTRAINT "probleams_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

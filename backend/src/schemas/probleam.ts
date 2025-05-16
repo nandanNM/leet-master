@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ProblemSchema = z.object({
+export const ProbleamSchema = z.object({
   title: z.string().max(255),
   description: z.string(),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
@@ -14,4 +14,4 @@ export const ProblemSchema = z.object({
   referenceSolutions: z.any(),
 });
 
-export type Problem = z.infer<typeof ProblemSchema>;
+export type Probleam = z.infer<typeof ProbleamSchema>;

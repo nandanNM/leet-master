@@ -1,11 +1,11 @@
 {
-  "id": "1c4b36c7-37a6-4612-9cb8-d2e305e73511",
+  "id": "5a93d23e-c6bc-423d-8bcd-f0a84459ce30",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.problems": {
-      "name": "problems",
+    "public.probleams": {
+      "name": "probleams",
       "schema": "",
       "columns": {
         "id": {
@@ -105,9 +105,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "problems_user_id_users_id_fk": {
-          "name": "problems_user_id_users_id_fk",
-          "tableFrom": "problems",
+        "probleams_user_id_users_id_fk": {
+          "name": "probleams_user_id_users_id_fk",
+          "tableFrom": "probleams",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -166,7 +166,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'user'"
+          "default": "'USER'"
         },
         "created_at": {
           "name": "created_at",
@@ -205,17 +205,17 @@
       "name": "difficulty",
       "schema": "public",
       "values": [
-        "easy",
-        "medium",
-        "hard"
+        "EASY",
+        "MEDIUM",
+        "HARD"
       ]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
       "values": [
-        "admin",
-        "user"
+        "ADMIN",
+        "USER"
       ]
     }
   },

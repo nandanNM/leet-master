@@ -18,7 +18,7 @@ export async function register(
     });
     if (existingUser) {
       // console.log("existingUser", existingUser);
-      return new ApiResponse(400, false, "User already exists!").send(res);
+      return new ApiResponse(400, "User already exists!", false).send(res);
     }
     //TODO: check user with same email and password becose i integrate with google and other auth providers
     if (password) {
@@ -44,7 +44,10 @@ export async function register(
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       return new ApiResponse(
-        200,
+        201,
+
+        `🎉 Success! ${newUser.name} is now part of the system ✨`,
+        true,
         {
           user: {
             id: newUser.id,
@@ -53,8 +56,7 @@ export async function register(
             role: newUser.role,
           },
           token,
-        },
-        `🎉 Success! ${newUser.name} is now part of the system ✨`
+        }
       ).send(res);
     }
   } catch (error) {
@@ -77,15 +79,15 @@ export async function login(
       where: (usersTable, { eq }) => eq(usersTable.email, email),
     });
     if (!user) {
-      return new ApiResponse(401, false, "Invalid credentials").send(res);
+      return new ApiResponse(401, "Invalid credentials", false).send(res);
     }
     //TODO: what if user has no password? becose i intregrate with google and other auth providers
     if (!user.password) {
-      return new ApiResponse(401, false, "Invalid credentials").send(res);
+      return new ApiResponse(401, "Invalid credentials", false).send(res);
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return new ApiResponse(400, false, "Invalid Password").send(res);
+      return new ApiResponse(400, "Invalid Password", false).send(res);
     }
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -99,7 +101,10 @@ export async function login(
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     return new ApiResponse(
-      200,
+      201,
+
+      `Welcome back ${user.name} 👋`,
+      true,
       {
         user: {
           id: user.id,
@@ -108,8 +113,7 @@ export async function login(
           role: user.role,
         },
         token,
-      },
-      `Welcome back ${user.name} 👋`
+      }
     ).send(res);
   } catch (error) {
     return errorResponse(
@@ -131,7 +135,7 @@ export async function logout(
       secure: process.env.NODE_ENV === "production",
     });
 
-    return new ApiResponse(204, true, "Logged out successfully").send(res);
+    return new ApiResponse(204, "Logged out successfully", true).send(res);
   } catch (error) {
     return errorResponse(
       res,
