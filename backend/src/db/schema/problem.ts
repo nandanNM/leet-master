@@ -2,7 +2,7 @@ import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 import { relations } from "drizzle-orm";
-export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"]);
+export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
 export const problamsTable = table("problems", {
   id: t.uuid("id").primaryKey().defaultRandom(),

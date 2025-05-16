@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { LoginUser, RegisterUser } from "../schemas/user";
-import { ApiResponse } from "../utils/responses";
+import { ApiResponse, errorResponse } from "../utils/responses";
 import { db } from "../db";
 import { usersTable } from "../db/schema";
 
@@ -58,7 +58,11 @@ export async function register(
       ).send(res);
     }
   } catch (error) {
-    next(error);
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
 }
 
@@ -108,7 +112,11 @@ export async function login(
       `Welcome back ${user.name} 👋`
     ).send(res);
   } catch (error) {
-    next(error);
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
 }
 export async function logout(
@@ -125,7 +133,11 @@ export async function logout(
 
     return new ApiResponse(204, true, "Logged out successfully").send(res);
   } catch (error) {
-    next(error);
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
 }
 export async function getUserSessions(

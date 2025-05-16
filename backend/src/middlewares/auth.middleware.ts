@@ -5,6 +5,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
 import { ne } from "drizzle-orm";
+import { errorResponse } from "../utils/responses";
 
 export async function authMiddleware(
   req: Request,
@@ -37,7 +38,11 @@ export async function authMiddleware(
     req.user = user;
     next();
   } catch (error) {
-    next(error);
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
 }
 
@@ -51,11 +56,15 @@ export async function checkAdmin(
     if (!user) {
       return res.status(401).json({ message: "Unauthorized Access" });
     }
-    if (user.role !== "admin") {
+    if (user.role !== "ADMIN") {
       return res.status(403).json({ message: "Access denied - Admins only" });
     }
     next();
   } catch (error) {
-    next(error);
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
 }

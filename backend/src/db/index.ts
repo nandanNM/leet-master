@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // For Neon, SSL is required
+  // ssl: { rejectUnauthorized: false }, // For Neon, SSL is required
 });
 
 const db = drizzle(pool, { schema });

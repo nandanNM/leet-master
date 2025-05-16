@@ -8,11 +8,14 @@ import {
   getProblemById,
   updateProblem,
 } from "../controllers/problem.controllers";
+import { validate } from "../middlewares/validate.middleware";
+import { ProblemSchema } from "../schemas/problem";
 
 const problemRoutes = Router();
 
 problemRoutes.post(
-  "/create-problem",
+  "/create-probleam",
+  validate(ProblemSchema),
   authMiddleware,
   checkAdmin,
   createProblem
