@@ -16,14 +16,14 @@ interface Submission {
   source_code: string;
   language_id: number;
   stdin: string;
-  expected_output: string;
+  expected_output?: string;
 }
-[];
+
 interface SubmissionResult {
   token: string;
 }
 export async function submitBatch(
-  submissions: Submission
+  submissions: Submission[]
 ): Promise<SubmissionResult[]> {
   const { data } = await axios.post(
     `${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,

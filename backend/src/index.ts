@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieparser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
 import probleamRoutes from "./routes/probleam.routes";
+import executionRoutes from "./routes/execution.routes";
 
 const app = express();
 dotenv.config({
@@ -35,3 +36,4 @@ app.use("/api/v1/health", (req, res) => {
 });
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/probleams", probleamRoutes);
+app.use("api/v1/execute-code", executionRoutes);
