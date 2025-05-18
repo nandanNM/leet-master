@@ -6,7 +6,7 @@ import { submitCodeSchema } from "../schemas/submit-code";
 
 const executionRoutes = Router();
 
-executionRoutes.get(
+executionRoutes.post(
   "/",
   validate(submitCodeSchema),
   authMiddleware,

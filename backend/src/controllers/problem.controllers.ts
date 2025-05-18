@@ -1,18 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { db } from "../db";
-import { Probleam } from "../schemas/probleam";
+import { Problem } from "../schemas/problem";
 import { ApiResponse, errorResponse } from "../utils/responses";
 import {
   getJudge0LanguageCode,
   pullBatchResults,
   submitBatch,
 } from "../utils/lib/judge0";
-import { probleamsTable } from "../db/schema";
+import { problemsTable } from "../db/schema";
 import { eq } from "drizzle-orm";
-export async function createProbleam(
-  req: Request,
-  res: Response
-): Promise<any> {
+export async function createProblem(req: Request, res: Response): Promise<any> {
   const {
     title,
     description,
@@ -25,11 +22,11 @@ export async function createProbleam(
     testcases,
     codeSnippets,
     referenceSolutions,
-  } = req.body as Probleam;
+  } = req.body as Problem;
   if (req.user.role !== "ADMIN") {
     return new ApiResponse(
       403,
-      "You are not authorized to create a probleam",
+      "You are not authorized to create a problem",
       false
     ).send(res);
   }
@@ -68,8 +65,8 @@ export async function createProbleam(
         }
       }
     }
-    // Save the probleam to the database
-    const probleam = await db.insert(probleamsTable).values({
+    // Save the problem to the database
+    const problem = await db.insert(problemsTable).values({
       userId: req.user.id,
       title,
       description,
@@ -83,8 +80,8 @@ export async function createProbleam(
       codeSnippets,
       referenceSolutions,
     });
-    console.log("Probleam created:", probleam);
-    return new ApiResponse(201, "Probleam created successfully.", true).send(
+    console.log("Problem created:", problem);
+    return new ApiResponse(201, "Problem created successfully.", true).send(
       res
     );
   } catch (error) {
@@ -96,22 +93,22 @@ export async function createProbleam(
   }
 }
 
-export async function getAllProbleams(
+export async function getAllProblems(
   req: Request,
   res: Response
 ): Promise<any> {
   try {
-    const probleams = await db.query.probleamsTable.findMany();
+    const problems = await db.query.problemsTable.findMany();
 
-    if (!probleams) {
-      return new ApiResponse(404, "No probleams found", false).send(res);
+    if (!problems) {
+      return new ApiResponse(404, "No problems found", false).send(res);
     }
-    // console.log("Probleams: find many", probleams);
+    // console.log("Problems: find many", problems);
     return new ApiResponse(
       200,
-      "Probleams fetched successfully",
+      "Problems fetched successfully",
       true,
-      probleams
+      problems
     ).send(res);
   } catch (error) {
     return errorResponse(
@@ -121,26 +118,26 @@ export async function getAllProbleams(
     );
   }
 }
-export async function getProbleamById(
+export async function getProblemById(
   req: Request,
   res: Response
 ): Promise<any> {
   const { id } = req.params;
   if (!id) {
-    return new ApiResponse(400, "Probleam ID is required", false).send(res);
+    return new ApiResponse(400, "Problem ID is required", false).send(res);
   }
   try {
-    const probleam = await db.query.probleamsTable.findFirst({
-      where: (probleamsTable, { eq }) => eq(probleamsTable.id, id),
+    const problem = await db.query.problemsTable.findFirst({
+      where: (problemsTable, { eq }) => eq(problemsTable.id, id),
     });
-    if (!probleam) {
-      return new ApiResponse(404, "Probleam not found", false).send(res);
+    if (!problem) {
+      return new ApiResponse(404, "Problem not found", false).send(res);
     }
     return new ApiResponse(
       200,
-      "Probleam fetched successfully",
+      "Problem fetched successfully",
       true,
-      probleam
+      problem
     ).send(res);
   } catch (error) {
     return errorResponse(
@@ -150,7 +147,7 @@ export async function getProbleamById(
     );
   }
 }
-export async function updateProbleam(
+export async function updateProblem(
   req: Request,
   res: Response,
   next: NextFunction
@@ -167,15 +164,15 @@ export async function updateProbleam(
     testcases,
     codeSnippets,
     referenceSolutions,
-  } = req.body as Probleam;
+  } = req.body as Problem;
   const { id } = req.params;
   if (!id) {
-    return new ApiResponse(400, "Probleam ID is required", false).send(res);
+    return new ApiResponse(400, "Problem ID is required", false).send(res);
   }
   if (req.user.role !== "ADMIN") {
     return new ApiResponse(
       403,
-      "You are not authorized to create a probleam",
+      "You are not authorized to create a problem",
       false
     ).send(res);
   }
@@ -214,9 +211,9 @@ export async function updateProbleam(
         }
       }
     }
-    // Update the probleam in the database
-    const updatedProbleam = await db
-      .update(probleamsTable)
+    // Update the problem in the database
+    const updatedProblem = await db
+      .update(problemsTable)
       .set({
         userId: req.user.id,
         title,
@@ -231,13 +228,13 @@ export async function updateProbleam(
         codeSnippets,
         referenceSolutions,
       })
-      .where(eq(probleamsTable.id, id))
+      .where(eq(problemsTable.id, id))
       .returning();
     return new ApiResponse(
       201,
-      "Probleam updated successfully.",
+      "Problem updated successfully.",
       true,
-      updatedProbleam
+      updatedProblem
     ).send(res);
   } catch (error) {
     return errorResponse(
@@ -247,33 +244,31 @@ export async function updateProbleam(
     );
   }
 }
-export async function deleteProbleam(
+export async function deleteProblem(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<any> {
   const { id } = req.params;
   if (!id) {
-    return new ApiResponse(400, "Probleam ID is required", false).send(res);
+    return new ApiResponse(400, "Problem ID is required", false).send(res);
   }
   if (req.user.role !== "ADMIN") {
     return new ApiResponse(
       403,
-      "You are not authorized to create a probleam",
+      "You are not authorized to create a problem",
       false
     ).send(res);
   }
   try {
-    const deletedProbleam = await db
-      .delete(probleamsTable)
-      .where(eq(probleamsTable.id, id));
+    const deletedProblem = await db
+      .delete(problemsTable)
+      .where(eq(problemsTable.id, id));
 
-    if (!deletedProbleam) {
-      return new ApiResponse(404, "Probleam not found", false).send(res);
+    if (!deletedProblem) {
+      return new ApiResponse(404, "Problem not found", false).send(res);
     }
-    return new ApiResponse(200, "Probleam deleted successfully", true).send(
-      res
-    );
+    return new ApiResponse(200, "Problem deleted successfully", true).send(res);
   } catch (error) {
     return errorResponse(
       res,
@@ -283,7 +278,7 @@ export async function deleteProbleam(
   }
 }
 
-export async function getAllProbleamsSolvedByUser(
+export async function getAllProblemsSolvedByUser(
   req: Request,
   res: Response,
   next: NextFunction

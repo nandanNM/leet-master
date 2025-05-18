@@ -58,3 +58,13 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
     await sleep(1000); // Wait for 2 seconds before checking again
   }
 }
+
+export function getLanguage(languageId: number): string {
+  const languageMap: { [key: number]: string } = {
+    71: "Python",
+    62: "Java",
+    63: "JavaScript",
+    74: "TypeScript",
+  };
+  return languageMap[languageId] || "Unknown";
+}

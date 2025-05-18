@@ -1,10 +1,14 @@
 export { usersTable, rolesEnum, usersRelations } from "./user";
 export {
-  probleamsTable,
+  problemsTable,
   difficultyEnum,
-  probleamsRelations,
+  problemsRelations,
   solvedProblemsTable,
   solvedProblemsRelations,
-} from "./probleam";
-export { submissionsTable, submissionsRelations } from "./submission";
+} from "./problem";
+export {
+  submissionsTable,
+  submissionsRelations,
+  submissionStatusEnum,
+} from "./submission";
 export { testCaseResultsTable, testCaseResultsRelations } from "./test-case";

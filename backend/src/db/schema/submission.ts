@@ -2,9 +2,17 @@ import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 import { relations } from "drizzle-orm";
-import { probleamsTable } from "./probleam";
+import { problemsTable } from "./problem";
 import { testCaseResultsTable } from "./test-case";
-
+export const submissionStatusEnum = pgEnum("submission_status", [
+  "ACCEPTED",
+  "WRONG_ANSWER",
+  "TIME_LIMIT_EXCEEDED",
+  "MEMORY_LIMIT_EXCEEDED",
+  "RUNTIME_ERROR",
+  "COMPILE_ERROR",
+  "INTERNAL_ERROR",
+]);
 export const submissionsTable = table("submissions", {
   id: t.uuid("id").primaryKey().defaultRandom(),
   userId: t
@@ -13,7 +21,7 @@ export const submissionsTable = table("submissions", {
     .notNull(),
   problemId: t
     .uuid("problem_id")
-    .references(() => probleamsTable.id, { onDelete: "cascade" })
+    .references(() => problemsTable.id, { onDelete: "cascade" })
     .notNull(),
   sourceCode: t.json("source_code").notNull(),
   language: t.varchar("language", { length: 100 }).notNull(),
@@ -21,7 +29,7 @@ export const submissionsTable = table("submissions", {
   stdout: t.text("stdout"),
   stderr: t.text("stderr"),
   compileOutput: t.text("compile_output"),
-  status: t.varchar("status", { length: 50 }),
+  status: submissionStatusEnum("status"),
   memory: t.varchar("memory", { length: 50 }),
   time: t.varchar("time", { length: 50 }),
   createdAt: t.timestamp("created_at").defaultNow(),
@@ -38,9 +46,9 @@ export const submissionsRelations = relations(
       fields: [submissionsTable.userId],
       references: [usersTable.id],
     }),
-    problem: one(probleamsTable, {
+    problem: one(problemsTable, {
       fields: [submissionsTable.problemId],
-      references: [probleamsTable.id],
+      references: [problemsTable.id],
     }),
     testCases: many(testCaseResultsTable),
   })
