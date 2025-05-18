@@ -8,6 +8,20 @@
       "when": 1747426066094,
       "tag": "0000_harsh_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1747551933477,
+      "tag": "0001_robust_grandmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747553465775,
+      "tag": "0002_square_risque",
+      "breakpoints": true
     }
   ]
 }

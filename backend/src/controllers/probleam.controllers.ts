@@ -7,7 +7,7 @@ import {
   pullBatchResults,
   submitBatch,
 } from "../utils/lib/judge0";
-import { problemsTable } from "../db/schema";
+import { probleamsTable } from "../db/schema";
 import { eq } from "drizzle-orm";
 export async function createProbleam(
   req: Request,
@@ -69,7 +69,7 @@ export async function createProbleam(
       }
     }
     // Save the probleam to the database
-    const probleam = await db.insert(problemsTable).values({
+    const probleam = await db.insert(probleamsTable).values({
       userId: req.user.id,
       title,
       description,
@@ -101,7 +101,7 @@ export async function getAllProbleams(
   res: Response
 ): Promise<any> {
   try {
-    const probleams = await db.query.problemsTable.findMany();
+    const probleams = await db.query.probleamsTable.findMany();
 
     if (!probleams) {
       return new ApiResponse(404, "No probleams found", false).send(res);
@@ -130,8 +130,8 @@ export async function getProbleamById(
     return new ApiResponse(400, "Probleam ID is required", false).send(res);
   }
   try {
-    const probleam = await db.query.problemsTable.findFirst({
-      where: (problemsTable, { eq }) => eq(problemsTable.id, id),
+    const probleam = await db.query.probleamsTable.findFirst({
+      where: (probleamsTable, { eq }) => eq(probleamsTable.id, id),
     });
     if (!probleam) {
       return new ApiResponse(404, "Probleam not found", false).send(res);
@@ -216,7 +216,7 @@ export async function updateProbleam(
     }
     // Update the probleam in the database
     const updatedProbleam = await db
-      .update(problemsTable)
+      .update(probleamsTable)
       .set({
         userId: req.user.id,
         title,
@@ -231,7 +231,7 @@ export async function updateProbleam(
         codeSnippets,
         referenceSolutions,
       })
-      .where(eq(problemsTable.id, id))
+      .where(eq(probleamsTable.id, id))
       .returning();
     return new ApiResponse(
       201,
@@ -265,8 +265,8 @@ export async function deleteProbleam(
   }
   try {
     const deletedProbleam = await db
-      .delete(problemsTable)
-      .where(eq(problemsTable.id, id));
+      .delete(probleamsTable)
+      .where(eq(probleamsTable.id, id));
 
     if (!deletedProbleam) {
       return new ApiResponse(404, "Probleam not found", false).send(res);

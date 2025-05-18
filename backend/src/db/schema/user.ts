@@ -1,5 +1,8 @@
+import { relations } from "drizzle-orm";
 import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
+import { submissionsTable } from "./submission";
+import { probleamsTable, solvedProblemsTable } from "./probleam";
 export const rolesEnum = pgEnum("role", ["ADMIN", "USER"]);
 
 export const usersTable = table("users", {
@@ -16,3 +19,9 @@ export const usersTable = table("users", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+export const usersRelations = relations(usersTable, ({ many }) => ({
+  submissions: many(submissionsTable),
+  probleams: many(probleamsTable),
+  solvedProblems: many(solvedProblemsTable),
+}));
