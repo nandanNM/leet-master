@@ -44,7 +44,7 @@ export async function createProbleam(
           false
         ).send(res);
       }
-      const submission = testcases.map(
+      const submissions = testcases.map(
         ({ input, output }: { input: string; output: string }) => ({
           source_code: solutionCode,
           language_id: languageId,
@@ -52,8 +52,8 @@ export async function createProbleam(
           expected_output: output,
         })
       );
-      console.log("Submission:", submission);
-      const submissionResult = await submitBatch(submission);
+      console.log("Submission:", submissions);
+      const submissionResult = await submitBatch(submissions);
       console.log("Submission result:", submissionResult);
       const tokens = submissionResult.map((result) => result.token);
       const results = await pullBatchResults(tokens);
