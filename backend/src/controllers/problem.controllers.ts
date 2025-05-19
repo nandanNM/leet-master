@@ -147,11 +147,7 @@ export async function getProblemById(
     );
   }
 }
-export async function updateProblem(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> {
+export async function updateProblem(req: Request, res: Response): Promise<any> {
   const {
     title,
     description,
@@ -244,11 +240,7 @@ export async function updateProblem(
     );
   }
 }
-export async function deleteProblem(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> {
+export async function deleteProblem(req: Request, res: Response): Promise<any> {
   const { id } = req.params;
   if (!id) {
     return new ApiResponse(400, "Problem ID is required", false).send(res);
@@ -280,6 +272,34 @@ export async function deleteProblem(
 
 export async function getAllProblemsSolvedByUser(
   req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> {}
+  res: Response
+): Promise<any> {
+  const { id: userId } = req.user;
+  if (!userId) {
+    return new ApiResponse(400, "User ID is required", false).send(res);
+  }
+  try {
+    const solvedProblems = await db.query.solvedProblemsTable.findMany({
+      where: (solvedProblemsTable, { eq }) =>
+        eq(solvedProblemsTable.userId, userId),
+      with: {
+        problem: true,
+      },
+    });
+    if (!solvedProblems) {
+      return new ApiResponse(404, "No problems found", false).send(res);
+    }
+    return new ApiResponse(
+      200,
+      "Problems fetched successfully",
+      true,
+      solvedProblems
+    ).send(res);
+  } catch (error) {
+    return errorResponse(
+      res,
+      500,
+      error instanceof Error ? error.message : "Unknown error"
+    );
+  }
+}
