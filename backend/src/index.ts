@@ -5,6 +5,7 @@ import userRoutes from "./routes/user.routes";
 import problemRoutes from "./routes/problem.routes";
 import executionRoutes from "./routes/execution.routes";
 import submissionRoutes from "./routes/submission.routes";
+import { ApiError, errorResponse } from "./utils/responses";
 
 const app = express();
 dotenv.config({
@@ -35,6 +36,7 @@ app.use("/api/v1/health", (req, res) => {
     message: "Server is running",
   });
 });
+
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/execute-code", executionRoutes);

@@ -1,29 +1,66 @@
-import type { Response } from "express";
+import { Response } from "express";
+
+interface ApiResponseBody<T = any> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data?: T | null;
+  error?: { code?: string; details?: string[] } | null;
+}
+
 export class ApiResponse<T = any> {
   constructor(
-    public statusCode: number,
-    public message: string = "🎉 Operation completed successfully!",
-    public success: boolean = true,
-    public data: T | null = null
+    public readonly statusCode: number,
+    public readonly message: string = "🎉 Success!",
+    public readonly data: T | null = null
   ) {}
 
-  send(res: Response) {
-    return res.status(this.statusCode).json({
+  send(res: Response): Response {
+    const body: ApiResponseBody<T> = {
       statusCode: this.statusCode,
-      success: this.success,
+      success: this.statusCode >= 200 && this.statusCode < 400,
       message: this.message,
       data: this.data,
-    });
+      error: null,
+    };
+    return res.status(this.statusCode).json(body);
   }
 }
 
-export function errorResponse(
-  res: Response,
-  status: number,
-  error: string,
-  message: string = "An unexpected error occurred. We're working on it — please try again shortly."
-) {
-  return res
-    .status(status)
-    .json({ statusCode: status, success: false, message, error });
+export class ApiError extends Error {
+  constructor(
+    public readonly statusCode: number,
+    message: string,
+    public readonly errorCode?: string,
+    public readonly details: string[] = [],
+    public readonly isOperational: boolean = true
+  ) {
+    super(message);
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+export function errorResponse(res: Response, error: unknown): Response {
+  const err =
+    error instanceof ApiError
+      ? error
+      : new ApiError(500, "Internal server error", "INTERNAL_ERROR");
+
+  console.error(`[ERROR] ${err.statusCode} ${err.message}`, {
+    code: err.errorCode,
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+
+  const body: ApiResponseBody = {
+    statusCode: err.statusCode,
+    success: false,
+    message: err.message,
+    data: null,
+    error: {
+      code: err.errorCode,
+      details: process.env.NODE_ENV === "development" ? err.details : undefined,
+    },
+  };
+
+  return res.status(err.statusCode).json(body);
 }
