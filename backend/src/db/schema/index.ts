@@ -12,3 +12,9 @@ export {
   submissionStatusEnum,
 } from "./submission";
 export { testCaseResultsTable, testCaseResultsRelations } from "./test-case";
+export {
+  playlistsTable,
+  problemsInPlaylistTable,
+  playlistsRelations,
+  problemsInPlaylistRelations,
+} from "./playlist";

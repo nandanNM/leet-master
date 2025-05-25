@@ -1,0 +1,32 @@
+import { Router } from "express";
+import {
+  addProblemToPlaylist,
+  createPlaylist,
+  deletePlaylist,
+  getAllPlaylistsDetails,
+  getPlaylistById,
+  removeProblemFromPlaylist,
+} from "../controllers/playlist.controllers";
+import { validate } from "../middlewares/validate.middleware";
+import { PlaylistSchema } from "../schemas/playlist";
+import { authMiddleware } from "../middlewares/auth.middleware";
+
+const playlistRoutes = Router();
+
+playlistRoutes.get(
+  "/create",
+  validate(PlaylistSchema),
+  authMiddleware,
+  createPlaylist
+);
+playlistRoutes.get("/", authMiddleware, getAllPlaylistsDetails);
+playlistRoutes.get("/:id", authMiddleware, getPlaylistById);
+playlistRoutes.post("/:id/add-problem", authMiddleware, addProblemToPlaylist);
+playlistRoutes.delete("/:id", authMiddleware, deletePlaylist);
+playlistRoutes.delete(
+  "/:id/remove-problem",
+  authMiddleware,
+  removeProblemFromPlaylist
+);
+
+export default playlistRoutes;

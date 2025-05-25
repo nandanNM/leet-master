@@ -8,6 +8,13 @@
       "when": 1747604705480,
       "tag": "0000_careless_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748200218112,
+      "tag": "0001_elite_jazinda",
+      "breakpoints": true
     }
   ]
 }
