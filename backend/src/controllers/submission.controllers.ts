@@ -1,92 +1,78 @@
 import { Request, Response } from "express";
-import { ApiResponse, errorResponse } from "../utils/responses";
 import { db } from "../db";
 import { submissionsTable } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
+import { asyncHandler } from "../utils/async-handler";
+import { isAuthenticated } from "../utils/auth";
 
-export async function getAllSubmissions(
-  req: Request,
-  res: Response
-): Promise<any> {
-  const { id: userId } = req.user;
-  try {
+export const getAllSubmissions = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+
+    const { id: userId } = req.user;
     const submissions = await db.query.submissionsTable.findMany({
       where: (submissionsTable, { eq }) => eq(submissionsTable.userId, userId),
     });
+
     if (!submissions || submissions.length === 0) {
-      return new ApiResponse(404, "No submissions found", false);
+      throw new ApiError(404, "No submissions found", "NOT_FOUND");
     }
-    return new ApiResponse(
-      200,
-      "Submissions fetched successfully",
-      true,
-      submissions
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
+
+    new ApiResponse(200, "Submissions fetched successfully", submissions).send(
+      res
     );
   }
-}
-export async function getSubmissionByProblemId(
-  req: Request,
-  res: Response
-): Promise<any> {
-  const { id: userId } = req.user;
-  const { problemId } = req.params;
-  if (!problemId) {
-    return new ApiResponse(400, "Problem ID is required", false).send(res);
-  }
+);
 
-  try {
+export const getSubmissionByProblemId = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+
+    const { id: userId } = req.user;
+    const { problemId } = req.params;
+
+    if (!problemId) {
+      throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
+    }
+
     const submissions = await db.query.submissionsTable.findMany({
       where: (submissionsTable, { eq }) =>
         eq(submissionsTable.userId, userId) &&
         eq(submissionsTable.problemId, problemId),
     });
+
     if (!submissions || submissions.length === 0) {
-      return new ApiResponse(404, "No submissions found", false);
+      throw new ApiError(404, "No submissions found", "NOT_FOUND");
     }
-    return new ApiResponse(
-      200,
-      "Submissions fetched successfully",
-      true,
-      submissions
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
+
+    new ApiResponse(200, "Submissions fetched successfully", submissions).send(
+      res
     );
   }
-}
-export async function getAllSubmissionCount(
-  req: Request,
-  res: Response
-): Promise<any> {
-  const { problemId } = req.params;
-  if (!problemId) {
-    return new ApiResponse(400, "Problem ID is required", false).send(res);
-  }
-  try {
+);
+
+export const getAllSubmissionCount = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { problemId } = req.params;
+
+    if (!problemId) {
+      throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
+    }
+
     const submissionCount = await db.$count(
       submissionsTable,
       eq(submissionsTable.problemId, problemId)
     );
-    return new ApiResponse(
+
+    new ApiResponse(
       200,
       "Submission count fetched successfully",
-      true,
       submissionCount
     ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
-    );
   }
-}
+);

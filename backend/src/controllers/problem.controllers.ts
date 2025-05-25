@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { db } from "../db";
 import { Problem } from "../schemas/problem";
-import { ApiResponse, errorResponse } from "../utils/responses";
+import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
 import {
   getJudge0LanguageCode,
   pullBatchResults,
@@ -9,38 +9,45 @@ import {
 } from "../utils/lib/judge0";
 import { problemsTable } from "../db/schema";
 import { eq } from "drizzle-orm";
-export async function createProblem(req: Request, res: Response): Promise<any> {
-  const {
-    title,
-    description,
-    difficulty,
-    tags,
-    examples,
-    constraints,
-    hints,
-    editorial,
-    testcases,
-    codeSnippets,
-    referenceSolutions,
-  } = req.body as Problem;
-  if (req.user.role !== "ADMIN") {
-    return new ApiResponse(
-      403,
-      "You are not authorized to create a problem",
-      false
-    ).send(res);
-  }
-  try {
+import { isAuthenticated } from "../utils/auth";
+import { asyncHandler } from "../utils/async-handler";
+
+export const createProblem = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      title,
+      description,
+      difficulty,
+      tags,
+      examples,
+      constraints,
+      hints,
+      editorial,
+      testcases,
+      codeSnippets,
+      referenceSolutions,
+    } = req.body as Problem;
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    if (req.user.role !== "ADMIN") {
+      throw new ApiError(
+        403,
+        "You are not authorized to create a problem",
+        "UNAUTHORIZED"
+      );
+    }
+
     for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
       const languageId = getJudge0LanguageCode(language);
-      console.log("Language ID:", languageId, typeof languageId);
       if (!languageId) {
-        return new ApiResponse(
+        throw new ApiError(
           400,
           `Language ${language} is not supported`,
-          false
-        ).send(res);
+          "UNSUPPORTED_LANGUAGE"
+        );
       }
+
       const submissions = testcases.map(
         ({ input, output }: { input: string; output: string }) => ({
           source_code: solutionCode,
@@ -49,23 +56,23 @@ export async function createProblem(req: Request, res: Response): Promise<any> {
           expected_output: output,
         })
       );
-      console.log("Submission:", submissions);
+
       const submissionResult = await submitBatch(submissions);
-      console.log("Submission result:", submissionResult);
       const tokens = submissionResult.map((result) => result.token);
       const results = await pullBatchResults(tokens);
+
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
         if (result.status.id !== 3) {
-          return new ApiResponse(
+          throw new ApiError(
             400,
             `Test case ${i + 1} failed: ${result.status.description}`,
-            false
-          ).send(res);
+            "TEST_CASE_FAILED"
+          );
         }
       }
     }
-    // Save the problem to the database
+
     const problem = await db.insert(problemsTable).values({
       userId: req.user.id,
       title,
@@ -80,109 +87,84 @@ export async function createProblem(req: Request, res: Response): Promise<any> {
       codeSnippets,
       referenceSolutions,
     });
-    console.log("Problem created:", problem);
-    return new ApiResponse(201, "Problem created successfully.", true).send(
-      res
-    );
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
-    );
-  }
-}
 
-export async function getAllProblems(
-  req: Request,
-  res: Response
-): Promise<any> {
-  try {
+    new ApiResponse(201, "Problem created successfully", problem).send(res);
+  }
+);
+
+export const getAllProblems = asyncHandler(
+  async (req: Request, res: Response) => {
     const problems = await db.query.problemsTable.findMany();
 
     if (!problems) {
-      return new ApiResponse(404, "No problems found", false).send(res);
+      throw new ApiError(404, "No problems found", "NOT_FOUND");
     }
-    // console.log("Problems: find many", problems);
-    return new ApiResponse(
-      200,
-      "Problems fetched successfully",
-      true,
-      problems
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
-    );
+
+    new ApiResponse(200, "Problems fetched successfully", problems).send(res);
   }
-}
-export async function getProblemById(
-  req: Request,
-  res: Response
-): Promise<any> {
-  const { id } = req.params;
-  if (!id) {
-    return new ApiResponse(400, "Problem ID is required", false).send(res);
-  }
-  try {
+);
+
+export const getProblemById = asyncHandler(
+  async (req: Request, res: Response) => {
+    // console.log(" params ", req.params);
+    const { id } = req.params;
+    if (!id) {
+      throw new ApiError(400, "Problem ID is required", "MISSING_ID");
+    }
+
     const problem = await db.query.problemsTable.findFirst({
       where: (problemsTable, { eq }) => eq(problemsTable.id, id),
     });
+
     if (!problem) {
-      return new ApiResponse(404, "Problem not found", false).send(res);
+      throw new ApiError(404, "Problem not found", "NOT_FOUND");
     }
-    return new ApiResponse(
-      200,
-      "Problem fetched successfully",
-      true,
-      problem
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
-    );
+
+    new ApiResponse(200, "Problem fetched successfully", problem).send(res);
   }
-}
-export async function updateProblem(req: Request, res: Response): Promise<any> {
-  const {
-    title,
-    description,
-    difficulty,
-    tags,
-    examples,
-    constraints,
-    hints,
-    editorial,
-    testcases,
-    codeSnippets,
-    referenceSolutions,
-  } = req.body as Problem;
-  const { id } = req.params;
-  if (!id) {
-    return new ApiResponse(400, "Problem ID is required", false).send(res);
-  }
-  if (req.user.role !== "ADMIN") {
-    return new ApiResponse(
-      403,
-      "You are not authorized to create a problem",
-      false
-    ).send(res);
-  }
-  try {
+);
+
+export const updateProblem = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      title,
+      description,
+      difficulty,
+      tags,
+      examples,
+      constraints,
+      hints,
+      editorial,
+      testcases,
+      codeSnippets,
+      referenceSolutions,
+    } = req.body as Problem;
+    const { id } = req.params;
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    if (!id) {
+      throw new ApiError(400, "Problem ID is required", "MISSING_ID");
+    }
+
+    if (req.user.role !== "ADMIN") {
+      throw new ApiError(
+        403,
+        "You are not authorized to update a problem",
+        "UNAUTHORIZED"
+      );
+    }
+
     for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
       const languageId = getJudge0LanguageCode(language);
-      console.log("Language ID:", languageId, typeof languageId);
       if (!languageId) {
-        return new ApiResponse(
+        throw new ApiError(
           400,
           `Language ${language} is not supported`,
-          false
-        ).send(res);
+          "UNSUPPORTED_LANGUAGE"
+        );
       }
+
       const submission = testcases.map(
         ({ input, output }: { input: string; output: string }) => ({
           source_code: solutionCode,
@@ -191,23 +173,23 @@ export async function updateProblem(req: Request, res: Response): Promise<any> {
           expected_output: output,
         })
       );
-      console.log("Submission:", submission);
+
       const submissionResult = await submitBatch(submission);
-      console.log("Submission result:", submissionResult);
       const tokens = submissionResult.map((result) => result.token);
       const results = await pullBatchResults(tokens);
+
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
         if (result.status.id !== 3) {
-          return new ApiResponse(
+          throw new ApiError(
             400,
             `Test case ${i + 1} failed: ${result.status.description}`,
-            false
-          ).send(res);
+            "TEST_CASE_FAILED"
+          );
         }
       }
     }
-    // Update the problem in the database
+
     const updatedProblem = await db
       .update(problemsTable)
       .set({
@@ -226,59 +208,50 @@ export async function updateProblem(req: Request, res: Response): Promise<any> {
       })
       .where(eq(problemsTable.id, id))
       .returning();
-    return new ApiResponse(
-      201,
-      "Problem updated successfully.",
-      true,
-      updatedProblem
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
+
+    new ApiResponse(200, "Problem updated successfully", updatedProblem).send(
+      res
     );
   }
-}
-export async function deleteProblem(req: Request, res: Response): Promise<any> {
-  const { id } = req.params;
-  if (!id) {
-    return new ApiResponse(400, "Problem ID is required", false).send(res);
-  }
-  if (req.user.role !== "ADMIN") {
-    return new ApiResponse(
-      403,
-      "You are not authorized to create a problem",
-      false
-    ).send(res);
-  }
-  try {
+);
+
+export const deleteProblem = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    if (!id) {
+      throw new ApiError(400, "Problem ID is required", "MISSING_ID");
+    }
+
+    if (req.user.role !== "ADMIN") {
+      throw new ApiError(
+        403,
+        "You are not authorized to delete a problem",
+        "UNAUTHORIZED"
+      );
+    }
+
     const deletedProblem = await db
       .delete(problemsTable)
       .where(eq(problemsTable.id, id));
 
     if (!deletedProblem) {
-      return new ApiResponse(404, "Problem not found", false).send(res);
+      throw new ApiError(404, "Problem not found", "NOT_FOUND");
     }
-    return new ApiResponse(200, "Problem deleted successfully", true).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
-    );
-  }
-}
 
-export async function getAllProblemsSolvedByUser(
-  req: Request,
-  res: Response
-): Promise<any> {
-  const { id: userId } = req.user;
-  if (!userId) {
-    return new ApiResponse(400, "User ID is required", false).send(res);
+    new ApiResponse(200, "Problem deleted successfully").send(res);
   }
-  try {
+);
+
+export const getAllProblemsSolvedByUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    const { id: userId } = req.user;
+
     const solvedProblems = await db.query.solvedProblemsTable.findMany({
       where: (solvedProblemsTable, { eq }) =>
         eq(solvedProblemsTable.userId, userId),
@@ -286,20 +259,13 @@ export async function getAllProblemsSolvedByUser(
         problem: true,
       },
     });
+
     if (!solvedProblems) {
-      return new ApiResponse(404, "No problems found", false).send(res);
+      throw new ApiError(404, "No problems found", "NOT_FOUND");
     }
-    return new ApiResponse(
-      200,
-      "Problems fetched successfully",
-      true,
-      solvedProblems
-    ).send(res);
-  } catch (error) {
-    return errorResponse(
-      res,
-      500,
-      error instanceof Error ? error.message : "Unknown error"
+
+    new ApiResponse(200, "Problems fetched successfully", solvedProblems).send(
+      res
     );
   }
-}
+);

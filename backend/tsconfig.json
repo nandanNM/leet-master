@@ -1,21 +1,23 @@
 {
   "compilerOptions": {
-    "module": "ESNext", // Use ESNext module system (ES modules)
-    "target": "ESNext", // Compile to the latest ECMAScript version
-    "moduleResolution": "node", // Resolve modules using Node.js style
-    "types": ["node"],
-    "esModuleInterop": true, // Enables interop between ES modules and CommonJS
-    "allowSyntheticDefaultImports": true, // Allows default imports from modules with no default export
-    "strict": true, // Enables strict type-checking
-    "skipLibCheck": true, // Skip type-checking declaration files (faster builds)
-    "outDir": "./dist", // Specifies output directory for compiled files
-    "baseUrl": "./", // Base directory to resolve non-relative module names
+    "target": "ES2016",
+    "module": "commonjs",
+    "outDir": "./dist",
+    // "allowImportingTsExtensions": true,
+    "noEmit": false,
+    "resolveJsonModule": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "moduleResolution": "node",
     "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
     "paths": {
-      "*": ["node_modules/*"]
-    },
-    "allowImportingTsExtensions": true, // Allows importing TypeScript files without specifying the extension
-    "noEmit": true // Do not emit outputs
+      "@/": ["./src/"]
+    }
   },
-  "include": ["src/**/*.ts", "*.ts", "src/types/**/*.d.ts"] // Include all TypeScript files in src and tests directories
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "drizzle.config.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,12 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ApiError, errorResponse } from "../utils/responses";
 
-export function errorHandler(
-  err: unknown,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function errorHandler(err: unknown, req: Request, res: Response): void {
   // Handle different error types
   if (err instanceof ApiError) {
     errorResponse(res, err);
