@@ -9,12 +9,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signUpSchema, type SignUpValues } from "@/lib/validations";
 import { PasswordInput } from "../ui/password-input";
+import LoadingButton from "../LoadingButton";
 export default function SignUpForm() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -22,7 +22,7 @@ export default function SignUpForm() {
 
   async function onSubmit(values: SignUpValues) {
     console.log(values);
-    setIsLoading(true);
+    setIsPending(true);
   }
   return (
     <Form {...form}>
@@ -40,7 +40,7 @@ export default function SignUpForm() {
                 <Input
                   placeholder="Enter your name"
                   {...field}
-                  disabled={isLoading}
+                  disabled={isPending}
                   value={field.value ?? ""}
                 />
               </FormControl>
@@ -58,7 +58,7 @@ export default function SignUpForm() {
                 <Input
                   placeholder="Enter your email"
                   {...field}
-                  disabled={isLoading}
+                  disabled={isPending}
                   value={field.value ?? ""}
                 />
               </FormControl>
@@ -76,7 +76,7 @@ export default function SignUpForm() {
                 <PasswordInput
                   placeholder="Enter your password"
                   {...field}
-                  disabled={isLoading}
+                  disabled={isPending}
                   value={field.value ?? ""}
                 />
               </FormControl>
@@ -94,7 +94,7 @@ export default function SignUpForm() {
                 <PasswordInput
                   placeholder="Enter your confirm password"
                   {...field}
-                  disabled={isLoading}
+                  disabled={isPending}
                   value={field.value ?? ""}
                 />
               </FormControl>
@@ -102,13 +102,9 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button
-          disabled={isLoading}
-          type="submit"
-          className="w-full cursor-pointer"
-        >
-          {isLoading ? "Loading..." : "Create Account"}
-        </Button>
+        <LoadingButton loading={isPending} className="w-full" type="submit">
+          Create account
+        </LoadingButton>
       </form>
     </Form>
   );

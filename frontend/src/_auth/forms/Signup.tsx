@@ -9,7 +9,7 @@ export default function RegisterPage() {
       <div className="mx-auto max-w-md">
         <p>
           Already have account ?{" "}
-          <Link to={"/login"} className="text-primary drop-shadow-md">
+          <Link to="/login" className="text-primary drop-shadow-md">
             Login
           </Link>
         </p>

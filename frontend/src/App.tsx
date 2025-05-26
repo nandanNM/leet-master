@@ -12,8 +12,8 @@ export default function App() {
         <Routes>
           {/* public routes */}
           <Route element={<AuthLayout />}>
-            <Route path="/sign-in" element={<LoginPage />} />
-            <Route path="/sign-up" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<RegisterPage />} />
           </Route>
 
           {/* private routes */}
