@@ -1,19 +1,19 @@
-import { Request, Response } from "express";
-import { asyncHandler } from "../utils/async-handler";
-import { Playlist } from "../schemas/playlist";
-import { isAuthenticated } from "../utils/auth";
-import { ApiError, ApiResponse } from "../utils/responses";
-import { db } from "src/db";
-import { playlistsTable, problemsInPlaylistTable } from "src/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import {Request, Response} from "express";
+import {asyncHandler} from "../utils/async-handler";
+import {Playlist} from "../schemas/playlist";
+import {isAuthenticated} from "../utils/auth";
+import {ApiError, ApiResponse} from "../utils/responses";
+import {db} from "src/db";
+import {playlistsTable, problemsInPlaylistTable} from "src/db/schema";
+import {and, eq, inArray} from "drizzle-orm";
 
 export const createPlaylist = asyncHandler(
   async (req: Request, res: Response) => {
-    const { name, description } = req.body as Playlist;
+    const {name, description} = req.body as Playlist;
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
-    const { id: userId } = req.user;
+    const {id: userId} = req.user;
     const [playlist] = await db
       .insert(playlistsTable)
       .values({
@@ -23,16 +23,16 @@ export const createPlaylist = asyncHandler(
       })
       .returning();
     new ApiResponse(201, "Playlist created successfully", playlist).send(res);
-  }
+  },
 );
 
 export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
-  const { id: userId } = req.user;
+  const {id: userId} = req.user;
   const [playlists] = await db.query.playlistsTable.findMany({
-    where: (playlistsTable, { eq }) =>
+    where: (playlistsTable, {eq}) =>
       and(eq(playlistsTable.userId, userId), eq(playlistsTable.userId, userId)),
     with: {
       problems: {
@@ -46,16 +46,16 @@ export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
 });
 
 export const getPlaylistById = asyncHandler(async (req, res) => {
-  const { id: playlistId } = req.params;
+  const {id: playlistId} = req.params;
   if (!playlistId) {
     throw new ApiError(400, "Playlist ID is required", "BAD_REQUEST");
   }
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
-  const { id: userId } = req.user;
+  const {id: userId} = req.user;
   const playlist = await db.query.playlistsTable.findFirst({
-    where: (playlistsTable, { eq }) =>
+    where: (playlistsTable, {eq}) =>
       and(eq(playlistsTable.id, playlistId), eq(playlistsTable.userId, userId)),
     with: {
       problems: {
@@ -72,8 +72,8 @@ export const getPlaylistById = asyncHandler(async (req, res) => {
 });
 
 export const addProblemToPlaylist = asyncHandler(async (req, res) => {
-  const { id: playListId } = req.params;
-  const { problemIds } = req.body;
+  const {id: playListId} = req.params;
+  const {problemIds} = req.body;
   if (!playListId) {
     throw new ApiError(400, "Playlist ID is required", "BAD_REQUEST");
   }
@@ -82,24 +82,24 @@ export const addProblemToPlaylist = asyncHandler(async (req, res) => {
   }
   const problemsInPlaylist = await db
     .insert(problemsInPlaylistTable)
-    .values(problemIds.map((problemId) => ({ playListId, problemId })));
+    .values(problemIds.map((problemId) => ({playListId, problemId})));
 
   new ApiResponse(201, "Problem added to playlist successfully").send(res);
 });
 
 export const deletePlaylist = asyncHandler(async (req, res) => {
-  const { id: playlistId } = req.params;
+  const {id: playlistId} = req.params;
   if (!playlistId) {
     throw new ApiError(400, "Playlist ID is required", "BAD_REQUEST");
   }
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
-  const { id: userId } = req.user;
+  const {id: userId} = req.user;
   const deletedPlaylist = await db
     .delete(playlistsTable)
     .where(
-      and(eq(playlistsTable.id, playlistId), eq(playlistsTable.userId, userId))
+      and(eq(playlistsTable.id, playlistId), eq(playlistsTable.userId, userId)),
     )
     .returning();
   if (!deletedPlaylist) {
@@ -108,8 +108,8 @@ export const deletePlaylist = asyncHandler(async (req, res) => {
   new ApiResponse(200, "Playlist deleted successfully").send(res);
 });
 export const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
-  const { id: playListId } = req.params;
-  const { problemIds } = req.body;
+  const {id: playListId} = req.params;
+  const {problemIds} = req.body;
   if (!playListId) {
     throw new ApiError(400, "Playlist ID is required", "BAD_REQUEST");
   }
@@ -121,8 +121,8 @@ export const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
     .where(
       and(
         eq(problemsInPlaylistTable.playListId, playListId),
-        inArray(problemsInPlaylistTable.problemId, problemIds)
-      )
+        inArray(problemsInPlaylistTable.problemId, problemIds),
+      ),
     )
     .returning();
   if (!deletedProblem) {

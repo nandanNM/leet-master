@@ -1,28 +1,24 @@
-import { Request, Response } from "express";
-import { SubmitCode } from "../schemas/submit-code";
-import {
-  getLanguage,
-  pullBatchResults,
-  submitBatch,
-} from "../utils/lib/judge0";
-import { db } from "../db";
+import {Request, Response} from "express";
+import {SubmitCode} from "../schemas/submit-code";
+import {getLanguage, pullBatchResults, submitBatch} from "../utils/lib/judge0";
+import {db} from "../db";
 import {
   solvedProblemsTable,
   submissionsTable,
   testCaseResultsTable,
 } from "../db/schema";
-import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
-import { isAuthenticated } from "../utils/auth";
-import { asyncHandler } from "../utils/async-handler";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {isAuthenticated} from "../utils/auth";
+import {asyncHandler} from "../utils/async-handler";
 
 export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
 
-  const { source_code, language_id, stdin, expected_outputs, problemId } =
+  const {source_code, language_id, stdin, expected_outputs, problemId} =
     req.body as SubmitCode;
-  const { id: userId } = req.user;
+  const {id: userId} = req.user;
 
   // prepare all test cases for judge0 submission
   const submissions = stdin.map((input) => ({
@@ -106,7 +102,7 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
         problemId,
       })
       .onConflictDoNothing()
-      .returning({ id: solvedProblemsTable.id });
+      .returning({id: solvedProblemsTable.id});
   }
 
   // save individual test case results
@@ -124,6 +120,6 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   new ApiResponse(
     201,
     "Code executed successfully",
-    submissionWithTestCases
+    submissionWithTestCases,
   ).send(res);
 });

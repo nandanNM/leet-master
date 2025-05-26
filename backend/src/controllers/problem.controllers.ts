@@ -1,16 +1,16 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { db } from "../db";
-import { Problem } from "../schemas/problem";
-import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
+import {Request, Response, NextFunction, RequestHandler} from "express";
+import {db} from "../db";
+import {Problem} from "../schemas/problem";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
 import {
   getJudge0LanguageCode,
   pullBatchResults,
   submitBatch,
 } from "../utils/lib/judge0";
-import { problemsTable } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { isAuthenticated } from "../utils/auth";
-import { asyncHandler } from "../utils/async-handler";
+import {problemsTable} from "../db/schema";
+import {eq} from "drizzle-orm";
+import {isAuthenticated} from "../utils/auth";
+import {asyncHandler} from "../utils/async-handler";
 
 export const createProblem = asyncHandler(
   async (req: Request, res: Response) => {
@@ -34,7 +34,7 @@ export const createProblem = asyncHandler(
       throw new ApiError(
         403,
         "You are not authorized to create a problem",
-        "UNAUTHORIZED"
+        "UNAUTHORIZED",
       );
     }
 
@@ -44,17 +44,17 @@ export const createProblem = asyncHandler(
         throw new ApiError(
           400,
           `Language ${language} is not supported`,
-          "UNSUPPORTED_LANGUAGE"
+          "UNSUPPORTED_LANGUAGE",
         );
       }
 
       const submissions = testcases.map(
-        ({ input, output }: { input: string; output: string }) => ({
+        ({input, output}: {input: string; output: string}) => ({
           source_code: solutionCode,
           language_id: languageId,
           stdin: input,
           expected_output: output,
-        })
+        }),
       );
 
       const submissionResult = await submitBatch(submissions);
@@ -67,7 +67,7 @@ export const createProblem = asyncHandler(
           throw new ApiError(
             400,
             `Test case ${i + 1} failed: ${result.status.description}`,
-            "TEST_CASE_FAILED"
+            "TEST_CASE_FAILED",
           );
         }
       }
@@ -89,7 +89,7 @@ export const createProblem = asyncHandler(
     });
 
     new ApiResponse(201, "Problem created successfully", problem).send(res);
-  }
+  },
 );
 
 export const getAllProblems = asyncHandler(
@@ -101,19 +101,19 @@ export const getAllProblems = asyncHandler(
     }
 
     new ApiResponse(200, "Problems fetched successfully", problems).send(res);
-  }
+  },
 );
 
 export const getProblemById = asyncHandler(
   async (req: Request, res: Response) => {
     // console.log(" params ", req.params);
-    const { id } = req.params;
+    const {id} = req.params;
     if (!id) {
       throw new ApiError(400, "Problem ID is required", "MISSING_ID");
     }
 
     const problem = await db.query.problemsTable.findFirst({
-      where: (problemsTable, { eq }) => eq(problemsTable.id, id),
+      where: (problemsTable, {eq}) => eq(problemsTable.id, id),
     });
 
     if (!problem) {
@@ -121,7 +121,7 @@ export const getProblemById = asyncHandler(
     }
 
     new ApiResponse(200, "Problem fetched successfully", problem).send(res);
-  }
+  },
 );
 
 export const updateProblem = asyncHandler(
@@ -139,7 +139,7 @@ export const updateProblem = asyncHandler(
       codeSnippets,
       referenceSolutions,
     } = req.body as Problem;
-    const { id } = req.params;
+    const {id} = req.params;
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
@@ -151,7 +151,7 @@ export const updateProblem = asyncHandler(
       throw new ApiError(
         403,
         "You are not authorized to update a problem",
-        "UNAUTHORIZED"
+        "UNAUTHORIZED",
       );
     }
 
@@ -161,17 +161,17 @@ export const updateProblem = asyncHandler(
         throw new ApiError(
           400,
           `Language ${language} is not supported`,
-          "UNSUPPORTED_LANGUAGE"
+          "UNSUPPORTED_LANGUAGE",
         );
       }
 
       const submission = testcases.map(
-        ({ input, output }: { input: string; output: string }) => ({
+        ({input, output}: {input: string; output: string}) => ({
           source_code: solutionCode,
           language_id: languageId,
           stdin: input,
           expected_output: output,
-        })
+        }),
       );
 
       const submissionResult = await submitBatch(submission);
@@ -184,7 +184,7 @@ export const updateProblem = asyncHandler(
           throw new ApiError(
             400,
             `Test case ${i + 1} failed: ${result.status.description}`,
-            "TEST_CASE_FAILED"
+            "TEST_CASE_FAILED",
           );
         }
       }
@@ -210,14 +210,14 @@ export const updateProblem = asyncHandler(
       .returning();
 
     new ApiResponse(200, "Problem updated successfully", updatedProblem).send(
-      res
+      res,
     );
-  }
+  },
 );
 
 export const deleteProblem = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const {id} = req.params;
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
@@ -229,7 +229,7 @@ export const deleteProblem = asyncHandler(
       throw new ApiError(
         403,
         "You are not authorized to delete a problem",
-        "UNAUTHORIZED"
+        "UNAUTHORIZED",
       );
     }
 
@@ -242,7 +242,7 @@ export const deleteProblem = asyncHandler(
     }
 
     new ApiResponse(200, "Problem deleted successfully").send(res);
-  }
+  },
 );
 
 export const getAllProblemsSolvedByUser = asyncHandler(
@@ -250,10 +250,10 @@ export const getAllProblemsSolvedByUser = asyncHandler(
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
-    const { id: userId } = req.user;
+    const {id: userId} = req.user;
 
     const solvedProblems = await db.query.solvedProblemsTable.findMany({
-      where: (solvedProblemsTable, { eq }) =>
+      where: (solvedProblemsTable, {eq}) =>
         eq(solvedProblemsTable.userId, userId),
       with: {
         problem: true,
@@ -265,7 +265,7 @@ export const getAllProblemsSolvedByUser = asyncHandler(
     }
 
     new ApiResponse(200, "Problems fetched successfully", solvedProblems).send(
-      res
+      res,
     );
-  }
+  },
 );

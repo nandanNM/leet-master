@@ -1,17 +1,17 @@
-import { Request, Response, NextFunction } from "express";
+import {Request, Response, NextFunction} from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { LoginUser, RegisterUser } from "../schemas/user";
-import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
-import { db } from "../db";
-import { usersTable } from "../db/schema";
-import { asyncHandler } from "../utils/async-handler";
+import {LoginUser, RegisterUser} from "../schemas/user";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {db} from "../db";
+import {usersTable} from "../db/schema";
+import {asyncHandler} from "../utils/async-handler";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body as RegisterUser;
+  const {name, email, password, role} = req.body as RegisterUser;
 
   const existingUser = await db.query.usersTable.findFirst({
-    where: (usersTable, { eq }) => eq(usersTable.email, email),
+    where: (usersTable, {eq}) => eq(usersTable.email, email),
   });
 
   if (existingUser) {
@@ -34,9 +34,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     .returning();
 
   const token = jwt.sign(
-    { id: newUser.id, email: newUser.email },
+    {id: newUser.id, email: newUser.email},
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
+    {expiresIn: "7d"},
   );
 
   res.cookie("leet-master-token", token, {
@@ -57,15 +57,15 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         role: newUser.role,
       },
       token,
-    }
+    },
   ).send(res);
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body as LoginUser;
+  const {email, password} = req.body as LoginUser;
 
   const user = await db.query.usersTable.findFirst({
-    where: (usersTable, { eq }) => eq(usersTable.email, email),
+    where: (usersTable, {eq}) => eq(usersTable.email, email),
   });
 
   if (!user) {
@@ -82,9 +82,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    {id: user.id, email: user.email},
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
+    {expiresIn: "7d"},
   );
 
   res.cookie("leet-master-token", token, {
@@ -119,5 +119,5 @@ export const getUserSessions = asyncHandler(
   async (req: Request, res: Response) => {
     // Implementation for getting user sessions
     throw new ApiError(501, "Not implemented", "NOT_IMPLEMENTED");
-  }
+  },
 );

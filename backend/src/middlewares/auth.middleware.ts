@@ -1,12 +1,12 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import jwt from "jsonwebtoken";
-import { db } from "../db";
-import { ApiResponse, ApiError, errorResponse } from "../utils/responses";
+import {db} from "../db";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
 
 export const authMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const token = req.cookies["leet-master-token"];
@@ -19,9 +19,9 @@ export const authMiddleware = async (
       throw new ApiError(401, "Unauthorized Access", "INVALID_TOKEN");
     }
 
-    const { id, email } = decoded as jwt.JwtPayload;
+    const {id, email} = decoded as jwt.JwtPayload;
     const user = await db.query.usersTable.findFirst({
-      where: (usersTable, { eq }) => eq(usersTable.email, email),
+      where: (usersTable, {eq}) => eq(usersTable.email, email),
       columns: {
         id: true,
         email: true,
@@ -49,7 +49,7 @@ export const authMiddleware = async (
 export const checkAdmin = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = req.user;
