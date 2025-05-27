@@ -1,4 +1,4 @@
-import { z } from "zod";
+import {z} from "zod";
 
 // Enum for roles
 const rolesEnum = ["ADMIN", "USER"] as const;
@@ -8,7 +8,6 @@ export const UserSchema = z.object({
   name: z.string().max(255),
   email: z.string().email().max(255),
   password: z.string().max(255).optional(),
-  role: z.enum(rolesEnum).default("ADMIN"),
 });
 export const LoginSchema = z.object({
   email: z.string().email().max(255),

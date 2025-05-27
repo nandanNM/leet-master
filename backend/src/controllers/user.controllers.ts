@@ -2,13 +2,14 @@ import {Request, Response, NextFunction} from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {LoginUser, RegisterUser} from "../schemas/user";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {ApiResponse, ApiError} from "../utils/responses";
 import {db} from "../db";
 import {usersTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler";
+import {isAuthenticated} from "../utils/auth";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const {name, email, password, role} = req.body as RegisterUser;
+  const {name, email, password} = req.body as RegisterUser;
 
   const existingUser = await db.query.usersTable.findFirst({
     where: (usersTable, {eq}) => eq(usersTable.email, email),
@@ -29,7 +30,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       name,
       email,
       password: hashedPassword,
-      role,
     })
     .returning();
 
@@ -117,7 +117,24 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
 
 export const getUserSessions = asyncHandler(
   async (req: Request, res: Response) => {
-    // Implementation for getting user sessions
-    throw new ApiError(501, "Not implemented", "NOT_IMPLEMENTED");
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    const {id: userId} = req.user;
+    const userSessions = await db.query.usersTable.findFirst({
+      where: (usersTable, {eq}) => eq(usersTable.id, userId),
+      columns: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        role: true,
+      },
+    });
+    new ApiResponse(
+      200,
+      "User sessions fetched successfully",
+      userSessions,
+    ).send(res);
   },
 );

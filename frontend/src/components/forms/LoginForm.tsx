@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -13,16 +12,19 @@ import { loginSchema, type LoginValues } from "@/lib/validations";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingButton from "../LoadingButton";
+import { useAuthStore } from "@/store";
 
 export default function LoginForm() {
+  const { login, isLoggingIn: isPending } = useAuthStore();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
   });
-  const [isPending, setIsPending] = useState<boolean>(false);
-  console.log(setIsPending);
-  // 2. Define a submit handler.
   async function onSubmit(values: LoginValues) {
-    console.log(values);
+    try {
+      await login(values);
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
   }
   return (
     <Form {...form}>

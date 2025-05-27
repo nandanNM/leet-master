@@ -5,8 +5,8 @@ export default function Logo({ w, h }: { w?: number; h?: number }) {
     <Link to="/">
       <img
         src="/icons/logo.svg"
-        width={w ?? 60}
-        height={h ?? 25}
+        width={w ?? 30}
+        height={h ?? 13}
         alt="Logo"
         className="rounded"
       />

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -13,16 +12,19 @@ import { Input } from "@/components/ui/input";
 import { signUpSchema, type SignUpValues } from "@/lib/validations";
 import { PasswordInput } from "../ui/password-input";
 import LoadingButton from "../LoadingButton";
+import { useAuthStore } from "@/store";
 export default function SignUpForm() {
-  const [isPending, setIsPending] = useState<boolean>(false);
-
+  const { signup, isSigninUp: isPending } = useAuthStore();
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
   });
 
   async function onSubmit(values: SignUpValues) {
-    console.log(values);
-    setIsPending(true);
+    try {
+      await signup(values);
+    } catch (error) {
+      console.error("Error during signup:", error);
+    }
   }
   return (
     <Form {...form}>

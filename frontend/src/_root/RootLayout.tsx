@@ -1,9 +1,10 @@
+import Navbar from "@/components/Navbar";
 import { Outlet } from "react-router-dom";
 
 const RootLayout = () => {
   return (
-    <div className="w-full">
-      {/* <Navbar /> */}
+    <div className="h-full w-full p-2">
+      <Navbar />
       <Outlet />
     </div>
   );
