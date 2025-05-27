@@ -29,3 +29,51 @@ export const loginSchema = z.object({
     .regex(/[@#$%^&*]/, "Password at least one special character"),
 });
 export type LoginValues = z.infer<typeof loginSchema>;
+
+const exampleSchema = z.object({
+  input: z.string().trim().min(1, "Input is required"),
+  output: z.string().trim().min(1, "Output is required"),
+  explanation: z.string().trim().optional(),
+});
+
+const codeSchema = z.string().trim().min(1, "Code snippet is required");
+
+export const problemSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters"),
+  description: z
+    .string()
+    .trim()
+    .min(10, "Description must be at least 10 characters"),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+  tags: z.array(z.string().trim()).min(1, "At least one tag is required"),
+  constraints: z.string().trim().min(1, "Constraints are required"),
+  hints: z.string().trim().optional(),
+  testcases: z
+    .array(
+      z.object({
+        input: z.string().trim().min(1, "Input is required"),
+        output: z.string().trim().min(1, "Output is required"),
+      }),
+    )
+    .min(1, "At least one test case is required"),
+
+  examples: z.object({
+    JAVASCRIPT: exampleSchema,
+    PYTHON: exampleSchema,
+    JAVA: exampleSchema,
+  }),
+
+  codeSnippets: z.object({
+    JAVASCRIPT: codeSchema,
+    PYTHON: codeSchema,
+    JAVA: codeSchema,
+  }),
+
+  referenceSolutions: z.object({
+    JAVASCRIPT: codeSchema,
+    PYTHON: codeSchema,
+    JAVA: codeSchema,
+  }),
+});
+
+export type ProblemValues = z.infer<typeof problemSchema>;
