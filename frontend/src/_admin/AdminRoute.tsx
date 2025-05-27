@@ -1,19 +1,19 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store";
 
 export default function AdminRoute() {
-  const { authUser, isFetchingUser } = useAuthStore();
-  if (isFetchingUser) {
+  const { isFetchingUser, isAuthenticated, authUser: user } = useAuthStore();
+  if (isFetchingUser || !user) {
     return (
-      <div className="mt-6 flex h-screen justify-center">
-        <Loader className="size-6 animate-spin" />
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="size-8 animate-spin" />
       </div>
     );
   }
-
-  if (!authUser || authUser.role !== "ADMIN") {
-    return <Navigate to="/" />;
+  if (!isAuthenticated || user?.role !== "ADMIN") {
+    return <Navigate to="/" replace />;
   }
+
   return <Outlet />;
 }

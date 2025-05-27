@@ -42,11 +42,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   getCurrentUser: async () => {
     set({ isFetchingUser: true });
     try {
-      const res = await axiosInstance.get("/auth/current-user");
+      const res = (await axiosInstance.get("/auth/current-user")).data;
       console.log("checkauth response", res.data);
-      set({ authUser: res.data.user, isAuthenticated: true });
+      set({ authUser: res.data, isAuthenticated: true });
     } catch (error) {
-      console.log("❌ Error checking auth:", error);
+      console.error("❌ Error checking auth:", error);
       set({ authUser: null });
     } finally {
       set({ isFetchingUser: false });
@@ -56,9 +56,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   signup: async (data) => {
     set({ isSigninUp: true });
     try {
-      const res = await axiosInstance.post("/auth/register", data);
-      set({ authUser: res.data.user, isAuthenticated: true });
-      toast.success(res.data.message);
+      const res = (await axiosInstance.post("/auth/register", data)).data;
+      set({ authUser: res.data, isAuthenticated: true });
+      toast.success(res.message);
     } catch (error) {
       console.log("Error signing up", error);
       toast.error(getErrorMessage(error));
@@ -70,9 +70,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data.user, isAuthenticated: true });
-      toast.success(res.data.message);
+      const res = (await axiosInstance.post("/auth/login", data)).data;
+      set({ authUser: res.data, isAuthenticated: true });
+      toast.success(res.message);
     } catch (error) {
       console.log("Error logging in", error);
       toast.error(getErrorMessage(error));

@@ -7,12 +7,15 @@ import RegisterPage from "./_auth/forms/Signup";
 import LoginPage from "./_auth/forms/Signin";
 import { useAuthStore } from "./store";
 import { useEffect } from "react";
+import AdminRoute from "./_admin/AdminRoute";
+import AddProblem from "./_admin/pages/AddProblem";
 
 export default function App() {
   const getCurrentUser = useAuthStore((state) => state.getCurrentUser);
   useEffect(() => {
     getCurrentUser();
   }, [getCurrentUser]);
+
   return (
     <main className="flex h-screen">
       <Routes>
@@ -21,10 +24,14 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<RegisterPage />} />
         </Route>
-
         {/* private routes */}
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
+
+          {/* admin routes */}
+          <Route element={<AdminRoute />}>
+            <Route path="/add-problem" element={<AddProblem />} />
+          </Route>
         </Route>
       </Routes>
       <Toaster />
