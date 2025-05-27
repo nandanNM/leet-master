@@ -1,4 +1,3 @@
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +18,14 @@ export default function UserButton({ className }: UserButtonProps) {
   const user = {
     name: "Nandan Manna",
     username: "nandanmanna",
-    avatarUrl: "/dummy-avatar.png",
+    avatarUrl: "",
   };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className={cn("flex-none rounded-full", className)}>
+        <button
+          className={cn("flex-none cursor-pointer rounded-full", className)}
+        >
           <UserAvatar avatarUrl={user.avatarUrl} size={40} />
         </button>
       </DropdownMenuTrigger>
@@ -42,7 +43,6 @@ export default function UserButton({ className }: UserButtonProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            
             console.log("Logged out");
           }}
         >

@@ -1,11 +1,11 @@
 import Logo from "@/components/Logo";
 import TextAnimationHeading from "@/components/TextAnimationHeading";
+import { useAuthStore } from "@/store";
 import { Suspense } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 export default function AuthLayout() {
-  const isAuthenticated = false;
-
+  const { isAuthenticated } = useAuthStore();
   return (
     <>
       {isAuthenticated ? (

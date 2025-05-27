@@ -13,7 +13,6 @@ export default function App() {
   useEffect(() => {
     getCurrentUser();
   }, [getCurrentUser]);
-
   return (
     <main className="flex h-screen">
       <Routes>

@@ -117,6 +117,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-mono bg-background text-foreground;
+    @apply bg-background text-foreground font-mono;
+  }
+  body[data-radix-scroll-lock] {
+    overflow: auto !important;
   }
 }
