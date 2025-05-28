@@ -1,11 +1,11 @@
-import type { Problem } from "@/lib/validations";
+import type { ProblemWithSolvedStatus } from "@/lib/validations";
 import { type ColumnDef, type FilterFn } from "@tanstack/react-table";
 import { Badge } from "../ui/crazxy-ui/badge";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import RowActions from "./row-action";
 import { Checkbox } from "../ui/checkbox";
-const difficultyFilterFn: FilterFn<Problem> = (
+const difficultyFilterFn: FilterFn<ProblemWithSolvedStatus> = (
   row,
   columnId,
   filterValue: string[],
@@ -14,14 +14,18 @@ const difficultyFilterFn: FilterFn<Problem> = (
   const difficulty = row.getValue(columnId) as string;
   return filterValue.includes(difficulty);
 };
-const multiColumnFilterFn: FilterFn<Problem> = (row, columnId, filterValue) => {
+const multiColumnFilterFn: FilterFn<ProblemWithSolvedStatus> = (
+  row,
+  columnId,
+  filterValue,
+) => {
   const searchableRowContent = `${row.original.title}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   console.log(columnId);
   return searchableRowContent.includes(searchTerm);
 };
 
-const tagFilterFn: FilterFn<Problem> = (
+const tagFilterFn: FilterFn<ProblemWithSolvedStatus> = (
   row,
   columnId,
   filterValue: string[],
@@ -43,7 +47,7 @@ const handleAddToPlaylist = (problemId: string) => {
   console.log("Add to playlist:", problemId);
 };
 
-export const columns: ColumnDef<Problem>[] = [
+export const columns: ColumnDef<ProblemWithSolvedStatus>[] = [
   {
     id: "solved",
     header: "Solved",

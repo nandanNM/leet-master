@@ -1,7 +1,14 @@
-import { CheckCircle, Clock, MemoryStick, Table, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  MemoryStick,
+  ThumbsUp,
+  XCircle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/crazxy-ui/badge";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -9,6 +16,7 @@ import {
   TableRow,
 } from "./ui/table";
 import type { SubmissionResponse } from "@/lib/validations";
+import { cn } from "@/lib/utils";
 
 interface SubmissionResultsProps {
   submission: SubmissionResponse;
@@ -17,6 +25,7 @@ interface SubmissionResultsProps {
 export default function SubmissionResults({
   submission,
 }: SubmissionResultsProps) {
+  // console.log("Submission come data:", submission);
   // Parse stringified arrays
   const memoryArr = JSON.parse(submission.memory || "[]");
   const timeArr = JSON.parse(submission.time || "[]");
@@ -37,8 +46,8 @@ export default function SubmissionResults({
   const successRate = (passedTests / totalTests) * 100;
 
   const getStatusColor = (status: string) => {
-    return status === "Accepted"
-      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+    return status === "ACCEPTED"
+      ? ""
       : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
   };
 
@@ -46,12 +55,19 @@ export default function SubmissionResults({
     <div className="mt-6 space-y-6">
       {/* Overall Status */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
+        <Card
+        // className={`${submission.status === "ACCEPTED" ? "bg-primary" : ""}`}
+        >
           <CardContent className="p-4">
             <div className="text-muted-foreground mb-2 text-sm font-medium">
               Status
             </div>
-            <Badge className={getStatusColor(submission.status)}>
+            <Badge
+              variant={
+                submission.status === "ACCEPTED" ? "outlineGreen" : "outline"
+              }
+              className={cn(getStatusColor(submission.status), "text-md")}
+            >
               {submission.status}
             </Badge>
           </CardContent>
@@ -59,7 +75,8 @@ export default function SubmissionResults({
 
         <Card>
           <CardContent className="p-4">
-            <div className="text-muted-foreground mb-2 text-sm font-medium">
+            <div className="text-muted-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+              <ThumbsUp className="h-4 w-4" />
               Success Rate
             </div>
             <div className="text-2xl font-bold">{successRate.toFixed(1)}%</div>
@@ -88,7 +105,7 @@ export default function SubmissionResults({
       </div>
 
       {/* Test Cases Results */}
-      <Card>
+      <Card className="gap-2 py-5">
         <CardHeader>
           <CardTitle>Test Cases Results</CardTitle>
         </CardHeader>

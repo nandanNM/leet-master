@@ -27,7 +27,7 @@ export const getAllSubmissions = asyncHandler(
   },
 );
 
-export const getSubmissionByProblemId = asyncHandler(
+export const getAllSubmissionByProblemId = asyncHandler(
   async (req: Request, res: Response) => {
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");

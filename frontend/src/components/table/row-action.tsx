@@ -1,7 +1,7 @@
 import { Bookmark, PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import type { Row } from "@tanstack/react-table";
-import type { Problem } from "@/lib/validations";
+import type { ProblemWithSolvedStatus } from "@/lib/validations";
 
 export default function RowActions({
   row,
@@ -9,7 +9,7 @@ export default function RowActions({
   onDeleteProblem,
   onAddToPlaylist,
 }: {
-  row: Row<Problem>;
+  row: Row<ProblemWithSolvedStatus>;
   authUser?: { id: string; role: string } | null;
   onDeleteProblem: (id: string) => void;
   onAddToPlaylist: (problemId: string) => void;

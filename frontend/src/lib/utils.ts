@@ -42,7 +42,7 @@ export function getLanguageName(languageId: number): string {
   return LANGUAGE_NAMES[languageId] || "Unknown";
 }
 
-export function getLanguageId(language: string): number | undefined {
+export function getLanguageId(language: string): number {
   const languageMap: Record<string, number> = {
     PYTHON: 71,
     JAVASCRIPT: 63,

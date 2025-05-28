@@ -113,6 +113,9 @@ export type Problem = ProblemValues & {
   createdAt: string;
   updatedAt: string;
 };
+export type ProblemWithSolvedStatus = Problem & {
+  isSolved: boolean;
+};
 export type BasicPlaylist = PlaylistValues & {
   id: string;
   userId: string;

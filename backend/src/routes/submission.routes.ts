@@ -1,23 +1,23 @@
-import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { get } from "http";
+import {Router} from "express";
+import {authMiddleware} from "../middlewares/auth.middleware";
+import {get} from "http";
 import {
   getAllSubmissions,
-  getSubmissionByProblemId,
   getAllSubmissionCount,
+  getAllSubmissionByProblemId,
 } from "../controllers/submission.controllers";
 
 const submissionRoutes = Router();
 submissionRoutes.get("/get-all-submissions", authMiddleware, getAllSubmissions);
 submissionRoutes.get(
-  "/get-submission/:problemId",
+  "/get-submissions/:problemId",
   authMiddleware,
-  getSubmissionByProblemId
+  getAllSubmissionByProblemId,
 );
 submissionRoutes.get(
-  "/get-submission-count/:problemId",
+  "/get-submissions-count/:problemId",
   authMiddleware,
-  getAllSubmissionCount
+  getAllSubmissionCount,
 );
 
 export default submissionRoutes;

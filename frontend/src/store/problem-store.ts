@@ -2,11 +2,8 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import type { Problem } from "@/lib/validations";
+import type { Problem, ProblemWithSolvedStatus } from "@/lib/validations";
 
-type ProblemWithSolvedStatus = Problem & {
-  isSolved: boolean;
-};
 interface ProblemStore {
   problems: ProblemWithSolvedStatus[];
   problem: Problem | null;
