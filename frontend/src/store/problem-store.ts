@@ -4,8 +4,11 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import type { Problem } from "@/lib/validations";
 
+type ProblemWithSolvedStatus = Problem & {
+  isSolved: boolean;
+};
 interface ProblemStore {
-  problems: Problem[];
+  problems: ProblemWithSolvedStatus[];
   problem: Problem | null;
   solvedProblemsByUser: Problem[];
   isProblemsLoading: boolean;

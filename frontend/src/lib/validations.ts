@@ -110,7 +110,6 @@ export type SubmissionValues = z.infer<typeof submissionSchema>;
 export type Problem = ProblemValues & {
   id: string;
   userId: string;
-  isSolved: boolean;
   createdAt: string;
   updatedAt: string;
 };
