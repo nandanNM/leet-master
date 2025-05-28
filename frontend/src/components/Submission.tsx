@@ -8,9 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import type { SubmissionResponse } from "@/lib/validations";
 
 interface SubmissionResultsProps {
-  submission: Submission;
+  submission: SubmissionResponse;
 }
 
 export default function SubmissionResults({
@@ -104,7 +105,7 @@ export default function SubmissionResults({
             </TableHeader>
             <TableBody>
               {submission.testCases.map((testCase) => (
-                <TableRow key={testCase.id}>
+                <TableRow key={testCase.testCase}>
                   <TableCell>
                     {testCase.passed ? (
                       <div className="flex items-center gap-2 text-green-600">

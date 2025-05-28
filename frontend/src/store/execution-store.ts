@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import type { SubmissionValues } from "@/lib/validations";
+import type { SubmissionResponse, SubmissionValues } from "@/lib/validations";
 
 interface ExecutionState {
   isExecuting: boolean;
-  submission: SubmissionValues | null;
+  submission: SubmissionResponse | null;
   executeCode: (data: SubmissionValues) => Promise<void>;
 }
 
