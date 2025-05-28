@@ -459,3 +459,59 @@ public class Main {
 `,
   },
 };
+
+export const mockProblem = {
+  id: "1",
+  title: "Two Sum",
+  difficulty: "Easy",
+  description:
+    "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+  examples: {
+    javascript: {
+      input: "nums = [2,7,11,15], target = 9",
+      output: "[0,1]",
+      explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
+    },
+  },
+  constraints:
+    "2 ≤ nums.length ≤ 10⁴, -10⁹ ≤ nums[i] ≤ 10⁹, -10⁹ ≤ target ≤ 10⁹",
+  hints: "Try using a hash map to store the complement of each number.",
+  testcases: [
+    { input: "[2,7,11,15], 9", output: "[0,1]" },
+    { input: "[3,2,4], 6", output: "[1,2]" },
+    { input: "[3,3], 6", output: "[0,1]" },
+  ],
+  codeSnippets: {
+    javascript: `function twoSum(nums, target) {
+    // Your code here
+    
+}`,
+    python: `def two_sum(nums, target):
+    # Your code here
+    pass`,
+    java: `public int[] twoSum(int[] nums, int target) {
+    // Your code here
+    
+}`,
+  },
+  createdAt: "2024-01-15T10:30:00Z",
+};
+
+export const mockSubmissions = [
+  {
+    id: "1",
+    status: "Accepted",
+    runtime: "68ms",
+    memory: "44.2MB",
+    language: "JavaScript",
+    timestamp: "2024-01-15T14:30:00Z",
+  },
+  {
+    id: "2",
+    status: "Wrong Answer",
+    runtime: "N/A",
+    memory: "N/A",
+    language: "Python",
+    timestamp: "2024-01-15T14:25:00Z",
+  },
+];
