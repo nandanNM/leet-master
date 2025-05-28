@@ -85,9 +85,53 @@ export const problemSchema = z.object({
   }),
 });
 export type ProblemValues = z.infer<typeof problemSchema>;
+
+export const playlistSchema = z.object({
+  name: z.string().trim().min(3, "Name must be at least 3 characters"),
+  description: z
+    .string()
+    .trim()
+    .min(10, "Description must be at least 10 characters"),
+});
+export type PlaylistValues = z.infer<typeof playlistSchema>;
+export const submissionSchema = z
+  .object({
+    source_code: z.string().min(1, "source_code is required"),
+    language_id: z.union([z.string(), z.number()]),
+    problemId: z.string().uuid("Invalid problemId"),
+    stdin: z.array(z.string()).min(1, "stdin must have at least one test case"),
+    expected_outputs: z.array(z.string()),
+  })
+  .refine((data) => data.stdin.length === data.expected_outputs.length, {
+    message: "expected_outputs length must match stdin length",
+    path: ["expected_outputs"],
+  });
+export type SubmissionValues = z.infer<typeof submissionSchema>;
 export type Problem = ProblemValues & {
+  id: string;
+  userId: string;
+  isSolved: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+export type BasicPlaylist = PlaylistValues & {
   id: string;
   userId: string;
   createdAt: string;
   updatedAt: string;
+};
+export type PlaylistProblemRelation = {
+  id: string;
+  playListId: string;
+  problemId: string;
+  createdAt: string;
+  updatedAt: string;
+  problem: Problem;
+};
+export type PlaylistWithProblems = PlaylistValues & {
+  id: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  problems: PlaylistProblemRelation[];
 };

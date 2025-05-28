@@ -94,13 +94,32 @@ export const createProblem = asyncHandler(
 
 export const getAllProblems = asyncHandler(
   async (req: Request, res: Response) => {
-    const problems = await db.query.problemsTable.findMany();
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new ApiError(401, "Unauthorized", "UNAUTHORIZED");
+    }
+    const problems = await db.query.problemsTable.findMany({
+      with: {
+        solvedBy: {
+          where: (solvedProblemsTable, {eq}) =>
+            eq(solvedProblemsTable.userId, userId),
+          columns: {id: true},
+        },
+      },
+    });
+    const problemsWithStatus = problems.map((problem) => ({
+      ...problem,
+      isSolved: problem.solvedBy.length > 0,
+    }));
 
-    if (!problems) {
+    if (!problemsWithStatus.length) {
       throw new ApiError(404, "No problems found", "NOT_FOUND");
     }
-
-    new ApiResponse(200, "Problems fetched successfully", problems).send(res);
+    new ApiResponse(
+      200,
+      "Problems fetched successfully",
+      problemsWithStatus,
+    ).send(res);
   },
 );
 

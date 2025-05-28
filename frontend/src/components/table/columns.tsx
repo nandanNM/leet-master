@@ -47,8 +47,8 @@ export const columns: ColumnDef<Problem>[] = [
   {
     id: "solved",
     header: "Solved",
-    cell: () => {
-      const isSolved = true;
+    cell: ({ row }) => {
+      const isSolved = row.original.isSolved;
       return (
         <Checkbox
           checked={isSolved}
@@ -65,11 +65,11 @@ export const columns: ColumnDef<Problem>[] = [
     header: "Title",
     accessorKey: "title",
     cell: ({ row }) => {
-      const isSolved = false;
+      const isSolved = row.original.isSolved;
       return (
         <Link
-          to={`/problem/${row.original.id}`}
-          className={`relative font-semibold ${isSolved ? "text-muted-foreground" : ""} after:bg-muted-foreground after:absolute after:top-1/2 after:left-0 after:h-px after:w-full after:origin-bottom after:-translate-y-1/2 after:scale-x-0 after:transition-transform after:ease-in-out ${isSolved ? "after:scale-x-100" : ""}`}
+          to={`/problems/${row.original.id}`}
+          className={`relative font-semibold ${isSolved ? "text-muted-foreground" : "hover:underline"} after:bg-muted-foreground after:absolute after:top-1/2 after:left-0 after:h-px after:w-full after:origin-bottom after:-translate-y-1/2 after:scale-x-0 after:transition-transform after:ease-in-out ${isSolved ? "after:scale-x-100" : ""}`}
         >
           {row.getValue("title")}
         </Link>

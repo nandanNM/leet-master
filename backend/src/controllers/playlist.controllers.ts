@@ -31,18 +31,18 @@ export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
   const {id: userId} = req.user;
-  const [playlists] = await db.query.playlistsTable.findMany({
+  const playLists = await db.query.playlistsTable.findMany({
     where: (playlistsTable, {eq}) =>
       and(eq(playlistsTable.userId, userId), eq(playlistsTable.userId, userId)),
-    with: {
-      problems: {
-        with: {
-          problem: true,
-        },
-      },
-    },
+    // with: {
+    //   problems: {
+    //     with: {
+    //       problem: true,
+    //     },
+    //   },
+    // },
   });
-  new ApiResponse(200, "Playlists fetched successfully", playlists).send(res);
+  new ApiResponse(200, "Playlists fetched successfully", playLists).send(res);
 });
 
 export const getPlaylistById = asyncHandler(async (req, res) => {
