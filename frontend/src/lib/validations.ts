@@ -135,3 +135,46 @@ export type PlaylistWithProblems = PlaylistValues & {
   updatedAt: string;
   problems: PlaylistProblemRelation[];
 };
+const testCaseSchema = z.object({
+  submissionId: z.string().uuid(),
+  testCase: z.number().int().positive(),
+  passed: z.boolean(),
+  stdout: z.string().nullable(),
+  expected: z.string(),
+  stderr: z.string().nullable(),
+  compileOutput: z.string().nullable(),
+  status: z.enum([
+    "Accepted",
+    "Wrong Answer",
+    "Time Limit Exceeded",
+    "Runtime Error",
+    "Compile Error",
+  ]),
+  memory: z.string(),
+  time: z.string(),
+});
+export const submissionResponseSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  problemId: z.string().uuid(),
+  sourceCode: z.string(),
+  language: z.string(),
+  stdin: z.string(),
+  stdout: z.string(),
+  stderr: z.string().nullable(),
+  compileOutput: z.string().nullable(),
+  status: z.enum([
+    "ACCEPTED",
+    "WRONG_ANSWER",
+    "TIME_LIMIT_EXCEEDED",
+    "RUNTIME_ERROR",
+    "COMPILE_ERROR",
+  ]),
+  memory: z.string(),
+  time: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  testCases: z.array(testCaseSchema),
+});
+export type SubmissionResponse = z.infer<typeof submissionResponseSchema>;
+export type TestCaseResult = z.infer<typeof testCaseSchema>;
