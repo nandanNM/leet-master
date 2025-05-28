@@ -1,4 +1,22 @@
+import ProblemsTable from "@/components/table/data-table";
+import { useProblemStore } from "@/store";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+
 export default function Problems() {
+  const { getAllProblems, problems, isProblemsLoading } = useProblemStore();
+
+  useEffect(() => {
+    getAllProblems();
+  }, [getAllProblems]);
+
+  if (isProblemsLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="size-10 animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="mt-4 flex min-h-screen flex-col items-center px-4">
       <div className="bg-primary absolute top-16 bottom-9 left-0 h-1/3 w-1/3 rounded-md opacity-30 blur-3xl"></div>
@@ -12,13 +30,13 @@ export default function Problems() {
         problems
       </p>
 
-      {/* {problems.length > 0 ? (
-        <ProblemTable problems={problems} />
+      {problems.length > 0 ? (
+        <ProblemsTable problems={problems} />
       ) : (
         <p className="border-primary z-10 mt-10 rounded-md border border-dashed px-4 py-2 text-center text-lg font-semibold text-gray-500 dark:text-gray-400">
           No problems found
         </p>
-      )} */}
+      )}
     </div>
   );
 }
