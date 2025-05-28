@@ -4,6 +4,14 @@ export const menuItems = [
   { name: "Pricing", to: "#link" },
   { name: "About", to: "#link" },
 ];
+// @/lib/validations.ts
+export const DIFFICULTY = {
+  EASY: "EASY",
+  MEDIUM: "MEDIUM",
+  HARD: "HARD",
+} as const;
+
+export type Difficulty = (typeof DIFFICULTY)[keyof typeof DIFFICULTY];
 
 export const sampledpData = {
   title: "Climbing Stairs",

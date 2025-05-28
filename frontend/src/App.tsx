@@ -9,6 +9,7 @@ import { useAuthStore } from "./store";
 import { useEffect } from "react";
 import AdminRoute from "./_admin/AdminRoute";
 import AddProblem from "./_admin/pages/AddProblem";
+import Problems from "./_root/pages/Problems";
 
 export default function App() {
   const getCurrentUser = useAuthStore((state) => state.getCurrentUser);
@@ -27,7 +28,7 @@ export default function App() {
         {/* private routes */}
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
-
+          <Route path="/problems" element={<Problems />} />
           {/* admin routes */}
           <Route element={<AdminRoute />}>
             <Route path="/add-problem" element={<AddProblem />} />

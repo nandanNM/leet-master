@@ -3,7 +3,7 @@ import { ArrowDown, FileTextIcon } from "lucide-react";
 import { problemSchema, type ProblemValues } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -32,8 +32,15 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { sampledpData, sampleStringProblem } from "@/constants";
+import {
+  sampledpData,
+  sampleStringProblem,
+  type Difficulty,
+} from "@/constants";
 import LoadingButton from "../LoadingButton";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
+import { axiosInstance } from "@/lib/axios";
 
 export default function CreateProblemForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -67,16 +74,33 @@ export default function CreateProblemForm() {
       },
     },
   });
+  const { control, setValue } = form;
 
-  const {
-    fields: tagFields,
-    append: appendTag,
-    remove: removeTag,
-    replace: replaceTags,
-  } = useFieldArray<ProblemValues, "tags">({
-    control: form.control,
+  const tagFields = useWatch({
+    control,
     name: "tags",
   });
+  const appendTag = () => {
+    setValue("tags", [...(tagFields || []), ""]);
+  };
+  const removeTag = (index: number) => {
+    const updated = tagFields?.filter((_, i) => i !== index) || [];
+    setValue("tags", updated);
+  };
+  // const replaceTags = (index: number, value: string) => {
+  //   const updated = [...(tagFields || [])];
+  //   updated[index] = value;
+  //   setValue("tags", updated);
+  // };
+  // const {
+  //   fields: tagFields,
+  //   append: appendTag,
+  //   remove: removeTag,
+  //   replace: replaceTags,
+  // } = useFieldArray<ProblemValues, "tags">({
+  //   control: control,
+  //   name: "tags",
+  // });
 
   const {
     fields: testCaseFields,
@@ -84,21 +108,35 @@ export default function CreateProblemForm() {
     remove: removeTestCase,
     replace: replacetestcases,
   } = useFieldArray({
-    control: form.control,
+    control: control,
     name: "testcases",
   });
 
   async function onSubmit(values: ProblemValues) {
     console.log("Form submitted with values:", values);
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.post("/problems/create-problem", values);
+      console.log(res.data);
+      toast.success(res.data.message || "Problem Created successfully⚡");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const loadSampleData = () => {
     const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem;
-    replaceTags(sampleData.tags.map((tag) => tag));
     replacetestcases(sampleData.testcases.map((tc) => tc));
     // Reset the form with sample data
     console.log("Loading sample data:", sampleData);
-    form.reset(sampleData);
+    form.reset({
+      ...sampleData,
+      difficulty: sampleData.difficulty as Difficulty,
+    });
   };
 
   return (
@@ -235,7 +273,7 @@ export default function CreateProblemForm() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => appendTag("")}
+                        onClick={() => appendTag()}
                       >
                         <Plus className="mr-1 h-4 w-4" /> Add Tag
                       </Button>
@@ -244,7 +282,7 @@ export default function CreateProblemForm() {
                   <CardContent>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {tagFields.map((field, index) => (
-                        <div key={field.id} className="flex items-center gap-2">
+                        <div key={field} className="flex items-center gap-2">
                           <FormField
                             control={form.control}
                             name={`tags.${index}`}

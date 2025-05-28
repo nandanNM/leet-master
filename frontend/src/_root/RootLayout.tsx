@@ -5,7 +5,9 @@ const RootLayout = () => {
   return (
     <div className="h-full w-full p-2">
       <Navbar />
-      <Outlet />
+      <div className="pt-18 md:pt-22">
+        <Outlet />
+      </div>
     </div>
   );
 };

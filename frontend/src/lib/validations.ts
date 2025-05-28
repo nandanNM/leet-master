@@ -84,5 +84,10 @@ export const problemSchema = z.object({
     JAVA: codeSchema,
   }),
 });
-
 export type ProblemValues = z.infer<typeof problemSchema>;
+export type Problem = ProblemValues & {
+  id: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
