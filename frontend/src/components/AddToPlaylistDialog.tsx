@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -37,12 +38,12 @@ const AddToPlaylistModal = ({
   const { playlists, getAllPlaylists, addProblemToPlaylist, isLoading } =
     usePlaylistStore();
   const [selectedPlaylist, setSelectedPlaylist] = useState("");
-
+  console.log("playlists", playlists);
   useEffect(() => {
     if (isOpen) {
-      getAllPlaylists();
+      getAllPlaylists(problemId);
     }
-  }, [isOpen, getAllPlaylists]);
+  }, [isOpen, getAllPlaylists, problemId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +59,9 @@ const AddToPlaylistModal = ({
           <DialogTitle className="text-xl font-bold">
             Add to Playlist
           </DialogTitle>
+          <DialogDescription>
+            Select a playlist to add this problem to it
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -66,26 +70,34 @@ const AddToPlaylistModal = ({
               htmlFor="playlist"
               className="text-muted-foreground block text-sm font-medium"
             >
-              Select Playlist
+              {!playlists.length
+                ? "No available playlists to add"
+                : "Select a playlist"}
             </label>
             <Select
               value={selectedPlaylist}
               onValueChange={setSelectedPlaylist}
               disabled={isLoading}
             >
-              <SelectTrigger id="playlist" className="w-full">
+              <SelectTrigger
+                disabled={isLoading || !playlists.length}
+                id="playlist"
+                className="w-full"
+              >
                 <SelectValue placeholder="Select a playlist" />
               </SelectTrigger>
               <SelectContent className="max-h-60 overflow-y-auto">
-                {playlists.map((playlist) => (
-                  <SelectItem
-                    key={playlist.id}
-                    value={playlist.id}
-                    className="data-[state=checked]"
-                  >
-                    {capitalizeWords(playlist.name)}
-                  </SelectItem>
-                ))}
+                {!playlists.length
+                  ? "No playlists found"
+                  : playlists.map((playlist) => (
+                      <SelectItem
+                        key={playlist.id}
+                        value={playlist.id}
+                        className="data-[state=checked]"
+                      >
+                        {capitalizeWords(playlist.name)}
+                      </SelectItem>
+                    ))}
               </SelectContent>
             </Select>
           </div>

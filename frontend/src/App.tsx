@@ -11,6 +11,7 @@ import AdminRoute from "./_admin/AdminRoute";
 import AddProblem from "./_admin/pages/AddProblem";
 import Problems from "./_root/pages/Problems";
 import ProblemWorkspace from "./_root/pages/ProblemWorkspace";
+import ProfilePage from "./_root/pages/Profile";
 
 export default function App() {
   const getCurrentUser = useAuthStore((state) => state.getCurrentUser);
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/problems" element={<Problems />} />
           <Route path="/problems/:id" element={<ProblemWorkspace />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
           {/* admin routes */}
           <Route element={<AdminRoute />}>
             <Route path="/add-problem" element={<AddProblem />} />

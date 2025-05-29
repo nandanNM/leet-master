@@ -12,7 +12,7 @@ import type { SubmissionResponse } from "@/lib/validations";
 import {
   calculateAverageMemory,
   calculateAverageTime,
-  formatRelativeTime,
+  formatRelativeDate,
 } from "@/lib/utils";
 
 interface SubmissionTableProps {
@@ -79,7 +79,7 @@ export default function SubmissionTable({
                   <TableCell>{avgTime.toFixed(3)} S</TableCell>
                   <TableCell>{avgMemory.toFixed(0)} KB</TableCell>
                   <TableCell>
-                    {formatRelativeTime(submission.createdAt)}
+                    {formatRelativeDate(new Date(submission.createdAt))}
                   </TableCell>
                 </TableRow>
               );

@@ -44,7 +44,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { getDifficultyColor, getLanguageId } from "@/lib/utils";
+import { formatNumber, getDifficultyColor, getLanguageId } from "@/lib/utils";
 import { mockProblem, type Difficulty } from "@/constants";
 import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
@@ -146,7 +146,7 @@ export default function ProblemWorkspace() {
                 <div className="text-muted-foreground flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span>{submissionCount}</span>
+                    <span>{formatNumber(submissionCount || 0)}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <ThumbsUp className="h-4 w-4" />
@@ -276,7 +276,9 @@ export default function ProblemWorkspace() {
                   <Separator orientation="vertical" className="h-4" />
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span>{submissionCount} Submissions</span>
+                    <span>
+                      {formatNumber(submissionCount || 0)} Submissions
+                    </span>
                   </div>
                   <Separator orientation="vertical" className="h-4" />
                   <div className="flex items-center gap-1">
@@ -394,7 +396,7 @@ export default function ProblemWorkspace() {
                       padding: { top: 16, bottom: 16 },
                       renderLineHighlight: "all",
                       selectionHighlight: true,
-                      wordBasedSuggestions: true,
+                      scrollbar: { useShadows: false },
                     }}
                   />
                 </div>

@@ -19,7 +19,7 @@ playlistRoutes.post(
   authMiddleware,
   createPlaylist,
 );
-playlistRoutes.get("/", authMiddleware, getAllPlaylistsDetails);
+playlistRoutes.get("/:problemId", authMiddleware, getAllPlaylistsDetails);
 playlistRoutes.get("/:id", authMiddleware, getPlaylistById);
 playlistRoutes.post("/:id/add-problem", authMiddleware, addProblemToPlaylist);
 playlistRoutes.delete("/:id", authMiddleware, deletePlaylist);

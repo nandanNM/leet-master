@@ -16,7 +16,7 @@ interface PlaylistStore {
   error: string | null;
 
   createPlaylist: (playlistData: PlaylistValues) => Promise<BasicPlaylist>;
-  getAllPlaylists: () => Promise<void>;
+  getAllPlaylists: (id: string) => Promise<void>;
   getPlaylistDetails: (playlistId: string) => Promise<void>;
   addProblemToPlaylist: (
     playlistId: string,
@@ -55,10 +55,10 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
     }
   },
 
-  getAllPlaylists: async () => {
+  getAllPlaylists: async (id) => {
     try {
       set({ isLoading: true });
-      const res = (await axiosInstance.get("/playlist")).data;
+      const res = (await axiosInstance.get(`/playlist/${id}`)).data;
       set({ playlists: res.data });
     } catch (error) {
       console.error("Error fetching playlists:", error);

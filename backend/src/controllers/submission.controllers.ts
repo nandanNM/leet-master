@@ -13,13 +13,12 @@ export const getAllSubmissions = asyncHandler(
     }
 
     const {id: userId} = req.user;
+    console.log("userId", userId);
     const submissions = await db.query.submissionsTable.findMany({
       where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
+      orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
     });
-
-    if (!submissions || submissions.length === 0) {
-      throw new ApiError(404, "No submissions found", "NOT_FOUND");
-    }
+    console.log("submissions", submissions);
 
     new ApiResponse(200, "Submissions fetched successfully", submissions).send(
       res,

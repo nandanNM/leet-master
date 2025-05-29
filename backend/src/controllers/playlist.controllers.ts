@@ -30,18 +30,29 @@ export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
+  const {problemId: problemIdToExclude} = req.params;
   const {id: userId} = req.user;
+  // console.log(playlistIdToExclude, userId, "playlistIdToExclude");
   const playLists = await db.query.playlistsTable.findMany({
-    where: (playlistsTable, {eq}) =>
-      and(eq(playlistsTable.userId, userId), eq(playlistsTable.userId, userId)),
-    // with: {
-    //   problems: {
-    //     with: {
-    //       problem: true,
-    //     },
-    //   },
-    // },
+    where: (playlistsTable, {eq, and, not, exists}) =>
+      and(
+        eq(playlistsTable.userId, userId),
+        not(
+          exists(
+            db
+              .select()
+              .from(problemsInPlaylistTable)
+              .where(
+                and(
+                  eq(problemsInPlaylistTable.playListId, playlistsTable.id),
+                  eq(problemsInPlaylistTable.problemId, problemIdToExclude),
+                ),
+              ),
+          ),
+        ),
+      ),
   });
+  // console.log("playLists", playLists);
   new ApiResponse(200, "Playlists fetched successfully", playLists).send(res);
 });
 

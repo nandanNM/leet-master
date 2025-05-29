@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
+import { formatDate, formatDistanceToNowStrict } from "date-fns";
 import type { Difficulty } from "@/constants";
 
 export function cn(...inputs: ClassValue[]) {
@@ -81,25 +82,24 @@ export const calculateAverageTime = (timeData: string[] | string): number => {
   if (timeArray.length === 0) return 0;
   return timeArray.reduce((acc, curr) => acc + curr, 0) / timeArray.length;
 };
-
-export const formatRelativeTime = (date: string | Date | number): string => {
-  const now = new Date();
-  const inputDate = new Date(date);
-  const seconds = Math.floor((now.getTime() - inputDate.getTime()) / 1000);
-
-  if (seconds < 5) return "just now";
-  if (seconds < 60) return `${seconds}s ago`;
-  if (seconds < 120) return "1m ago";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 7200) return "1h ago";
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 172800) return "yesterday";
-
-  return inputDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-};
+export function formatNumber(n: number): string {
+  return Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n);
+}
+export function formatRelativeDate(from: Date) {
+  const currentDate = new Date();
+  if (currentDate.getTime() - from.getTime() < 24 * 60 * 60 * 1000) {
+    return formatDistanceToNowStrict(from, { addSuffix: true });
+  } else {
+    if (currentDate.getFullYear() === from.getFullYear()) {
+      return formatDate(from, "MMM d");
+    } else {
+      return formatDate(from, "MMM d, yyy");
+    }
+  }
+}
 
 export function capitalizeWords(sentence: string): string {
   return sentence
