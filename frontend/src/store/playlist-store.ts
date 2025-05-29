@@ -38,12 +38,10 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
   createPlaylist: async (playlistData) => {
     try {
       set({ isLoading: true });
-      const res = await axiosInstance.post(
-        "/playlist/create-playlist",
-        playlistData,
-      );
+      const res = (await axiosInstance.post("/playlist/create", playlistData))
+        .data;
       set((state) => ({
-        playlists: [...state.playlists, res.data.data],
+        playlists: [...state.playlists, res.data],
       }));
 
       toast.success("Playlist created successfully");

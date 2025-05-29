@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import type { Row } from "@tanstack/react-table";
 import type { ProblemWithSolvedStatus } from "@/lib/validations";
 import { useActions, useAuthStore } from "@/store";
+import { usePlaylistDialog } from "@/store";
 
 export default function RowActions({
   row,
@@ -11,12 +12,9 @@ export default function RowActions({
 }) {
   const { authUser } = useAuthStore();
   const { onDeleteProblem, isDeletingProblem } = useActions();
+  const { openDialog } = usePlaylistDialog();
   const handleDeleteProblem = (id: string) => {
     onDeleteProblem(id);
-  };
-
-  const handleAddToPlaylist = (problemId: string) => {
-    console.log("Add to playlist:", problemId);
   };
   return (
     <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
@@ -47,7 +45,7 @@ export default function RowActions({
         size="sm"
         variant="outline"
         className="hover:bg-primary gap-2 duration-300 ease-in hover:text-white"
-        onClick={() => handleAddToPlaylist(row.original.id)}
+        onClick={() => openDialog(row.original.id)}
       >
         <Bookmark className="h-4 w-4" />
       </Button>

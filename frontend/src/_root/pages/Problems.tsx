@@ -1,10 +1,12 @@
+import AddToPlaylistModal from "@/components/AddToPlaylistDialog";
 import ProblemsTable from "@/components/table/data-table";
-import { useProblemStore } from "@/store";
+import { usePlaylistDialog, useProblemStore } from "@/store";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
 export default function Problems() {
   const { getAllProblems, problems, isProblemsLoading } = useProblemStore();
+  const { closeDialog, open, problemId } = usePlaylistDialog();
 
   useEffect(() => {
     getAllProblems();
@@ -29,7 +31,11 @@ export default function Problems() {
         interviews and helps you to improve your coding skills by solving coding
         problems
       </p>
-
+      <AddToPlaylistModal
+        isOpen={open}
+        onClose={closeDialog}
+        problemId={problemId || ""}
+      />
       {problems.length > 0 ? (
         <ProblemsTable problems={problems} />
       ) : (

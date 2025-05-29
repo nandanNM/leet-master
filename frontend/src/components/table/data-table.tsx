@@ -22,7 +22,6 @@ import {
   CircleXIcon,
   FilterIcon,
   ListFilterIcon,
-  PlusIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -56,16 +55,14 @@ import {
 } from "@/components/ui/table";
 import type { ProblemWithSolvedStatus } from "@/lib/validations";
 import { columns } from "@/components/table/columns";
+import CreatePlaylistDialog from "../CreatePlaylistDialog";
 
 interface ProblemsTableProps {
   problems: ProblemWithSolvedStatus[];
   onCreatePlaylist?: () => void;
 }
 
-export default function ProblemsTable({
-  problems = [],
-  onCreatePlaylist = () => {},
-}: ProblemsTableProps) {
+export default function ProblemsTable({ problems = [] }: ProblemsTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [pagination, setPagination] = useState<PaginationState>({
@@ -172,10 +169,7 @@ export default function ProblemsTable({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Problems</h2>
-        <Button onClick={onCreatePlaylist} className="gap-2">
-          <PlusIcon size={16} aria-hidden="true" />
-          Create Playlist
-        </Button>
+        <CreatePlaylistDialog />
       </div>
 
       {/* Filters */}

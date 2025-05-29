@@ -88,10 +88,7 @@ export type ProblemValues = z.infer<typeof problemSchema>;
 
 export const playlistSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
-  description: z
-    .string()
-    .trim()
-    .min(10, "Description must be at least 10 characters"),
+  description: z.string().trim().optional(),
 });
 export type PlaylistValues = z.infer<typeof playlistSchema>;
 export const submissionSchema = z
