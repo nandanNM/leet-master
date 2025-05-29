@@ -35,17 +35,6 @@ const tagFilterFn: FilterFn<ProblemWithSolvedStatus> = (
   console.log(columnId);
   return filterValue.some((tag) => tags.includes(tag));
 };
-const sampleAuthUser = {
-  id: "user1",
-  role: "ADMIN",
-};
-const handleDeleteProblem = (id: string) => {
-  console.log("Delete problem:", id);
-};
-
-const handleAddToPlaylist = (problemId: string) => {
-  console.log("Add to playlist:", problemId);
-};
 
 export const columns: ColumnDef<ProblemWithSolvedStatus>[] = [
   {
@@ -126,14 +115,7 @@ export const columns: ColumnDef<ProblemWithSolvedStatus>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <RowActions
-        row={row}
-        authUser={sampleAuthUser}
-        onDeleteProblem={handleDeleteProblem}
-        onAddToPlaylist={handleAddToPlaylist}
-      />
-    ),
+    cell: ({ row }) => <RowActions row={row} />,
     size: 200,
     enableHiding: false,
     enableSorting: false,

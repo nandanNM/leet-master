@@ -54,11 +54,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Problem } from "@/lib/validations";
+import type { ProblemWithSolvedStatus } from "@/lib/validations";
 import { columns } from "@/components/table/columns";
 
 interface ProblemsTableProps {
-  problems: Problem[];
+  problems: ProblemWithSolvedStatus[];
   onCreatePlaylist?: () => void;
 }
 

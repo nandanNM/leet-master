@@ -13,6 +13,7 @@ interface ProblemStore {
   getAllProblems: () => Promise<void>;
   getProblemById: (id: string) => Promise<void>;
   getSolvedProblemsByUser: () => Promise<void>;
+  removeProblem: (id: string) => void;
 }
 
 export const useProblemStore = create<ProblemStore>((set) => ({
@@ -60,4 +61,8 @@ export const useProblemStore = create<ProblemStore>((set) => ({
       toast.error(getErrorMessage(error));
     }
   },
+  removeProblem: (id: string) =>
+    set((state) => ({
+      problems: state.problems.filter((problem) => problem.id !== id),
+    })),
 }));

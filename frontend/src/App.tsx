@@ -37,7 +37,7 @@ export default function App() {
           </Route>
         </Route>
       </Routes>
-      <Toaster />
+      <Toaster richColors />
     </main>
   );
 }

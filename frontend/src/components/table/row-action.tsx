@@ -1,19 +1,23 @@
-import { Bookmark, PencilIcon, TrashIcon } from "lucide-react";
+import { Bookmark, Loader2, PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import type { Row } from "@tanstack/react-table";
 import type { ProblemWithSolvedStatus } from "@/lib/validations";
+import { useActions, useAuthStore } from "@/store";
 
 export default function RowActions({
   row,
-  authUser,
-  onDeleteProblem,
-  onAddToPlaylist,
 }: {
   row: Row<ProblemWithSolvedStatus>;
-  authUser?: { id: string; role: string } | null;
-  onDeleteProblem: (id: string) => void;
-  onAddToPlaylist: (problemId: string) => void;
 }) {
+  const { authUser } = useAuthStore();
+  const { onDeleteProblem, isDeletingProblem } = useActions();
+  const handleDeleteProblem = (id: string) => {
+    onDeleteProblem(id);
+  };
+
+  const handleAddToPlaylist = (problemId: string) => {
+    console.log("Add to playlist:", problemId);
+  };
   return (
     <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
       {authUser?.role === "ADMIN" && (
@@ -22,9 +26,13 @@ export default function RowActions({
             size="sm"
             variant="destructive"
             className=""
-            onClick={() => onDeleteProblem(row.original.id)}
+            onClick={() => handleDeleteProblem(row.original.id)}
           >
-            <TrashIcon className="h-4 w-4 text-white" />
+            {isDeletingProblem ? (
+              <Loader2 className="h-4 w-4 animate-spin text-white" />
+            ) : (
+              <TrashIcon className="h-4 w-4 text-white" />
+            )}
           </Button>
           <Button
             size="sm"
@@ -39,7 +47,7 @@ export default function RowActions({
         size="sm"
         variant="outline"
         className="hover:bg-primary gap-2 duration-300 ease-in hover:text-white"
-        onClick={() => onAddToPlaylist(row.original.id)}
+        onClick={() => handleAddToPlaylist(row.original.id)}
       >
         <Bookmark className="h-4 w-4" />
       </Button>

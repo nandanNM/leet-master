@@ -49,7 +49,7 @@ import { mockProblem, type Difficulty } from "@/constants";
 import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
 import { useTheme } from "@/components/theme-provider";
-import { useSubmissionStore } from "@/store/submission-store";
+import { useSubmissionStore } from "@/store";
 import SubmissionTable from "@/components/SubmissionTable";
 type LanguageKey = "JAVASCRIPT" | "PYTHON" | "JAVA";
 export default function ProblemWorkspace() {

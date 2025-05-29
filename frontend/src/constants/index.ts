@@ -497,21 +497,44 @@ export const mockProblem = {
   createdAt: "2024-01-15T10:30:00Z",
 };
 
-export const mockSubmissions = [
+type LanguageConfig = Record<
+  string,
   {
-    id: "1",
-    status: "Accepted",
-    runtime: "68ms",
-    memory: "44.2MB",
-    language: "JavaScript",
-    timestamp: "2024-01-15T14:30:00Z",
+    id: string;
+    label: string;
+    logoPath: string;
+    pistonRuntime: { language: string; version: string };
+    monacoLanguage: string;
+  }
+>;
+
+export const LANGUAGE_CONFIG: LanguageConfig = {
+  javascript: {
+    id: "javascript",
+    label: "JavaScript",
+    logoPath: "/javascript.png",
+    pistonRuntime: { language: "javascript", version: "18.15.0" }, // api that we're gonna be using
+    monacoLanguage: "javascript",
   },
-  {
-    id: "2",
-    status: "Wrong Answer",
-    runtime: "N/A",
-    memory: "N/A",
-    language: "Python",
-    timestamp: "2024-01-15T14:25:00Z",
+  typescript: {
+    id: "typescript",
+    label: "TypeScript",
+    logoPath: "/typescript.png",
+    pistonRuntime: { language: "typescript", version: "5.0.3" },
+    monacoLanguage: "typescript",
   },
-];
+  python: {
+    id: "python",
+    label: "Python",
+    logoPath: "/python.png",
+    pistonRuntime: { language: "python", version: "3.10.0" },
+    monacoLanguage: "python",
+  },
+  java: {
+    id: "java",
+    label: "Java",
+    logoPath: "/java.png",
+    pistonRuntime: { language: "java", version: "15.0.2" },
+    monacoLanguage: "java",
+  },
+};
