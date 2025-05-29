@@ -26,7 +26,6 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
       set({ isLoading: true });
       const res = (await axiosInstance.get("/submission/get-all-submissions"))
         .data;
-
       set({
         submissions: res.data,
         isLoading: false,
@@ -34,7 +33,7 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
 
       toast.success(res.message);
     } catch (error) {
-      console.error("Error getting all submissions", error);
+      console.log("Error getting all submissions", error);
       toast.error(getErrorMessage(error));
       set({ isLoading: false });
     }
@@ -46,13 +45,13 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
       const res = (
         await axiosInstance.get(`/submission/get-submissions/${problemId}`)
       ).data;
-
+      console.log("this is res", res);
       set({
         submission: res.data,
         isLoading: false,
       });
     } catch (error) {
-      console.error("Error getting submissions for problem", error);
+      console.log("Error getting submissions for problem", error);
       toast.error(getErrorMessage(error));
       set({ isLoading: false });
     }
@@ -72,7 +71,7 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
         isLoading: false,
       });
     } catch (error) {
-      console.error("Error getting submission count for problem", error);
+      console.log("Error getting submission count for problem", error);
       toast.error(getErrorMessage(error));
       set({ isLoading: false });
     }

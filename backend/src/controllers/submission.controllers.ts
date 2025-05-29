@@ -68,6 +68,7 @@ export const getAllSubmissionCount = asyncHandler(
       submissionsTable,
       eq(submissionsTable.problemId, problemId),
     );
+    console.log("Submission count:", submissionCount);
 
     new ApiResponse(
       200,

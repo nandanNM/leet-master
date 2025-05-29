@@ -15,11 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import type { SubmissionResponse } from "@/lib/validations";
+import type { SubmissionWithTestCases } from "@/lib/validations";
 import { cn } from "@/lib/utils";
 
 interface SubmissionResultsProps {
-  submission: SubmissionResponse;
+  submission: SubmissionWithTestCases;
 }
 
 export default function SubmissionResults({

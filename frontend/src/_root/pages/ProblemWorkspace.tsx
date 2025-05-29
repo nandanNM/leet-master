@@ -15,8 +15,6 @@ import {
   Users,
   ThumbsUp,
   Home,
-  CheckCircle,
-  XCircle,
   Loader2,
   Play,
 } from "lucide-react";
@@ -47,11 +45,12 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { getDifficultyColor, getLanguageId } from "@/lib/utils";
-import { mockProblem, mockSubmissions, type Difficulty } from "@/constants";
+import { mockProblem, type Difficulty } from "@/constants";
 import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
 import { useTheme } from "@/components/theme-provider";
 import { useSubmissionStore } from "@/store/submission-store";
+import SubmissionTable from "@/components/SubmissionTable";
 type LanguageKey = "JAVASCRIPT" | "PYTHON" | "JAVA";
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
@@ -68,12 +67,10 @@ export default function ProblemWorkspace() {
   } = useExecutionStore();
   const {
     getSubmissionForProblem,
-    isLoading,
-    getAllSubmissions,
+    isLoading: isSubmissionLoading,
     getSubmissionCountForProblem,
-    submission,
+    submissions: submissionResults,
     submissionCount,
-    submissions,
   } = useSubmissionStore();
   const { theme } = useTheme();
 
@@ -83,8 +80,18 @@ export default function ProblemWorkspace() {
     getSubmissionCountForProblem(id as string);
   }, [id, getProblemById, getSubmissionCountForProblem]);
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (activeTab === "submissions" && id) {
+        getSubmissionForProblem(id);
+      }
+    }, 200);
+    return () => clearTimeout(timeout);
+  }, [activeTab, id, getSubmissionForProblem]);
+
+  useEffect(() => {
     if (problem) setCode(problem.codeSnippets?.[selectedLanguage] || "");
   }, [selectedLanguage, problem]);
+
   if (isProblemLoading || !problem) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -205,49 +212,10 @@ export default function ProblemWorkspace() {
         );
       case "submissions":
         return (
-          <ScrollArea className="h-[600px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Language</TableHead>
-                  <TableHead>Runtime</TableHead>
-                  <TableHead>Memory</TableHead>
-                  <TableHead>Submitted</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockSubmissions.map((submission) => (
-                  <TableRow key={submission.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {submission.status === "Accepted" ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-500" />
-                        )}
-                        <span
-                          className={
-                            submission.status === "Accepted"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }
-                        >
-                          {submission.status}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{submission.language}</TableCell>
-                    <TableCell>{submission.runtime}</TableCell>
-                    <TableCell>{submission.memory}</TableCell>
-                    <TableCell>
-                      {new Date(submission.timestamp).toLocaleString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+          <SubmissionTable
+            submissions={submissionResults}
+            isLoading={isSubmissionLoading}
+          />
         );
       case "discussion":
         return (

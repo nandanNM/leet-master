@@ -137,7 +137,7 @@ export type PlaylistWithProblems = PlaylistValues & {
   updatedAt: string;
   problems: PlaylistProblemRelation[];
 };
-const testCaseSchema = z.object({
+export const testCaseSchema = z.object({
   submissionId: z.string().uuid(),
   testCase: z.number().int().positive(),
   passed: z.boolean(),
@@ -155,6 +155,7 @@ const testCaseSchema = z.object({
   memory: z.string(),
   time: z.string(),
 });
+export type TestCase = z.infer<typeof testCaseSchema>;
 export const submissionResponseSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
@@ -174,9 +175,13 @@ export const submissionResponseSchema = z.object({
   ]),
   memory: z.string(),
   time: z.string(),
+  // memory: z.string().transform((val) => JSON.parse(val) as string[]).optional(),
+  // time: z.string().transform((val) => JSON.parse(val) as string[]).optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-  testCases: z.array(testCaseSchema),
 });
+export type SubmissionWithTestCases = SubmissionResponse & {
+  testCases: TestCase[];
+};
 export type SubmissionResponse = z.infer<typeof submissionResponseSchema>;
 export type TestCaseResult = z.infer<typeof testCaseSchema>;
