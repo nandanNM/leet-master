@@ -76,8 +76,8 @@ export default function SubmissionTable({
                     </div>
                   </TableCell>
                   <TableCell>{submission.language}</TableCell>
-                  <TableCell>{avgTime}</TableCell>
-                  <TableCell>{avgMemory}</TableCell>
+                  <TableCell>{avgTime.toFixed(3)} S</TableCell>
+                  <TableCell>{avgMemory.toFixed(0)} KB</TableCell>
                   <TableCell>
                     {formatRelativeTime(submission.createdAt)}
                   </TableCell>

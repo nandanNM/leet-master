@@ -7,7 +7,7 @@ import type { SubmissionResponse } from "@/lib/validations";
 interface SubmissionState {
   isLoading: boolean;
   submissions: SubmissionResponse[];
-  submission: SubmissionResponse | null;
+  submissionsForProblem: SubmissionResponse[];
   submissionCount: number | null;
 
   getAllSubmissions: () => Promise<void>;
@@ -18,7 +18,7 @@ interface SubmissionState {
 export const useSubmissionStore = create<SubmissionState>((set) => ({
   isLoading: false,
   submissions: [],
-  submission: null,
+  submissionsForProblem: [],
   submissionCount: null,
 
   getAllSubmissions: async () => {
@@ -47,7 +47,7 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
       ).data;
       console.log("this is res", res);
       set({
-        submission: res.data,
+        submissionsForProblem: res.data,
         isLoading: false,
       });
     } catch (error) {

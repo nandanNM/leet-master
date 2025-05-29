@@ -69,11 +69,11 @@ export default function ProblemWorkspace() {
     getSubmissionForProblem,
     isLoading: isSubmissionLoading,
     getSubmissionCountForProblem,
-    submissions: submissionResults,
+    submissionsForProblem: submissionResults,
     submissionCount,
   } = useSubmissionStore();
   const { theme } = useTheme();
-
+  // console.log("submissionResults", submissionResults);
   useEffect(() => {
     if (!id) return;
     getProblemById(id as string);
