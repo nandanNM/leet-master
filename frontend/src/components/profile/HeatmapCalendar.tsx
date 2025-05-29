@@ -1,6 +1,6 @@
-import CalendarHeatmap from "react-calendar-heatmap";
+import CalendarHeatmap from "@/components/CalendarHeatmap";
 import type { SubmissionHeatmapEntry } from "@/types";
-import "react-calendar-heatmap/dist/styles.css";
+
 import { Card, CardContent } from "../ui/card";
 interface HeatmapCalendarProps {
   data: SubmissionHeatmapEntry[];
@@ -17,20 +17,22 @@ export default function HeatmapCalendar({
       <div className="mb-2">
         <strong className="ml-3">Heatmap ↓</strong>
       </div>
-      <Card className="w-full cursor-pointer rounded-3xl 2xl:w-fit">
-        {/* <CardHeader className="pb-6 text-sm"></CardHeader> */}
-        <CardContent>
-          <CalendarHeatmap
-            startDate={new Date("2025-01-01")}
-            endDate={new Date("2025-12-31")}
-            values={data}
-            classForValue={(value) => {
-              if (!value || value.count === 0) return "color-empty";
-              if (value.count >= 5) return "color-github-5";
-              return `color-github-${value.count}`;
-            }}
-            showWeekdayLabels={false}
-          />
+      <Card className="w-full rounded-3xl px-4 py-4">
+        <CardContent className="max-w-6xl overflow-auto">
+          <div className="flex w-full justify-between gap-2">
+            <span className="text-muted-foreground flex flex-col justify-around py-2 pr-2 text-right text-xs">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+            </span>
+            <div className="w-full min-w-[600px] pr-4">
+              <CalendarHeatmap
+                startDate={new Date("2025-01-01")}
+                endDate={new Date("2025-12-31")}
+                dataValues={data}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
     </section>
