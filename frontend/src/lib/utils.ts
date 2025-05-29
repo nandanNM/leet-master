@@ -51,3 +51,33 @@ export function getLanguageId(language: string): number {
   };
   return languageMap[language.toUpperCase()];
 }
+
+export const safeParse = <T>(data: string | T[]): T[] => {
+  if (Array.isArray(data)) return data;
+  try {
+    return JSON.parse(data) as T[];
+  } catch {
+    return [];
+  }
+};
+export const calculateAverageMemory = (
+  memoryData: string[] | string,
+): number => {
+  const memoryArray = safeParse<string>(memoryData).map((m) => {
+    const value = parseFloat(m.split(" ")[0]);
+    return isNaN(value) ? 0 : value;
+  });
+
+  if (memoryArray.length === 0) return 0;
+  return memoryArray.reduce((acc, curr) => acc + curr, 0) / memoryArray.length;
+};
+
+export const calculateAverageTime = (timeData: string[] | string): number => {
+  const timeArray = safeParse<string>(timeData).map((t) => {
+    const value = parseFloat(t.split(" ")[0]);
+    return isNaN(value) ? 0 : value;
+  });
+
+  if (timeArray.length === 0) return 0;
+  return timeArray.reduce((acc, curr) => acc + curr, 0) / timeArray.length;
+};
