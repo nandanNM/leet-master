@@ -19,7 +19,7 @@ export default function App() {
   }, [getCurrentUser]);
 
   return (
-    <main className="flex h-screen">
+    <main className="flex min-h-screen antialiased">
       <Routes>
         {/* public routes */}
         <Route element={<AuthLayout />}>

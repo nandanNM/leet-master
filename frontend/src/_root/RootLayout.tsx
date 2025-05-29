@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useAuthStore } from "@/store";
 import { Loader2 } from "lucide-react";
@@ -21,6 +22,7 @@ const RootLayout = () => {
       <div className="pt-18 md:pt-22">
         <Outlet />
       </div>
+      <Footer />
     </div>
   );
 };

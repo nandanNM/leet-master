@@ -44,6 +44,7 @@ export const getAllSubmissionByProblemId = asyncHandler(
       where: (submissionsTable, {eq}) =>
         eq(submissionsTable.userId, userId) &&
         eq(submissionsTable.problemId, problemId),
+      orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
     });
 
     if (!submissions || submissions.length === 0) {
