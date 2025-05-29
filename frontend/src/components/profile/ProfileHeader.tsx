@@ -77,7 +77,7 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
   ];
 
   return (
-    <div className="relative mb-2 overflow-hidden rounded-2xl border border-gray-800/50 bg-gradient-to-br from-[#12121a] to-[#1a1a2e] p-8">
+    <div className="from-background to-muted/50 border-border relative mb-2 overflow-hidden rounded-2xl border bg-gradient-to-br p-8">
       <div className="bg-grid-white/[0.02] absolute inset-0 bg-[size:32px]" />
       <div className="relative flex items-center gap-8">
         <div className="group relative">
@@ -85,7 +85,7 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
           <img
             src={"https://i.pravatar.cc/300"}
             alt="Profile"
-            className="relative z-10 h-24 w-24 rounded-full border-4 border-gray-800/50 transition-transform group-hover:scale-105"
+            className="border-border relative z-10 h-24 w-24 rounded-full border-4 transition-transform group-hover:scale-105"
           />
           {userData.isPro && (
             <div className="absolute -top-2 -right-2 z-20 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-purple-600 p-2 shadow-lg">
@@ -95,14 +95,14 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
         </div>
         <div>
           <div className="mb-2 flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-white">{userData.name}</h1>
+            <h1 className="text-3xl font-bold">{userData.name}</h1>
             {userData.isPro && (
               <span className="rounded-full bg-purple-500/10 px-3 py-1 text-sm font-medium text-purple-400">
                 Pro Member
               </span>
             )}
           </div>
-          <p className="flex items-center gap-2 text-gray-400">
+          <p className="text-muted-foreground flex items-center gap-2">
             <UserIcon className="h-4 w-4" />
             {userData.email}
           </p>
@@ -117,7 +117,7 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             key={index}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-black/40 to-black/20"
+            className="group from-background/60 to-muted/30 relative overflow-hidden rounded-2xl bg-gradient-to-br"
           >
             {/* Glow effect */}
             <div
@@ -129,16 +129,18 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
               <div className="mb-4 flex items-start justify-between">
                 <div>
                   <div className="mb-1 flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-400">
+                    <span className="text-muted-foreground text-sm font-medium">
                       {stat.description}
                     </span>
                   </div>
-                  <h3 className="text-2xl font-bold tracking-tight text-white">
+                  <h3 className="text-2xl font-bold tracking-tight">
                     {typeof stat.value === "number"
                       ? stat.value.toLocaleString()
                       : stat.value}
                   </h3>
-                  <p className="mt-1 text-sm text-gray-400">{stat.label}</p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {stat.label}
+                  </p>
                 </div>
                 <div
                   className={`rounded-xl bg-gradient-to-br p-3 ${stat.color} bg-opacity-10`}
@@ -148,14 +150,12 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
               </div>
 
               {/* Additional metric */}
-              <div className="flex items-center gap-2 border-t border-gray-800/50 pt-4">
-                <stat.metric.icon className="h-4 w-4 text-gray-500" />
-                <span className="text-sm text-gray-400">
+              <div className="border-border flex items-center gap-2 border-t pt-4">
+                <stat.metric.icon className="text-muted-foreground h-4 w-4" />
+                <span className="text-muted-foreground text-sm">
                   {stat.metric.label}:
                 </span>
-                <span className="text-sm font-medium text-white">
-                  {stat.metric.value}
-                </span>
+                <span className="text-sm font-medium">{stat.metric.value}</span>
               </div>
             </div>
 
