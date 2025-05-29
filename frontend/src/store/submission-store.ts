@@ -45,7 +45,7 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
         isLoading: false,
       });
 
-      toast.success(res.message);
+      // toast.success(res.message);
     } catch (error) {
       console.log("Error getting all submissions", error);
       toast.error(getErrorMessage(error));

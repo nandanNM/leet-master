@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { usePlaylistStore } from "@/store";
 import LoadingButton from "./LoadingButton";
-import { capitalizeWords } from "@/lib/utils";
+import { capitalizeWord } from "@/lib/utils";
 
 interface AddToPlaylistModalProps {
   isOpen: boolean;
@@ -95,7 +95,7 @@ const AddToPlaylistModal = ({
                         value={playlist.id}
                         className="data-[state=checked]"
                       >
-                        {capitalizeWords(playlist.name)}
+                        {capitalizeWord(playlist.name)}
                       </SelectItem>
                     ))}
               </SelectContent>

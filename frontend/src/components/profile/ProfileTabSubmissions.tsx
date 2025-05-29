@@ -1,11 +1,11 @@
 import {
   Calendar,
   ChevronRight,
-  Clock,
   Code,
   ListVideo,
   Loader2,
-  Star,
+  Album,
+  Trash,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -15,8 +15,9 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/crazxy-ui/badge";
-import { useSubmissionStore } from "@/store";
-import { formatRelativeDate } from "@/lib/utils";
+import { usePlaylistStore, useSubmissionStore } from "@/store";
+import { capitalizeWord, formatRelativeDate } from "@/lib/utils";
+import LoadingButton from "../LoadingButton";
 
 const TABS = [
   {
@@ -27,7 +28,7 @@ const TABS = [
   {
     id: "playlist",
     label: "My Playlists",
-    icon: Star,
+    icon: Album,
   },
 ];
 const generateMockExecutions = () => [
@@ -57,61 +58,47 @@ const generateMockExecutions = () => [
   },
 ];
 
-const generateMockStarredSnippets = () => [
-  {
-    _id: "star1",
-    title: "React Hook Example",
-    language: "javascript",
-    code: "function useCounter() {\n  const [count, setCount] = useState(0);\n  \n  const increment = () => setCount(c => c + 1);\n  \n  return { count, increment };\n}",
-    _creationTime: Date.now() - 86400000, // 1 day ago
-  },
-  {
-    _id: "star2",
-    title: "Python Flask Route",
-    language: "python",
-    code: "@app.route('/api/users')\ndef get_users():\n    users = db.session.query(User).all()\n    return jsonify([u.serialize() for u in users])",
-    _creationTime: Date.now() - 172800000, // 2 days ago
-  },
-];
 export default function ProfileTabSubmissions() {
   const [activeTab, setActiveTab] = useState<"executions" | "playlist">(
     "executions",
   );
 
   const [executions, setExecutions] = useState(generateMockExecutions());
-  const [starredSnippets, setStarredSnippets] = useState(
-    generateMockStarredSnippets(),
-  );
-  const [isLoadingExecutions, setIsLoadingExecutions] = useState(false);
+
   const [executionStatus, setExecutionStatus] = useState<
     "CanLoadMore" | "CannotLoadMore"
   >("CanLoadMore");
 
   const handleLoadMore = () => {
-    setIsLoadingExecutions(true);
     // Simulate loading more data
     setTimeout(() => {
       setExecutions([...executions, ...generateMockExecutions()]);
       setExecutionStatus("CannotLoadMore");
-      setIsLoadingExecutions(false);
     }, 1000);
   };
   const { id: userId } = useParams();
-  const { getAllSubmissions, isLoading, submissions } = useSubmissionStore();
+  const {
+    getAllSubmissions,
+    isLoading: isLoadingExecutions,
+    submissions,
+  } = useSubmissionStore();
+  const {
+    getAllPlaylistsForUser,
+    isLoadingUserPlaylists,
+    userPlaylists,
+    deletePlaylist,
+    isLoading: isDeletingPlaylist,
+  } = usePlaylistStore();
+
   useEffect(() => {
     if (activeTab === "executions") getAllSubmissions();
   }, [userId, getAllSubmissions, activeTab]);
-  console.log(submissions);
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (activeTab === "playlist") getAllPlaylistsForUser();
+  }, [userId, getAllPlaylistsForUser, activeTab]);
 
   return (
-    <div className="px-4 py-3">
+    <div className="mx-auto max-w-7xl px-4 py-3">
       <Card className="overflow-hidden rounded-3xl shadow-lg">
         {/* Tabs */}
         <div className="border-b">
@@ -246,10 +233,7 @@ export default function ProfileTabSubmissions() {
 
                 {isLoadingExecutions ? (
                   <div className="py-12 text-center">
-                    <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
-                    <h3 className="text-muted-foreground mb-2 text-lg font-medium">
-                      Loading code executions...
-                    </h3>
+                    <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
                   </div>
                 ) : (
                   executions.length === 0 && (
@@ -283,76 +267,71 @@ export default function ProfileTabSubmissions() {
             {/* playlist Tab */}
             {activeTab === "playlist" && (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {starredSnippets?.map((snippet) => (
-                  <div key={snippet._id} className="group relative">
-                    <Link to={`/snippets/${snippet._id}`}>
-                      <Card className="hover:border-muted-foreground/30 h-full overflow-hidden transition-all duration-300 group-hover:scale-[1.02]">
-                        <CardContent className="p-6">
-                          <div className="mb-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="relative">
-                                <div className="bg-primary/20 absolute inset-0 rounded-lg blur transition-opacity group-hover:opacity-30" />
-                                <div className="bg-primary/10 relative z-10 flex h-10 w-10 items-center justify-center rounded-lg">
-                                  <Code className="text-primary h-5 w-5" />
-                                </div>
+                {userPlaylists?.map((playlist) => (
+                  <div key={playlist.id} className="group relative">
+                    <Card className="hover:border-muted-foreground/30 h-full gap-2 overflow-hidden py-2 transition-all duration-300 group-hover:scale-[1.02]">
+                      <CardContent className="p-3">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <div className="bg-primary/20 absolute inset-0 rounded-lg blur transition-opacity group-hover:opacity-30" />
+                              <div className="bg-primary/10 relative z-10 flex h-10 w-10 items-center justify-center rounded-lg">
+                                <Code className="text-primary h-5 w-5" />
                               </div>
-                              <Badge
-                                variant="secondary"
-                                className="bg-primary/10 text-primary"
-                              >
-                                {snippet.language}
-                              </Badge>
                             </div>
-                            <div
-                              className="absolute top-6 right-6 z-10"
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-primary p-1"
-                              >
-                                <Star className="h-5 w-5 fill-current" />
-                              </Button>
-                            </div>
-                          </div>
-                          <h2 className="text-foreground group-hover:text-primary mb-3 line-clamp-1 text-xl font-semibold">
-                            {snippet.title}
-                          </h2>
-                          <div className="text-muted-foreground flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
+                              <Calendar className="h-4 w-4" />
                               <span>
-                                {new Date(
-                                  snippet._creationTime,
-                                ).toLocaleDateString()}
+                                {formatRelativeDate(
+                                  new Date(playlist.createdAt),
+                                )}
                               </span>
                             </div>
+                          </div>
+                          <div
+                            className="absolute top-6 right-6 z-10"
+                            onClick={() => deletePlaylist(playlist.id)}
+                          >
+                            <LoadingButton
+                              loading={isDeletingPlaylist}
+                              variant="destructive"
+                              size="icon"
+                              className="p-1"
+                            >
+                              <Trash className="h-5 w-5 text-white" />
+                            </LoadingButton>
+                          </div>
+                        </div>
+                        <Link to={`/playlist/${playlist.id}`}>
+                          <h2 className="text-foreground group-hover:text-primary mb-3 line-clamp-1 text-xl font-semibold">
+                            {capitalizeWord(playlist.name)}
+                          </h2>
+                          <div className="text-muted-foreground flex items-center justify-between text-sm">
+                            <span className="line-clamp-1">
+                              {capitalizeWord(playlist.description || "")}
+                            </span>
                             <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                           </div>
-                        </CardContent>
-                        <div className="px-6 pb-6">
-                          <Card className="bg-muted">
-                            <CardContent className="p-4">
-                              <pre className="text-muted-foreground line-clamp-3 font-mono text-sm">
-                                {snippet.code}
-                              </pre>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </Card>
-                    </Link>
+                        </Link>
+                      </CardContent>
+                    </Card>
                   </div>
                 ))}
 
-                {(!starredSnippets || starredSnippets.length === 0) && (
+                {isLoadingUserPlaylists && (
+                  <div className="py-12 text-center">
+                    <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
+                  </div>
+                )}
+
+                {(!userPlaylists || userPlaylists.length === 0) && (
                   <div className="col-span-full py-12 text-center">
-                    <Star className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                    <Album className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
                     <h3 className="text-muted-foreground mb-2 text-lg font-medium">
-                      No starred snippets yet
+                      No playlist yet
                     </h3>
                     <p className="text-muted-foreground">
-                      Start exploring and star the snippets you find useful!
+                      Start exploring and create your playlist to find useful!
                     </p>
                   </div>
                 )}

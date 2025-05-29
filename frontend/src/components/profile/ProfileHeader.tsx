@@ -1,6 +1,7 @@
 import { Activity, Timer, UserIcon, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import type { AuthUser, UserSubmissionStats } from "@/types";
+import ProfileHeaderSkeleton from "./ProfileHeaderSkeleton";
 
 interface ProfileHeaderProps {
   submissionStats: UserSubmissionStats | null;
@@ -55,7 +56,7 @@ function ProfileHeader({
     // },
   ];
   if (isLoading) {
-    return <div>Loading....</div>;
+    return <ProfileHeaderSkeleton />;
   }
   return (
     <div className="from-background to-muted/50 border-border relative mb-2 overflow-hidden rounded-2xl border bg-gradient-to-br p-8">

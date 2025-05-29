@@ -14,18 +14,19 @@ export default function HeatmapCalendar({
   console.log("data", data, isLoading);
   return (
     <section className="mb-4 flex flex-col flex-wrap items-start">
-      <div className="mb-2">
+      {/* <div className="mb-2">
         <strong className="ml-3">Heatmap ↓</strong>
-      </div>
-      <Card className="w-full rounded-3xl px-4 py-4">
-        <CardContent className="max-w-6xl overflow-auto">
-          <div className="flex w-full justify-between gap-2">
-            <span className="text-muted-foreground flex flex-col justify-around py-2 pr-2 text-right text-xs">
+      </div> */}
+      <Card className="mt-2 w-full cursor-pointer rounded-3xl p-4 2xl:w-fit">
+        {/* <CardHeader className="pb-6 text-sm"></CardHeader> */}
+        <CardContent className="overflow-auto pr-3">
+          <div className="flex max-w-7xl">
+            <span className="flex flex-col justify-around py-2 pr-3 text-right text-xs text-gray-300">
               <span>Mon</span>
               <span>Wed</span>
               <span>Fri</span>
             </span>
-            <div className="w-full min-w-[600px] pr-4">
+            <div className="w-full min-w-[600px] pr-4 pb-2">
               <CalendarHeatmap
                 startDate={new Date("2025-01-01")}
                 endDate={new Date("2025-12-31")}

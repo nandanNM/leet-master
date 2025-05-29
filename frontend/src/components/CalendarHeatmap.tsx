@@ -1,4 +1,6 @@
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useTheme } from "./theme-provider";
 
 type DataValue = {
   date: string;
@@ -18,7 +20,7 @@ export default function CalendarHeatmap({
 }: CalendarHeatmapProps) {
   const startingDate = new Date(startDate);
   const endingDate = new Date(endDate);
-
+  const { theme } = useTheme();
   const daysInMonth =
     Math.ceil(
       (endingDate.getTime() - startingDate.getTime()) / (1000 * 60 * 60 * 24),
@@ -69,10 +71,18 @@ export default function CalendarHeatmap({
           <Link
             key={day}
             to={``}
-            className="h-4 w-4 cursor-pointer rounded bg-gray-400"
+            className={cn(
+              "h-4 w-4 cursor-pointer rounded",
+              activityCount === 0 ? "bg-muted" : "",
+            )}
             title={`${activityCount} submissions on ${day}`}
             style={{
-              backgroundColor: activityCount === 0 ? "#ffffff10" : color,
+              backgroundColor:
+                activityCount === 0
+                  ? theme === "dark"
+                    ? "#ffffff10"
+                    : "#e4e4e4"
+                  : color,
             }}
           />
         );

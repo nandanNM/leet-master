@@ -27,6 +27,10 @@ interface PlaylistStore {
     problemIds: string[],
   ) => Promise<void>;
   deletePlaylist: (playlistId: string) => Promise<void>;
+
+  getAllPlaylistsForUser: () => Promise<void>;
+  userPlaylists: BasicPlaylist[];
+  isLoadingUserPlaylists: boolean;
 }
 
 export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
@@ -34,6 +38,8 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
   currentPlaylist: null,
   isLoading: false,
   error: null,
+  userPlaylists: [],
+  isLoadingUserPlaylists: false,
 
   createPlaylist: async (playlistData) => {
     try {
@@ -65,6 +71,19 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
       toast.error(getErrorMessage(error));
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  getAllPlaylistsForUser: async () => {
+    try {
+      set({ isLoadingUserPlaylists: true });
+      const res = (await axiosInstance.get("/playlist")).data;
+      set({ userPlaylists: res.data });
+    } catch (error) {
+      console.error("Error fetching user playlists:", error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      set({ isLoadingUserPlaylists: false });
     }
   },
 
