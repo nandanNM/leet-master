@@ -2,13 +2,8 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-type AuthUser = {
-  id: string;
-  name: string;
-  email: string;
-  avater?: string;
-  role: "ADMIN" | "USER";
-};
+import type { AuthUser } from "@/types";
+
 type LoginData = {
   email: string;
   password: string;

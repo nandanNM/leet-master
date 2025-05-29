@@ -22,3 +22,19 @@ export interface CodeEditorState {
   setFontSize: (fontSize: number) => void;
   runCode: () => Promise<void>;
 }
+
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  avater?: string;
+  role: "ADMIN" | "USER";
+};
+export type UserSubmissionStats = {
+  totalSubmissions: number;
+  submissionsLast24Hours: number;
+};
+export type SubmissionHeatmapEntry = {
+  date: string; // Format: YYYY-MM-DD
+  count: number;
+};

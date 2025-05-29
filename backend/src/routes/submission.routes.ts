@@ -5,6 +5,8 @@ import {
   getAllSubmissions,
   getAllSubmissionCount,
   getAllSubmissionByProblemId,
+  getAllSubmissionStats,
+  getSubmissionHeatMap,
 } from "../controllers/submission.controllers";
 
 const submissionRoutes = Router();
@@ -19,5 +21,10 @@ submissionRoutes.get(
   authMiddleware,
   getAllSubmissionCount,
 );
-
+submissionRoutes.get(
+  "/submission-stats",
+  authMiddleware,
+  getAllSubmissionStats,
+);
+submissionRoutes.get("/heatmap", authMiddleware, getSubmissionHeatMap);
 export default submissionRoutes;

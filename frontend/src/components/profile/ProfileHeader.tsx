@@ -1,81 +1,62 @@
-import {
-  Activity,
-  Code2,
-  Star,
-  Timer,
-  TrendingUp,
-  Trophy,
-  UserIcon,
-  Zap,
-} from "lucide-react";
+import { Activity, Timer, UserIcon, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import type { AuthUser, UserSubmissionStats } from "@/types";
 
 interface ProfileHeaderProps {
-  userStats: {
-    totalExecutions: number;
-    languagesCount: number;
-    languages: string[];
-    last24Hours: number;
-    favoriteLanguage: string;
-    languageStats: Record<string, number>;
-    mostStarredLanguage: string;
-  };
-  userData: {
-    _id: string;
-    _creationTime: number;
-    proSince?: number | undefined;
-    lemonSqueezyCustomerId?: string | undefined;
-    lemonSqueezyOrderId?: string | undefined;
-    name: string;
-    userId: string;
-    email: string;
-    isPro: boolean;
-  };
+  submissionStats: UserSubmissionStats | null;
+  userData: AuthUser | null;
+  isLoading: boolean;
 }
 
-function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
+function ProfileHeader({
+  submissionStats,
+  userData,
+  isLoading,
+}: ProfileHeaderProps) {
   const STATS = [
     {
       label: "Code Executions",
-      value: userStats?.totalExecutions ?? 0,
+      value: submissionStats?.totalSubmissions ?? 0,
       icon: Activity,
       color: "from-blue-500 to-cyan-500",
       gradient: "group-hover:via-blue-400",
       description: "Total code runs",
       metric: {
         label: "Last 24h",
-        value: userStats?.last24Hours ?? 0,
+        value: submissionStats?.submissionsLast24Hours ?? 0,
         icon: Timer,
       },
     },
-    {
-      label: "Starred Snippets",
-      value: 0,
-      icon: Star,
-      color: "from-yellow-500 to-orange-500",
-      gradient: "group-hover:via-yellow-400",
-      description: "Saved for later",
-      metric: {
-        label: "Most starred",
-        value: userStats?.mostStarredLanguage ?? "N/A",
-        icon: Trophy,
-      },
-    },
-    {
-      label: "Languages Used",
-      value: userStats?.languagesCount ?? 0,
-      icon: Code2,
-      color: "from-purple-500 to-pink-500",
-      gradient: "group-hover:via-purple-400",
-      description: "Different languages",
-      metric: {
-        label: "Most used",
-        value: userStats?.favoriteLanguage ?? "N/A",
-        icon: TrendingUp,
-      },
-    },
+    // {
+    //   label: "Starred Snippets",
+    //   value: 0,
+    //   icon: Star,
+    //   color: "from-yellow-500 to-orange-500",
+    //   gradient: "group-hover:via-yellow-400",
+    //   description: "Saved for later",
+    //   metric: {
+    //     label: "Most starred",
+    //     value: userStats?.mostStarredLanguage ?? "N/A",
+    //     icon: Trophy,
+    //   },
+    // },
+    // {
+    //   label: "Languages Used",
+    //   value: userStats?.languagesCount ?? 0,
+    //   icon: Code2,
+    //   color: "from-purple-500 to-pink-500",
+    //   gradient: "group-hover:via-purple-400",
+    //   description: "Different languages",
+    //   metric: {
+    //     label: "Most used",
+    //     value: userStats?.favoriteLanguage ?? "N/A",
+    //     icon: TrendingUp,
+    //   },
+    // },
   ];
-
+  if (isLoading) {
+    return <div>Loading....</div>;
+  }
   return (
     <div className="from-background to-muted/50 border-border relative mb-2 overflow-hidden rounded-2xl border bg-gradient-to-br p-8">
       <div className="bg-grid-white/[0.02] absolute inset-0 bg-[size:32px]" />
@@ -87,7 +68,7 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
             alt="Profile"
             className="border-border relative z-10 h-24 w-24 rounded-full border-4 transition-transform group-hover:scale-105"
           />
-          {userData.isPro && (
+          {userData && userData.role === "ADMIN" && (
             <div className="absolute -top-2 -right-2 z-20 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-purple-600 p-2 shadow-lg">
               <Zap className="h-4 w-4 text-white" />
             </div>
@@ -95,16 +76,16 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
         </div>
         <div>
           <div className="mb-2 flex items-center gap-3">
-            <h1 className="text-3xl font-bold">{userData.name}</h1>
-            {userData.isPro && (
+            <h1 className="text-3xl font-bold">{userData?.name}</h1>
+            {userData && userData.role === "ADMIN" && (
               <span className="rounded-full bg-purple-500/10 px-3 py-1 text-sm font-medium text-purple-400">
-                Pro Member
+                admin user
               </span>
             )}
           </div>
           <p className="text-muted-foreground flex items-center gap-2">
             <UserIcon className="h-4 w-4" />
-            {userData.email}
+            {userData?.email}
           </p>
         </div>
       </div>
@@ -117,7 +98,7 @@ function ProfileHeader({ userStats, userData }: ProfileHeaderProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             key={index}
-            className="group from-background/60 to-muted/30 relative overflow-hidden rounded-2xl bg-gradient-to-br"
+            className="group from-background/60 to-muted/30 relative overflow-hidden rounded-2xl border bg-gradient-to-br"
           >
             {/* Glow effect */}
             <div
