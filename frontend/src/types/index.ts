@@ -28,6 +28,7 @@ export type AuthUser = {
   name: string;
   email: string;
   avater?: string;
+  bio?: string;
   role: "ADMIN" | "USER";
 };
 export type UserSubmissionStats = {

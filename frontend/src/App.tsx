@@ -28,9 +28,9 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<RegisterPage />} />
         </Route>
+        <Route path="/" element={<Home />} />
         {/* private routes */}
         <Route element={<RootLayout />}>
-          <Route path="/" element={<Home />} />
           <Route path="/problems" element={<Problems />} />
           <Route path="/problems/:id" element={<ProblemWorkspace />} />
           <Route path="/profile/:id" element={<ProfilePage />} />

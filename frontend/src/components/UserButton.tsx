@@ -79,7 +79,7 @@ export default function UserButton({ className }: UserButtonProps) {
         <DropdownMenuItem
           onClick={() => {
             logout();
-            navigate("/login");
+            navigate("/");
           }}
         >
           <LogOutIcon className="mr-2 size-4" />

@@ -7,6 +7,7 @@ import {
   getAllPlaylistsForUser,
   getPlaylistById,
   removeProblemFromPlaylist,
+  updatePlaylist,
 } from "../controllers/playlist.controllers";
 import {validate} from "../middlewares/validate.middleware";
 import {PlaylistSchema} from "../schemas/playlist";
@@ -29,6 +30,12 @@ playlistRoutes.post(
   "/:id/remove-problems",
   authMiddleware,
   removeProblemFromPlaylist,
+);
+playlistRoutes.post(
+  "/update/:id",
+  validate(PlaylistSchema),
+  authMiddleware,
+  updatePlaylist,
 );
 
 export default playlistRoutes;

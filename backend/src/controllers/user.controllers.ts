@@ -1,7 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {LoginUser, RegisterUser} from "../schemas/user";
+import {LoginUser, RegisterUser, UpdateUser} from "../schemas/user";
 import {ApiResponse, ApiError} from "../utils/responses";
 import {db} from "../db";
 import {usersTable} from "../db/schema";
@@ -138,3 +138,13 @@ export const getUserSessions = asyncHandler(
     ).send(res);
   },
 );
+
+export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+  if (!isAuthenticated(req)) {
+    throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+  }
+  const {id: userId} = req.user;
+  const {name, bio, avatar} = req.body as UpdateUser;
+
+  new ApiResponse(200, "User updated successfully").send(res);
+});

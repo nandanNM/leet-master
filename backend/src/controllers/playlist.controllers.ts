@@ -6,6 +6,7 @@ import {ApiError, ApiResponse} from "../utils/responses";
 import {db} from "src/db";
 import {playlistsTable, problemsInPlaylistTable} from "src/db/schema";
 import {and, eq, inArray} from "drizzle-orm";
+import {date} from "drizzle-orm/mysql-core";
 
 export const createPlaylist = asyncHandler(
   async (req: Request, res: Response) => {
@@ -133,6 +134,9 @@ export const deletePlaylist = asyncHandler(async (req, res) => {
 export const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
   const {id: playListId} = req.params;
   const {problemIds} = req.body;
+  if (!isAuthenticated(req)) {
+    throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+  }
   if (!playListId) {
     throw new ApiError(400, "Playlist ID is required", "BAD_REQUEST");
   }
@@ -152,4 +156,31 @@ export const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Problem not found in playlist", "NOT_FOUND");
   }
   new ApiResponse(200, "Problem removed from playlist successfully").send(res);
+});
+
+export const updatePlaylist = asyncHandler(async (req, res) => {
+  if (!isAuthenticated(req)) {
+    throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+  }
+  const {id: userId} = req.params;
+  const {id: playListId} = req.params;
+  const {name, description} = req.body as Playlist;
+  const updatedPlaylist = await db
+    .update(playlistsTable)
+    .set({
+      name,
+      description,
+    })
+    .where(
+      and(eq(playlistsTable.id, playListId), eq(playlistsTable.userId, userId)),
+    )
+    .returning();
+
+  if (!updatedPlaylist) {
+    throw new ApiError(404, "Playlist not found", "NOT_FOUND");
+  }
+
+  new ApiResponse(200, "Playlist updated successfully", updatedPlaylist).send(
+    res,
+  );
 });

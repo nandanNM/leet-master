@@ -8,9 +8,11 @@ export const rolesEnum = pgEnum("role", ["ADMIN", "USER"]);
 export const usersTable = table("users", {
   id: t.uuid("id").primaryKey().defaultRandom(),
   name: t.varchar({length: 255}).notNull(),
+  bio: t.varchar({length: 255}),
   email: t.varchar({length: 255}).notNull().unique(),
   password: t.varchar({length: 255}),
   avatar: t.text("avatar"),
+  avatarPublicId: t.varchar("avatar_public_id", {length: 255}),
   role: rolesEnum().default("USER").notNull(),
 
   createdAt: t.timestamp("created_at").defaultNow(),
