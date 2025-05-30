@@ -2,8 +2,8 @@ import type { LanguageConfig, Theme } from "@/types";
 import type { Monaco } from "@monaco-editor/react";
 
 export const menuItems = [
-  { name: "Features", to: "#link" },
-  { name: "Solution", to: "#link" },
+  { name: "Home", to: "/" },
+  { name: "Problems", to: "/problems" },
   { name: "Pricing", to: "#link" },
   { name: "About", to: "#link" },
 ];

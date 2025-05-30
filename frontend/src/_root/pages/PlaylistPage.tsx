@@ -46,8 +46,10 @@ export default function PlaylistPage() {
     );
   }
   const handleRemoveProblem = (problemId: string) => {
-    removeProblemFromPlaylist(playlistId, [...problemId]);
+    removeProblemFromPlaylist(playlistId, Array.from([problemId]));
   };
+  console.log("poblamId", playlistId);
+  console.log("playlistData", playlistData.id);
   return (
     <div className="container mx-auto space-y-6 p-6">
       {/* Playlist Header */}
@@ -116,7 +118,7 @@ export default function PlaylistPage() {
                       className="hover:bg-muted/50"
                     >
                       <TableCell>
-                        <div className="font-medium">
+                        <div className="line-clamp-1 font-medium">
                           {problemItem.problem.title}
                         </div>
                       </TableCell>
@@ -154,7 +156,7 @@ export default function PlaylistPage() {
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-sm">
+                        <div className="line-clamp-1 text-sm">
                           {truncateText(problemItem.problem.description, 80)}
                         </div>
                       </TableCell>
@@ -176,7 +178,9 @@ export default function PlaylistPage() {
                           loading={isRemovingPoblem}
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRemoveProblem(problemItem.id)}
+                          onClick={() =>
+                            handleRemoveProblem(problemItem.problem.id)
+                          }
                           className="text-red-600 hover:bg-red-50 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />

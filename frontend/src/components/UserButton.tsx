@@ -19,7 +19,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./theme-provider";
 import { useAuthStore } from "@/store";
 interface UserButtonProps {
@@ -29,6 +29,8 @@ interface UserButtonProps {
 export default function UserButton({ className }: UserButtonProps) {
   const { theme, setTheme } = useTheme();
   const { authUser: user } = useAuthStore();
+  const { logout } = useAuthStore();
+  const navigate = useNavigate();
   if (!user) return null;
   return (
     <DropdownMenu>
@@ -76,7 +78,8 @@ export default function UserButton({ className }: UserButtonProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            console.log("Logged out");
+            logout();
+            navigate("/login");
           }}
         >
           <LogOutIcon className="mr-2 size-4" />

@@ -13,19 +13,19 @@ function Footer() {
           </div>
           <div className="flex items-center gap-6">
             <Link
-              to="/support"
+              to="#"
               className="text-gray-400 transition-colors hover:text-gray-300"
             >
               Support
             </Link>
             <Link
-              to="/privacy"
+              to="#"
               className="text-gray-400 transition-colors hover:text-gray-300"
             >
               Privacy
             </Link>
             <Link
-              to="/terms"
+              to="#"
               className="text-gray-400 transition-colors hover:text-gray-300"
             >
               Terms

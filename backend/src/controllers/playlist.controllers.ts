@@ -146,8 +146,8 @@ export const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
         eq(problemsInPlaylistTable.playListId, playListId),
         inArray(problemsInPlaylistTable.problemId, problemIds),
       ),
-    )
-    .returning();
+    );
+
   if (!deletedProblem) {
     throw new ApiError(404, "Problem not found in playlist", "NOT_FOUND");
   }

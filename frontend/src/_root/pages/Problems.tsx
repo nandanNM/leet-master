@@ -15,7 +15,7 @@ export default function Problems() {
   if (isProblemsLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="size-10 animate-spin" />
+        <Loader2 className="size-6 animate-spin" />
       </div>
     );
   }
