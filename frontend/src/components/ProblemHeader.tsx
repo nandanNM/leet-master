@@ -11,8 +11,11 @@ import {
 import { Separator } from "./ui/separator";
 import { formatNumber } from "@/lib/utils";
 import { Button } from "./ui/button";
-import ThemeSelector from "./ThemeSelector";
-import LanguageSelector from "./LanguageSelector";
+import ThemeSelector from "./editor/ThemeSelector";
+import LanguageSelector from "./editor/LanguageSelector";
+
+import AddToPlaylistModal from "./AddToPlaylistDialog";
+import { usePlaylistDialog } from "@/store";
 
 interface ProblemHeaderProps {
   problem: Problem;
@@ -22,6 +25,8 @@ export default function ProblemHeader({
   problem,
   submissionCount,
 }: ProblemHeaderProps) {
+  const { closeDialog, open, openDialog } = usePlaylistDialog();
+
   return (
     <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
       <div className="container mx-auto p-4">
@@ -59,8 +64,8 @@ export default function ProblemHeader({
             <Button
               variant="ghost"
               size="icon"
-              onClick={(e) => console.log(e)}
-              className={""}
+              onClick={() => openDialog(problem.id)}
+              className="hover:text-primary"
             >
               <Bookmark className="h-4 w-4" />
             </Button>
@@ -74,6 +79,11 @@ export default function ProblemHeader({
           </div>
         </div>
       </div>
+      <AddToPlaylistModal
+        problemId={problem.id}
+        onClose={closeDialog}
+        isOpen={open}
+      />
     </div>
   );
 }

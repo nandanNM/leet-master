@@ -36,8 +36,7 @@ import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
 import { useSubmissionStore } from "@/store";
 import SubmissionTable from "@/components/SubmissionTable";
-import MonocoEditor from "@/components/Editor";
-
+import MonocoEditor from "@/components/editor/Editor";
 import { useCodeEditorStore } from "@/store";
 import ProblemHeader from "@/components/ProblemHeader";
 
@@ -238,8 +237,7 @@ export default function ProblemWorkspace() {
     <div className="bg-background mt-4 min-h-screen px-4">
       {/* Header */}
       <ProblemHeader problem={problem} submissionCount={submissionCount} />
-
-      {/* Main Content */}
+      {/* playlist add dailog */}
       <div className="container mx-auto p-4">
         <ResizablePanelGroup direction="horizontal" className="min-h-[800px]">
           {/* Problem Description Panel */}

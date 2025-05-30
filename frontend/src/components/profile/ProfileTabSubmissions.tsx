@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import CodeBlock from "@/components/CodeBlock";
+import CodeBlock from "@/components/editor/CodeBlock";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";

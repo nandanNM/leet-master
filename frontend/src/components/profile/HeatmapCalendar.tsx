@@ -1,4 +1,4 @@
-import CalendarHeatmap from "@/components/CalendarHeatmap";
+import CalendarHeatmap from "@/components/profile/CalendarHeatmap";
 import type { SubmissionHeatmapEntry } from "@/types";
 
 import { Card, CardContent } from "../ui/card";

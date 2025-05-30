@@ -101,7 +101,6 @@ export default function ProblemsTable({ problems = [] }: ProblemsTableProps) {
       columnVisibility,
     },
   });
-  // Get unique difficulty values
   const difficultyColumn = table.getColumn("difficulty");
   const difficultyFacetedValues = difficultyColumn?.getFacetedUniqueValues();
   const uniqueDifficultyValues = useMemo(() => {
@@ -166,7 +165,6 @@ export default function ProblemsTable({ problems = [] }: ProblemsTableProps) {
 
   return (
     <div className="mx-auto mt-10 w-full max-w-6xl space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Problems</h2>
         <CreatePlaylistDialog />
