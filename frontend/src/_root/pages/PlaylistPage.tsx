@@ -14,13 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/crazxy-ui/badge";
-import { Trash2, Calendar, User, Hash, Loader2 } from "lucide-react";
+import { Trash2, Calendar, Loader2 } from "lucide-react";
 import { usePlaylistStore } from "@/store";
 import { useParams } from "react-router-dom";
 import { formatDate } from "date-fns";
 import { getDifficultyColor } from "@/lib/utils";
+import LoadingButton from "@/components/LoadingButton";
 const truncateText = (text: string, maxLength: number) => {
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
@@ -31,6 +32,7 @@ export default function PlaylistPage() {
     currentPlaylist: playlistData,
     isLoading,
     removeProblemFromPlaylist,
+    isRemovingPoblem,
   } = usePlaylistStore();
   useEffect(() => {
     getPlaylistDetails(playlistId || "");
@@ -67,14 +69,6 @@ export default function PlaylistPage() {
           </div>
 
           <div className="text-muted-foreground flex flex-wrap gap-4 pt-4 text-sm">
-            <div className="flex items-center gap-1">
-              <Hash className="h-4 w-4" />
-              <span>ID: {playlistData.id.slice(0, 8)}...</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <User className="h-4 w-4" />
-              <span>User: {playlistData.userId.slice(0, 8)}...</span>
-            </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>
@@ -122,13 +116,8 @@ export default function PlaylistPage() {
                       className="hover:bg-muted/50"
                     >
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">
-                            {problemItem.problem.title}
-                          </div>
-                          <div className="text-muted-foreground text-xs">
-                            ID: {problemItem.problem.id.slice(0, 8)}...
-                          </div>
+                        <div className="font-medium">
+                          {problemItem.problem.title}
                         </div>
                       </TableCell>
 
@@ -150,10 +139,10 @@ export default function PlaylistPage() {
                             .map((tag, index) => (
                               <Badge
                                 key={index}
-                                variant="outline"
-                                className="text-xs"
+                                variant="purple"
+                                className="text-[10px]"
                               >
-                                {tag}
+                                {tag.toLocaleLowerCase()}
                               </Badge>
                             ))}
                           {problemItem.problem.tags.length > 3 && (
@@ -168,12 +157,6 @@ export default function PlaylistPage() {
                         <div className="text-sm">
                           {truncateText(problemItem.problem.description, 80)}
                         </div>
-                        {problemItem.problem.constraints && (
-                          <div className="text-muted-foreground mt-1 text-xs">
-                            Constraints:{" "}
-                            {truncateText(problemItem.problem.constraints, 40)}
-                          </div>
-                        )}
                       </TableCell>
 
                       <TableCell>
@@ -189,14 +172,15 @@ export default function PlaylistPage() {
                       </TableCell>
 
                       <TableCell>
-                        <Button
+                        <LoadingButton
+                          loading={isRemovingPoblem}
                           variant="outline"
                           size="sm"
                           onClick={() => handleRemoveProblem(problemItem.id)}
                           className="text-red-600 hover:bg-red-50 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </LoadingButton>
                       </TableCell>
                     </TableRow>
                   ))}

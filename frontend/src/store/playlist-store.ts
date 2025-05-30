@@ -26,6 +26,7 @@ interface PlaylistStore {
     playlistId: string,
     problemIds: string[],
   ) => Promise<void>;
+  isRemovingPoblem: boolean;
   deletePlaylist: (playlistId: string) => Promise<void>;
 
   getAllPlaylistsForUser: () => Promise<void>;
@@ -40,6 +41,7 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
   error: null,
   userPlaylists: [],
   isLoadingUserPlaylists: false,
+  isRemovingPoblem: false,
 
   createPlaylist: async (playlistData) => {
     try {
@@ -122,7 +124,7 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
   },
   removeProblemFromPlaylist: async (playlistId, problemIds) => {
     try {
-      set({ isLoading: true });
+      set({ isRemovingPoblem: true });
       await axiosInstance.post(`/playlist/${playlistId}/remove-problems`, {
         problemIds,
       });
@@ -134,7 +136,7 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
       console.error("Error removing problem from playlist:", error);
       toast.error(getErrorMessage(error));
     } finally {
-      set({ isLoading: false });
+      set({ isRemovingPoblem: false });
     }
   },
 

@@ -25,8 +25,8 @@ playlistRoutes.get("/", authMiddleware, getAllPlaylistsForUser);
 playlistRoutes.get("/details/:id", authMiddleware, getPlaylistById);
 playlistRoutes.post("/:id/add-problem", authMiddleware, addProblemToPlaylist);
 playlistRoutes.delete("/:id", authMiddleware, deletePlaylist);
-playlistRoutes.delete(
-  "/:id/remove-problem",
+playlistRoutes.post(
+  "/:id/remove-problems",
   authMiddleware,
   removeProblemFromPlaylist,
 );
