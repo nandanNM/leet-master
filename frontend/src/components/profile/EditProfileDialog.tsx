@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -28,6 +29,7 @@ import {
 } from "@/lib/validations";
 import CropImageDialog from "../CropImageDialog";
 import { useRef, useState } from "react";
+import { useAuthStore } from "@/store";
 interface EditProfileDialogProps {
   user: AuthUser;
   open: boolean;
@@ -40,11 +42,12 @@ export default function EditProfileDialog({
   onOpenChange,
 }: EditProfileDialogProps) {
   const [croppedAvater, setCroppedAvater] = useState<Blob | null>(null);
+  const { updateProfile, isUpdatingUser } = useAuthStore();
   const form = useForm<UpdateUserProfileValues>({
     resolver: zodResolver(updateUserProfileSchema),
     defaultValues: {
       name: user.name,
-      bio: user.bio,
+      bio: user.bio || "",
     },
   });
 
@@ -53,21 +56,25 @@ export default function EditProfileDialog({
     const newAvatarFile = croppedAvater
       ? new File([croppedAvater], `avatar_${user.id}.webp`)
       : undefined;
-    console.log(newAvatarFile, values);
+    updateProfile({ ...values, avatar: newAvatarFile });
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="px-4 md:p-6">
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you're done.
+          </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-1.5">
           <Label>Avatar</Label>
           <AvaterInput
             src={
               croppedAvater
                 ? URL.createObjectURL(croppedAvater)
-                : user.avater || "/images/avatar-placeholder.png"
+                : user.avatar || "/images/avatar-placeholder.png"
             }
             onImageCroped={setCroppedAvater}
           />
@@ -105,7 +112,7 @@ export default function EditProfileDialog({
               )}
             />
             <DialogFooter>
-              <LoadingButton type="submit" loading={false}>
+              <LoadingButton type="submit" loading={isUpdatingUser}>
                 Save
               </LoadingButton>
             </DialogFooter>
@@ -151,16 +158,16 @@ function AvaterInput({ src, onImageCroped }: AvaterInputProps) {
       <button
         type="button"
         onClick={() => fileInputRef.current?.click()}
-        className="group relative block"
+        className="group relative block cursor-pointer"
       >
         <img
           src={src}
-          alt="Avatar Preview"
+          alt="Avatar preview"
           width={150}
           height={150}
           className="size-32 flex-none rounded-full object-cover"
         />
-        <span className="bg-opacity-30 group-hover:bg-opacity-20 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full bg-black transition-colors duration-200">
+        <span className="bg-opacity-30 group-hover:bg-opacity-25 absolute inset-0 m-auto flex size-12 items-center justify-center rounded-full bg-black/40 text-white transition-colors duration-200">
           <Camera size={24} />
         </span>
       </button>

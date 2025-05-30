@@ -2,6 +2,7 @@ import { Activity, Timer, UserIcon, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import type { AuthUser, UserSubmissionStats } from "@/types";
 import ProfileHeaderSkeleton from "./ProfileHeaderSkeleton";
+import EditProfileButton from "./EditProfileButton";
 
 interface ProfileHeaderProps {
   submissionStats: UserSubmissionStats | null;
@@ -58,6 +59,7 @@ function ProfileHeader({
   if (isLoading) {
     return <ProfileHeaderSkeleton />;
   }
+
   return (
     <div className="from-background to-muted/50 border-border relative mb-2 overflow-hidden rounded-2xl border bg-gradient-to-br p-8">
       <div className="bg-grid-white/[0.02] absolute inset-0 bg-[size:32px]" />
@@ -89,6 +91,7 @@ function ProfileHeader({
             {userData?.email}
           </p>
         </div>
+        <div>{userData && <EditProfileButton user={userData} />}</div>
       </div>
 
       {/* Stats Cards */}

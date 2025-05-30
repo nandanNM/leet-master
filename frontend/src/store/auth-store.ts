@@ -3,6 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import type { AuthUser } from "@/types";
+import type { UpdateUserProfileValues } from "@/lib/validations";
 
 type LoginData = {
   email: string;
@@ -21,11 +22,12 @@ interface AuthState {
   isLoggingIn: boolean;
   isFetchingUser: boolean;
   isAuthenticated: boolean;
-
+  isUpdatingUser: boolean;
   getCurrentUser: () => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   login: (data: LoginData) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: UpdateUserProfileValues) => Promise<void>;
 }
 export const useAuthStore = create<AuthState>((set) => ({
   authUser: null,
@@ -33,6 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoggingIn: false,
   isFetchingUser: false,
   isAuthenticated: false,
+  isUpdatingUser: false,
 
   getCurrentUser: async () => {
     set({ isFetchingUser: true });
@@ -84,6 +87,27 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       console.log("Error logging out", error);
       toast.error(getErrorMessage(error));
+    }
+  },
+
+  updateProfile: async (data) => {
+    set({ isUpdatingUser: true });
+    try {
+      console.log("Updating profile with data:", data);
+      const res = (
+        await axiosInstance.post("/auth/update", data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+      ).data;
+      set({ authUser: res.data, isAuthenticated: true });
+      toast.success(res.message);
+    } catch (error) {
+      console.log("Error updating profile", error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      set({ isUpdatingUser: false });
     }
   },
 }));

@@ -27,7 +27,7 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  avater?: string;
+  avatar?: string;
   bio?: string;
   role: "ADMIN" | "USER";
 };

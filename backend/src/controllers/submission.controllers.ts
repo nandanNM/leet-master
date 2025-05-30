@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import {db} from "../db";
 import {submissionsTable} from "../db/schema";
 import {and, count, eq, gte, sql} from "drizzle-orm";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {ApiResponse, ApiError} from "../utils/responses";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
 
@@ -18,7 +18,7 @@ export const getAllSubmissions = asyncHandler(
       where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
       orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
     });
-    console.log("submissions", submissions);
+    // console.log("submissions", submissions);
 
     new ApiResponse(200, "Submissions fetched successfully", submissions).send(
       res,
@@ -68,7 +68,7 @@ export const getAllSubmissionCount = asyncHandler(
       submissionsTable,
       eq(submissionsTable.problemId, problemId),
     );
-    console.log("Submission count:", submissionCount);
+    // console.log("Submission count:", submissionCount);
 
     new ApiResponse(
       200,

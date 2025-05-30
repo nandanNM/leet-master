@@ -144,6 +144,7 @@ export const getUserSessions = asyncHandler(
 );
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+  console.log("req.files", req.files, req.body);
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }

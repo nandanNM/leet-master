@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
@@ -12,6 +11,7 @@ export default function UserAvatar({
   size,
   className,
 }: UserAvatarProps) {
+  // console.log("avatarUrl", avatarUrl);
   return (
     <img
       src={avatarUrl || "/images/avatar-placeholder.png"}

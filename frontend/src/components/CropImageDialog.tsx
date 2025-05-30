@@ -2,6 +2,7 @@ import { useRef } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -34,6 +35,7 @@ export default function CropImageDialog({
       <DialogContent>
         <DialogTitle>
           <DialogHeader>Crop image</DialogHeader>
+          <DialogDescription />
         </DialogTitle>
         <Cropper
           src={src}
