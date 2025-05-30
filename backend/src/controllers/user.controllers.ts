@@ -170,15 +170,15 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   if (avatarFilePath) {
     const avatar = await uploadOnCloudinary(
       avatarFilePath,
-      slugifyName(user.name),
+      slugifyName(user.name) + Date.now(),
     );
+    if (user.avatarPublicId) {
+      await deleteOnCloudinary(user.avatarPublicId);
+    }
     if (avatar) {
       avatarPublicId = avatar.public_id;
       avatarUrl = avatar.secure_url;
     }
-  }
-  if (user.avatarPublicId) {
-    await deleteOnCloudinary(user.avatarPublicId);
   }
 
   const [updatedUser] = await db

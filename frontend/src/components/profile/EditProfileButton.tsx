@@ -9,7 +9,6 @@ interface EditProfileButtonProps {
 
 export default function EditProfileButton({ user }: EditProfileButtonProps) {
   const [showDialog, setShowDialog] = useState(false);
-
   return (
     <>
       <Button variant="outline" onClick={() => setShowDialog(true)}>
