@@ -5,14 +5,9 @@ import {
   FileText,
   MessageSquare,
   Lightbulb,
-  Bookmark,
-  Share2,
-  Clock,
-  ChevronRight,
   Code2,
   Users,
   ThumbsUp,
-  Home,
   Loader2,
   Play,
 } from "lucide-react";
@@ -20,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/crazxy-ui/badge";
-import { Separator } from "@/components/ui/separator";
+
 import {
   Table,
   TableBody,
@@ -42,14 +37,14 @@ import LoadingButton from "@/components/LoadingButton";
 import { useSubmissionStore } from "@/store";
 import SubmissionTable from "@/components/SubmissionTable";
 import MonocoEditor from "@/components/Editor";
-import ThemeSelector from "@/components/ThemeSelector";
-import LanguageSelector from "@/components/LanguageSelector";
+
 import { useCodeEditorStore } from "@/store";
+import ProblemHeader from "@/components/ProblemHeader";
 
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
-  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const { id } = useParams();
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
   const {
@@ -65,7 +60,7 @@ export default function ProblemWorkspace() {
     submissionCount,
   } = useSubmissionStore();
   const { language: selectedLanguage, clearProblemCode } = useCodeEditorStore();
-
+  console.log("submissionResults", submissionResults);
   useEffect(() => {
     if (!id) return;
     getProblemById(id as string);
@@ -242,60 +237,7 @@ export default function ProblemWorkspace() {
   return (
     <div className="bg-background mt-4 min-h-screen px-4">
       {/* Header */}
-      <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
-        <div className="container mx-auto p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="text-muted-foreground flex items-center gap-2">
-                <Home className="h-4 w-4" />
-                <ChevronRight className="h-4 w-4" />
-                <span className="text-sm">Problems</span>
-                <ChevronRight className="h-4 w-4" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">{problem.title}</h1>
-                <div className="text-muted-foreground mt-1 flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      Updated {new Date(problem.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>
-                      {formatNumber(submissionCount || 0)} Submissions
-                    </span>
-                  </div>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex items-center gap-1">
-                    <ThumbsUp className="h-4 w-4" />
-                    <span>95% Success Rate</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsBookmarked(!isBookmarked)}
-                className={isBookmarked ? "text-yellow-500" : ""}
-              >
-                <Bookmark className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <div className="flex w-full items-center gap-2">
-                <ThemeSelector />
-                <LanguageSelector />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProblemHeader problem={problem} submissionCount={submissionCount} />
 
       {/* Main Content */}
       <div className="container mx-auto p-4">
