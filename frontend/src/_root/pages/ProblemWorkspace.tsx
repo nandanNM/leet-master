@@ -1,7 +1,6 @@
 import { useExecutionStore, useProblemStore } from "@/store";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Editor from "@monaco-editor/react";
 import {
   FileText,
   MessageSquare,
@@ -10,7 +9,6 @@ import {
   Share2,
   Clock,
   ChevronRight,
-  Terminal,
   Code2,
   Users,
   ThumbsUp,
@@ -21,13 +19,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/crazxy-ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -48,15 +39,16 @@ import { formatNumber, getDifficultyColor, getLanguageId } from "@/lib/utils";
 import { mockProblem, type Difficulty } from "@/constants";
 import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
-import { useTheme } from "@/components/theme-provider";
 import { useSubmissionStore } from "@/store";
 import SubmissionTable from "@/components/SubmissionTable";
-type LanguageKey = "JAVASCRIPT" | "PYTHON" | "JAVA";
+import MonocoEditor from "@/components/Editor";
+import ThemeSelector from "@/components/ThemeSelector";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useCodeEditorStore } from "@/store";
+
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<LanguageKey>("JAVASCRIPT");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { id } = useParams();
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
@@ -72,8 +64,8 @@ export default function ProblemWorkspace() {
     submissionsForProblem: submissionResults,
     submissionCount,
   } = useSubmissionStore();
-  const { theme } = useTheme();
-  // console.log("submissionResults", submissionResults);
+  const { language: selectedLanguage, clearProblemCode } = useCodeEditorStore();
+
   useEffect(() => {
     if (!id) return;
     getProblemById(id as string);
@@ -105,11 +97,6 @@ export default function ProblemWorkspace() {
         Problem not found
       </div>
     );
-  // console.log("problem", problem);
-  const handleLanguageChange = (value: LanguageKey) => {
-    setSelectedLanguage(value);
-    setCode(problem.codeSnippets?.[value] || "");
-  };
   const handleRunCode = async (e: React.FormEvent) => {
     e.preventDefault();
     const language_id = getLanguageId(selectedLanguage);
@@ -124,6 +111,7 @@ export default function ProblemWorkspace() {
         language_id: language_id || "",
         problemId: id as string,
       });
+      clearProblemCode(problem.id);
     } catch (error) {
       console.error("Error running code:", error);
     }
@@ -300,21 +288,10 @@ export default function ProblemWorkspace() {
               <Button variant="ghost" size="icon">
                 <Share2 className="h-4 w-4" />
               </Button>
-              <Select
-                value={selectedLanguage}
-                onValueChange={handleLanguageChange}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(problem.codeSnippets || {}).map((lang) => (
-                    <SelectItem key={lang} value={lang}>
-                      {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex w-full items-center gap-2">
+                <ThemeSelector />
+                <LanguageSelector />
+              </div>
             </div>
           </div>
         </div>
@@ -370,57 +347,30 @@ export default function ProblemWorkspace() {
 
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={55} minSize={40}>
-            <Card className="h-full gap-4">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Terminal className="h-4 w-4" />
-                  <CardTitle className="text-lg">Code Editor</CardTitle>
+            <div className="h-full gap-4">
+              <div className="h-[500px] overflow-hidden rounded-lg">
+                <MonocoEditor problem={problem} />
+              </div>
+              <div className="bg-muted/50 border-t p-4">
+                <div className="flex items-center justify-between">
+                  <LoadingButton
+                    onClick={handleRunCode}
+                    loading={isExecuting}
+                    variant="accent"
+                    className="flex items-center gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    Run Code
+                  </LoadingButton>
+                  <Button
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Submit Solution
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[500px] overflow-hidden rounded-lg border">
-                  <Editor
-                    height="100%"
-                    language={selectedLanguage.toLowerCase()}
-                    theme={theme === "dark" ? "vs-dark" : "light"}
-                    value={code}
-                    onChange={(value) => setCode(value || "")}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      lineNumbers: "on",
-                      roundedSelection: false,
-                      scrollBeyondLastLine: false,
-                      readOnly: false,
-                      automaticLayout: true,
-                      padding: { top: 16, bottom: 16 },
-                      renderLineHighlight: "all",
-                      selectionHighlight: true,
-                      scrollbar: { useShadows: false },
-                    }}
-                  />
-                </div>
-                <div className="bg-muted/50 border-t p-4">
-                  <div className="flex items-center justify-between">
-                    <LoadingButton
-                      onClick={handleRunCode}
-                      loading={isExecuting}
-                      variant="accent"
-                      className="flex items-center gap-2"
-                    >
-                      <Play className="h-4 w-4" />
-                      Run Code
-                    </LoadingButton>
-                    <Button
-                      variant="default"
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Submit Solution
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
 

@@ -5,3 +5,4 @@ export { useExecutionStore } from "./execution-store";
 export { useSubmissionStore } from "./submission-store";
 export { useActions } from "./action-store";
 export { usePlaylistDialog } from "./playlist-dialog";
+export { useCodeEditorStore } from "./code-cditor-store";

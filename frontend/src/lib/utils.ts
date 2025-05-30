@@ -101,9 +101,6 @@ export function formatRelativeDate(from: Date) {
   }
 }
 
-export function capitalizeWords(sentence: string): string {
-  return sentence
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+export function capitalizeWord(sentence: string): string {
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }

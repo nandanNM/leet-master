@@ -53,11 +53,8 @@ export default function SubmissionResults({
 
   return (
     <div className="mt-6 space-y-6">
-      {/* Overall Status */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card
-        // className={`${submission.status === "ACCEPTED" ? "bg-primary" : ""}`}
-        >
+        <Card>
           <CardContent className="p-4">
             <div className="text-muted-foreground mb-2 text-sm font-medium">
               Status
@@ -66,7 +63,7 @@ export default function SubmissionResults({
               variant={
                 submission.status === "ACCEPTED" ? "outlineGreen" : "outline"
               }
-              className={cn(getStatusColor(submission.status), "text-md")}
+              className={cn(getStatusColor(submission.status), "")}
             >
               {submission.status}
             </Badge>

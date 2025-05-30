@@ -38,3 +38,33 @@ export type SubmissionHeatmapEntry = {
   date: string; // Format: YYYY-MM-DD
   count: number;
 };
+
+export type EditorStore = {
+  language: string;
+  theme: string;
+  fontSize: number;
+  code: string;
+  editor: Monaco | null;
+
+  setLanguage: (language: string) => void;
+  setTheme: (theme: string) => void;
+  setFontSize: (size: number) => void;
+  setCode: (code: string) => void;
+  setEditor: (editor: Monaco) => void;
+};
+export type LanguageKey = "JAVASCRIPT" | "PYTHON" | "JAVA";
+export type LanguageConfig = Record<
+  LanguageKey,
+  {
+    id: string;
+    label: string;
+    logoPath: string;
+
+    monacoLanguage: string;
+  }
+>;
+export interface Theme {
+  id: string;
+  label: string;
+  color: string;
+}
