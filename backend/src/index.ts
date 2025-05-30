@@ -7,12 +7,14 @@ import problemRoutes from "./routes/problem.routes";
 import executionRoutes from "./routes/execution.routes";
 import submissionRoutes from "./routes/submission.routes";
 import playlistRoutes from "./routes/playlist.routes";
+import path from "path";
 
 const app = express();
 dotenv.config({
   path: "./.env",
 });
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,

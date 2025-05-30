@@ -7,6 +7,9 @@ import {db} from "../db";
 import {usersTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
+import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/cloudinary";
+import {slugifyName} from "../utils";
+import {eq} from "drizzle-orm";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const {name, email, password} = req.body as RegisterUser;
@@ -129,6 +132,7 @@ export const getUserSessions = asyncHandler(
         email: true,
         avatar: true,
         role: true,
+        bio: true,
       },
     });
     new ApiResponse(
@@ -144,7 +148,54 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
   const {id: userId} = req.user;
-  const {name, bio, avatar} = req.body as UpdateUser;
+  const {name, bio} = req.body as UpdateUser;
+  const user = await db.query.usersTable.findFirst({
+    where: (usersTable, {eq}) => eq(usersTable.id, userId),
+  });
+  if (!user) {
+    throw new ApiError(404, "User not found", "NOT_FOUND");
+  }
+  let avatarFilePath;
+  let avatarUrl;
+  let avatarPublicId;
+  if (
+    req.files &&
+    !Array.isArray(req.files) &&
+    req.files.avatar &&
+    req.files.avatar.length > 0
+  ) {
+    avatarFilePath = req.files.avatar[0].path;
+  }
+  if (avatarFilePath) {
+    const avatar = await uploadOnCloudinary(
+      avatarFilePath,
+      slugifyName(user.name),
+    );
+    if (avatar) {
+      avatarPublicId = avatar.public_id;
+      avatarUrl = avatar.secure_url;
+    }
+  }
+  if (user.avatarPublicId) {
+    await deleteOnCloudinary(user.avatarPublicId);
+  }
 
-  new ApiResponse(200, "User updated successfully").send(res);
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      name,
+      bio,
+      avatar: avatarUrl,
+      avatarPublicId,
+    })
+    .where(eq(usersTable.id, userId))
+    .returning({
+      id: usersTable.id,
+      name: usersTable.name,
+      email: usersTable.email,
+      bio: usersTable.bio,
+      avatar: usersTable.avatar,
+      role: usersTable.role,
+    });
+  new ApiResponse(200, "User updated successfully", updatedUser).send(res);
 });

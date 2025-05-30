@@ -1,12 +1,17 @@
-import { Request } from "express";
+import {Request} from "express";
 
 declare global {
   namespace Express {
+    interface User {
+      id: string;
+      email: string;
+      role: string;
+    }
     interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: string;
+      user?: User;
+      files?: {
+        avatar?: Express.Multer.File[];
+        [key: string]: Express.Multer.File[] | undefined;
       };
     }
   }
