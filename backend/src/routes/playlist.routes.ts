@@ -22,7 +22,7 @@ playlistRoutes.post(
 );
 playlistRoutes.get("/:problemId", authMiddleware, getAllPlaylistsDetails);
 playlistRoutes.get("/", authMiddleware, getAllPlaylistsForUser);
-playlistRoutes.get("/get-playlist/:id", authMiddleware, getPlaylistById);
+playlistRoutes.get("/details/:id", authMiddleware, getPlaylistById);
 playlistRoutes.post("/:id/add-problem", authMiddleware, addProblemToPlaylist);
 playlistRoutes.delete("/:id", authMiddleware, deletePlaylist);
 playlistRoutes.delete(
