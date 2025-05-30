@@ -6,7 +6,7 @@ import {
   atomOneDark,
   a11yLight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "../theme-provider";
 
 interface CodeBlockProps {
   code: string;

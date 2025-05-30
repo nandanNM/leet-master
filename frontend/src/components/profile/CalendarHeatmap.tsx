@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "../theme-provider";
 
 type DataValue = {
   date: string;
