@@ -50,20 +50,15 @@ userRoutes.get(
     }
     const {id, email} = req.user;
     const accessToken = generateToken({id, email});
-
-    // Secure cookie settings
     res.cookie("leet-master-token", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
-    // Successful redirect with optional state handling
     const redirectUrl = req.query.state
       ? `${process.env.FRONTEND_URL!}${req.query.state}`
       : process.env.FRONTEND_URL!;
-
     res.redirect(redirectUrl);
   },
 );
