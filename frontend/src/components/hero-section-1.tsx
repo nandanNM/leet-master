@@ -134,7 +134,7 @@ export function HeroSection() {
                       className="rounded-xl px-5 text-base"
                     >
                       <Link to="/poblems">
-                        <span className="text-nowrap">Explore</span>
+                        <span className="text-nowrap">Start Code </span>
                       </Link>
                     </Button>
                   </div>
@@ -146,7 +146,7 @@ export function HeroSection() {
                     className="h-10.5 rounded-xl px-5"
                   >
                     <Link to="/poblems">
-                      <span className="text-nowrap">Start Code</span>
+                      <span className="text-nowrap">Explore</span>
                     </Link>
                   </Button>
                 </AnimatedGroup>

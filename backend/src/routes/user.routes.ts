@@ -44,7 +44,6 @@ userRoutes.get(
   }),
 
   (req: Request, res: Response) => {
-    console.log("req.user", req);
     if (!req.user) {
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
     }
@@ -56,8 +55,7 @@ userRoutes.get(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    const redirectUrl = `${process.env.CLIENT_URL!}/problems`;
-    console.log("redirectUrl", redirectUrl);
+    const redirectUrl = `${process.env.CLIENT_URL!}`;
     res.redirect(redirectUrl);
   },
 );

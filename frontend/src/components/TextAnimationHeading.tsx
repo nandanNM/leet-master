@@ -13,18 +13,19 @@ export default function TextAnimationHeading({
   return (
     <div
       className={cn(
-        "mx-auto text-2xl lg:text-5xl my-6 flex flex-col gap-3 lg:gap-5 font-bold text-center",
-        className
-      )}>
+        "mx-auto my-6 flex flex-col gap-3 text-center text-xl font-bold lg:gap-5 lg:text-5xl",
+        className,
+      )}
+    >
       <div className="text-primary drop-shadow-md">Build Space</div>
-      <div className={cn("w-fit  text-center", classNameAnimationContainer)}>
+      <div className={cn("w-fit text-center", classNameAnimationContainer)}>
         <TypeAnimation
           sequence={[
             "Your Team.",
-            1000, // wait 1s before replacing "Mice" with "Hamsters"
+            1000,
             "Your Ideas.",
             1000,
-            "One Editor",
+            "One Platform.",
             1000,
           ]}
           wrapper="span"

@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { loginSchema, type LoginValues } from "@/lib/validations";
-import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingButton from "../LoadingButton";
 import { useAuthStore } from "@/store";
@@ -69,13 +68,6 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
-
-        <div className="-mt-3 ml-auto w-fit">
-          <Link to={"/forgot-password"} className="hover:underline">
-            Forgot Password ?
-          </Link>
-        </div>
-
         <LoadingButton loading={isPending} className="w-full" type="submit">
           Log in
         </LoadingButton>

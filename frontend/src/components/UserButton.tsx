@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "./theme-provider";
 import { useAuthStore } from "@/store";
+
 interface UserButtonProps {
   className?: string;
 }
@@ -43,12 +44,21 @@ export default function UserButton({ className }: UserButtonProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {user && <DropdownMenuLabel>Logged in as</DropdownMenuLabel>}
-        <DropdownMenuSeparator />
-        {user && (
-          <Link to={`/profile/${user?.id}`}>
+        {user ? (
+          <>
+            <DropdownMenuSeparator />
+            <Link to={`/profile/${user?.id}`}>
+              <DropdownMenuItem>
+                <UserIcon className="mr-2 size-4" />
+                Profile
+              </DropdownMenuItem>
+            </Link>
+          </>
+        ) : (
+          <Link to={`/login`}>
             <DropdownMenuItem>
               <UserIcon className="mr-2 size-4" />
-              Profile
+              Login
             </DropdownMenuItem>
           </Link>
         )}
@@ -75,17 +85,19 @@ export default function UserButton({ className }: UserButtonProps) {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        <DropdownMenuSeparator />
         {user && (
-          <DropdownMenuItem
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-          >
-            <LogOutIcon className="mr-2 size-4" />
-            Logout
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+            >
+              <LogOutIcon className="mr-2 size-4" />
+              Logout
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

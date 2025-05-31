@@ -31,51 +31,12 @@ const TABS = [
     icon: Album,
   },
 ];
-const generateMockExecutions = () => [
-  {
-    _id: "exec1",
-    language: "javascript",
-    code: "console.log('Hello, world!');\nconst sum = (a, b) => a + b;",
-    output: "Hello, world!",
-    error: null,
-    _creationTime: Date.now() - 10000000,
-  },
-  {
-    _id: "exec2",
-    language: "python",
-    code: "print('Python execution')\ndef multiply(a, b):\n    return a * b",
-    output: "Python execution",
-    error: null,
-    _creationTime: Date.now() - 5000000,
-  },
-  {
-    _id: "exec3",
-    language: "typescript",
-    code: "interface User {\n  name: string;\n  age: number;\n}\n\nconst user: User = { name: 'Alice', age: 30 };",
-    output: "",
-    error: "TypeError: Unexpected token",
-    _creationTime: Date.now() - 2000000,
-  },
-];
 
 export default function ProfileTabSubmissions() {
   const [activeTab, setActiveTab] = useState<"executions" | "playlist">(
     "executions",
   );
 
-  const [executions, setExecutions] = useState(generateMockExecutions());
-
-  const [executionStatus, setExecutionStatus] = useState<
-    "CanLoadMore" | "CannotLoadMore"
-  >("CanLoadMore");
-
-  const handleLoadMore = () => {
-    // Simulate loading more data
-    setTimeout(() => {
-      setExecutions([...executions, ...generateMockExecutions()]);
-      setExecutionStatus("CannotLoadMore");
-    }, 1000);
-  };
   const { id: userId } = useParams();
   const {
     getAllSubmissions,
@@ -236,7 +197,7 @@ export default function ProfileTabSubmissions() {
                     <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
                   </div>
                 ) : (
-                  executions.length === 0 && (
+                  submissions.length === 0 && (
                     <div className="py-12 text-center">
                       <Code className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
                       <h3 className="text-muted-foreground mb-2 text-lg font-medium">
@@ -249,7 +210,7 @@ export default function ProfileTabSubmissions() {
                   )
                 )}
 
-                {executionStatus === "CanLoadMore" && (
+                {/* {executionStatus === "CanLoadMore" && (
                   <div className="mt-8 flex justify-center">
                     <Button
                       variant="outline"
@@ -260,7 +221,7 @@ export default function ProfileTabSubmissions() {
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
             )}
 
