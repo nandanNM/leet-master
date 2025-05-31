@@ -3,8 +3,8 @@ import {asyncHandler} from "../utils/async-handler";
 import {Playlist} from "../schemas/playlist";
 import {isAuthenticated} from "../utils/auth";
 import {ApiError, ApiResponse} from "../utils/responses";
-import {db} from "src/db";
-import {playlistsTable, problemsInPlaylistTable} from "src/db/schema";
+import {db} from "../db";
+import {playlistsTable, problemsInPlaylistTable} from "../db/schema";
 import {and, eq, inArray} from "drizzle-orm";
 import {date} from "drizzle-orm/mysql-core";
 

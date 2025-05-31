@@ -9,7 +9,7 @@ import {
 import {validate} from "../middlewares/validate.middleware";
 import {LoginSchema, UpdateUserSchema, UserSchema} from "../schemas/user";
 import {authMiddleware} from "../middlewares/auth.middleware";
-import {upload} from "src/middlewares/multer.middleware";
+import {upload} from "../middlewares/multer.middleware";
 import passport from "passport";
 import "dotenv/config";
 import {generateToken} from "../utils";
