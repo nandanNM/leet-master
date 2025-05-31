@@ -1,10 +1,11 @@
 import axios from "axios";
+import "dotenv/config";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 export function getJudge0LanguageCode(language: string): number {
-  const languageMap: { [key: string]: number } = {
+  const languageMap: {[key: string]: number} = {
     PYTHON: 71,
     JAVA: 62,
     JAVASCRIPT: 63,
@@ -23,11 +24,11 @@ interface SubmissionResult {
   token: string;
 }
 export async function submitBatch(
-  submissions: Submission[]
+  submissions: Submission[],
 ): Promise<SubmissionResult[]> {
-  const { data } = await axios.post(
+  const {data} = await axios.post(
     `${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,
-    { submissions }
+    {submissions},
   );
   console.log("Submission result:", data);
   return data;
@@ -36,14 +37,14 @@ export async function submitBatch(
 export async function pullBatchResults(tokens: string[]): Promise<any[]> {
   // it called pooling
   while (true) {
-    const { data } = await axios.get(
+    const {data} = await axios.get(
       `${process.env.JUDGE0_API_URL}/submissions/batch`,
       {
         params: {
           tokens: tokens.join(","),
           base64_encoded: false,
         },
-      }
+      },
     );
     // console.log("Pulling results for tokens:", tokens);
     console.log("Data:", data);
@@ -52,7 +53,7 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
     if (!result) throw new Error("No result found  for the given tokens.");
     const isAllCompleted = result.every(
       (submission: any) =>
-        submission.status.id !== 1 && submission.status.id !== 2
+        submission.status.id !== 1 && submission.status.id !== 2,
     );
     if (isAllCompleted) return result;
     await sleep(1000); // Wait for 2 seconds before checking again
@@ -60,7 +61,7 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
 }
 
 export function getLanguage(languageId: number): string {
-  const languageMap: { [key: number]: string } = {
+  const languageMap: {[key: number]: string} = {
     71: "Python",
     62: "Java",
     63: "JavaScript",

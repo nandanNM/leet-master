@@ -1,6 +1,8 @@
 import {v2 as cloudinary} from "cloudinary";
 import fs from "fs/promises";
-import {ApiError} from "./responses";
+import {ApiError} from "../responses";
+import "dotenv/config";
+
 interface CloudinaryResponse {
   public_id: string;
   url: string;

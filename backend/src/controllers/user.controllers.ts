@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction} from "express";
+import "dotenv/config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {LoginUser, RegisterUser, UpdateUser} from "../schemas/user";
@@ -7,7 +8,7 @@ import {db} from "../db";
 import {usersTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
-import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/cloudinary";
+import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/lib/cloudinary";
 import {slugifyName} from "../utils";
 import {eq} from "drizzle-orm";
 

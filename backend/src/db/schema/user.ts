@@ -12,6 +12,7 @@ export const usersTable = table("users", {
   email: t.varchar({length: 255}).notNull().unique(),
   password: t.varchar({length: 255}),
   avatar: t.text("avatar"),
+  authProvider: t.varchar("auth_provider", {length: 255}),
   avatarPublicId: t.varchar("avatar_public_id", {length: 255}),
   role: rolesEnum().default("USER").notNull(),
 
