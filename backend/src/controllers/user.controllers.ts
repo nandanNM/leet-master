@@ -38,7 +38,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   res.cookie("leet-master-token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -86,7 +86,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.cookie("leet-master-token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -97,7 +97,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       email: user.email,
       role: user.role,
     },
-    token,
   }).send(res);
 });
 
@@ -128,6 +127,7 @@ export const getUserSessions = asyncHandler(
         bio: true,
       },
     });
+    console.log("userSessions", userSessions);
     new ApiResponse(
       200,
       "User sessions fetched successfully",

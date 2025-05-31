@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 
 import { Link } from "react-router-dom";
+import { useTheme } from "./theme-provider";
 
 const transitionVariants = {
   item: {
@@ -25,6 +26,7 @@ const transitionVariants = {
 };
 
 export function HeroSection() {
+  const { theme } = useTheme();
   return (
     <>
       <main className="overflow-hidden">
@@ -85,7 +87,7 @@ export function HeroSection() {
                     className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
                   >
                     <span className="text-foreground text-sm">
-                      Introducing Support for AI Models
+                      Introducing Leet Master 🚀
                     </span>
                     <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
@@ -102,11 +104,12 @@ export function HeroSection() {
                   </Link>
 
                   <h1 className="mx-auto mt-8 max-w-4xl text-6xl text-balance md:text-7xl lg:mt-16 xl:text-[5.25rem]">
-                    Modern Solutions for Customer Engagement
+                    Code with Confidence, Dominate Code.
                   </h1>
-                  <p className="mx-auto mt-8 max-w-2xl text-lg text-balance">
-                    Highly customizable components for building modern websites
-                    and applications that look and feel the way you mean it.
+                  <p className="mx-auto mt-8 max-w-3xl text-lg text-balance">
+                    Our platform empowers you with sleek interfaces and powerful
+                    features, transforming complex algorithms into approachable
+                    triumphs as you level up your skills.
                   </p>
                 </AnimatedGroup>
 
@@ -130,8 +133,8 @@ export function HeroSection() {
                       size="lg"
                       className="rounded-xl px-5 text-base"
                     >
-                      <Link to="#link">
-                        <span className="text-nowrap">Start Building</span>
+                      <Link to="/poblems">
+                        <span className="text-nowrap">Explore</span>
                       </Link>
                     </Button>
                   </div>
@@ -142,8 +145,8 @@ export function HeroSection() {
                     variant="ghost"
                     className="h-10.5 rounded-xl px-5"
                   >
-                    <Link to="#link">
-                      <span className="text-nowrap">Request a demo</span>
+                    <Link to="/poblems">
+                      <span className="text-nowrap">Start Code</span>
                     </Link>
                   </Button>
                 </AnimatedGroup>
@@ -171,14 +174,22 @@ export function HeroSection() {
                 <div className="ring-background bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg ring-1 inset-shadow-2xs shadow-zinc-950/15 dark:inset-shadow-white/20">
                   <img
                     className="bg-background relative hidden aspect-15/8 rounded-2xl dark:block"
-                    src="https://tailark.com//_next/image?url=%2Fmail2.png&w=3840&q=75"
+                    src={
+                      theme === "light"
+                        ? "/images/light-demo.webp"
+                        : "/images/dark-demo.webp"
+                    }
                     alt="app screen"
                     width="2700"
                     height="1440"
                   />
                   <img
                     className="border-border/25 relative z-2 aspect-15/8 rounded-2xl border dark:hidden"
-                    src="https://tailark.com/_next/image?url=%2Fmail2-light.png&w=3840&q=75"
+                    src={
+                      theme === "light"
+                        ? "/images/light-demo.webp"
+                        : "/images/dark-demo.webp"
+                    }
                     alt="app screen"
                     width="2700"
                     height="1440"

@@ -35,6 +35,10 @@ export const getAllSubmissionByProblemId = asyncHandler(
     const {id: userId} = req.user;
     const {problemId} = req.params;
 
+    console.log("problemId", problemId);
+
+    console.log("userId", userId);
+
     if (!problemId) {
       throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
     }
@@ -44,6 +48,7 @@ export const getAllSubmissionByProblemId = asyncHandler(
         eq(submissionsTable.userId, userId) &&
         eq(submissionsTable.problemId, problemId),
       orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
+      limit: 10,
     });
     console.log("submissions 🚀🚀🚀", submissions);
 

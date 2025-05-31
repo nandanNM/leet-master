@@ -1,5 +1,6 @@
 import type { LanguageConfig, Theme } from "@/types";
 import type { Monaco } from "@monaco-editor/react";
+import { Code2, Library, Play, Save, Send, Share2 } from "lucide-react";
 
 export const menuItems = [
   { name: "Home", to: "/" },
@@ -617,3 +618,60 @@ export const mockProblem = {
   },
   createdAt: "2024-01-15T10:30:00Z",
 };
+
+export const features = [
+  {
+    title: "Run Code",
+    description:
+      "Execute your solution instantly with custom test cases and see real-time output.",
+    icon: Play,
+    iconForeground: "text-green-700",
+    iconBackground: "bg-green-50 dark:bg-green-950/30",
+    ringColorClass: "ring-green-700/30",
+  },
+  {
+    title: "Submit Solution",
+    description:
+      "Submit your code for evaluation against all test cases and get instant feedback.",
+    icon: Send,
+    iconForeground: "text-blue-700",
+    iconBackground: "bg-blue-50 dark:bg-blue-950/30",
+    ringColorClass: "ring-blue-700/30",
+  },
+  {
+    title: "Auto Save",
+    description:
+      "Never lose your progress. Your code is automatically saved as you type.",
+    icon: Save,
+    iconForeground: "text-purple-700",
+    iconBackground: "bg-purple-50 dark:bg-purple-950/30",
+    ringColorClass: "ring-purple-700/30",
+  },
+  {
+    title: "Code Snippets",
+    description:
+      "Access pre-built templates and common algorithms to speed up your coding.",
+    icon: Code2,
+    iconForeground: "text-orange-700",
+    iconBackground: "bg-orange-50 dark:bg-orange-950/30",
+    ringColorClass: "ring-orange-700/30",
+  },
+  {
+    title: "Share Solutions",
+    description:
+      "Share your solutions with the community and learn from others' approaches.",
+    icon: Share2,
+    iconForeground: "text-pink-700",
+    iconBackground: "bg-pink-50 dark:bg-pink-950/30",
+    ringColorClass: "ring-pink-700/30",
+  },
+  {
+    title: "Problem Library",
+    description:
+      "Browse thousands of coding problems organized by difficulty and topic.",
+    icon: Library,
+    iconForeground: "text-indigo-700",
+    iconBackground: "bg-indigo-50 dark:bg-indigo-950/30",
+    ringColorClass: "ring-indigo-700/30",
+  },
+];

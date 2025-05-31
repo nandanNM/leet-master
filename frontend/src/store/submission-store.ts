@@ -68,7 +68,6 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
       });
     } catch (error) {
       console.log("Error getting submissions for problem", error);
-      toast.error(getErrorMessage(error));
       set({ isLoading: false });
     }
   },

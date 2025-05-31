@@ -31,6 +31,7 @@ export default function UserButton({ className }: UserButtonProps) {
   const { authUser: user } = useAuthStore();
   const { logout } = useAuthStore();
   const navigate = useNavigate();
+  console.log("username", user?.name);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,9 +42,7 @@ export default function UserButton({ className }: UserButtonProps) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>
-          Logged in as {user?.name.split(" ")[0]}
-        </DropdownMenuLabel>
+        {user && <DropdownMenuLabel>Logged in as</DropdownMenuLabel>}
         <DropdownMenuSeparator />
         {user && (
           <Link to={`/profile/${user?.id}`}>

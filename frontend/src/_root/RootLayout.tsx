@@ -9,7 +9,7 @@ const RootLayout = () => {
   console.log("isAuthenticated", isAuthenticated, user, isFetchingUser);
   if (isFetchingUser || !user) {
     return (
-      <div className="mt-24 w-full text-center">
+      <div className="mt-24 flex w-full justify-center">
         <Loader2 className="size-6 animate-spin" />
       </div>
     );
