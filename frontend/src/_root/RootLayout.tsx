@@ -2,19 +2,17 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useAuthStore } from "@/store";
 import { Loader2 } from "lucide-react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 const RootLayout = () => {
   const { isFetchingUser, isAuthenticated, authUser: user } = useAuthStore();
+  console.log("isAuthenticated", isAuthenticated, user, isFetchingUser);
   if (isFetchingUser || !user) {
     return (
-      <div className="mt-24 w-full items-center">
+      <div className="mt-24 w-full text-center">
         <Loader2 className="size-6 animate-spin" />
       </div>
     );
-  }
-  if (!isAuthenticated || user?.role !== "ADMIN") {
-    return <Navigate to="/" replace />;
   }
   return (
     <div className="h-full w-full p-2">

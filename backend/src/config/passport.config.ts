@@ -8,12 +8,13 @@ import {Request} from "express";
 import {eq} from "drizzle-orm";
 import {usersTable} from "src/db/schema";
 import {db} from "src/db";
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
+      callbackURL: "http://localhost:3000/api/v1/auth/google/callback",
       scope: ["profile", "email"],
       passReqToCallback: true,
     },
@@ -64,6 +65,7 @@ passport.use(
             if (!updateUser) return done(null, false);
             return done(null, updateUser);
           }
+          return done(null, user);
         }
         const [newUser] = await db
           .insert(usersTable)
@@ -81,7 +83,7 @@ passport.use(
             bio: usersTable.bio,
             role: usersTable.role,
           });
-        done(null, newUser);
+        return done(null, newUser);
       } catch (error) {
         done(
           error instanceof Error ? error : new Error("Authentication failed"),
@@ -90,31 +92,5 @@ passport.use(
     },
   ),
 );
-
-// Serialization for session
-passport.serializeUser((user: any, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id: string, done) => {
-  try {
-    const user = await db.query.usersTable.findFirst({
-      where: eq(usersTable.id, id),
-      columns: {
-        id: true,
-        name: true,
-        email: true,
-        avatar: true,
-        bio: true,
-        role: true,
-      },
-    });
-
-    if (!user) return done(null, false);
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
-});
 
 export default passport;

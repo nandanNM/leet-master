@@ -11,7 +11,6 @@ import {LoginSchema, UpdateUserSchema, UserSchema} from "../schemas/user";
 import {authMiddleware} from "../middlewares/auth.middleware";
 import {upload} from "src/middlewares/multer.middleware";
 import passport from "passport";
-import jwt from "jsonwebtoken";
 import "dotenv/config";
 import {generateToken} from "../utils";
 
@@ -34,7 +33,6 @@ userRoutes.get(
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",
-    accessType: "offline",
   }),
 );
 
@@ -44,7 +42,9 @@ userRoutes.get(
     failureRedirect: `${process.env.FRONTEND_URL}/login?error=auth_failed`,
     session: false,
   }),
+
   (req: Request, res: Response) => {
+    console.log("req.user", req);
     if (!req.user) {
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
     }
@@ -56,9 +56,8 @@ userRoutes.get(
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    const redirectUrl = req.query.state
-      ? `${process.env.FRONTEND_URL!}${req.query.state}`
-      : process.env.FRONTEND_URL!;
+    const redirectUrl = `${process.env.CLIENT_URL!}/problems`;
+    console.log("redirectUrl", redirectUrl);
     res.redirect(redirectUrl);
   },
 );

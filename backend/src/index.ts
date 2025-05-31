@@ -1,5 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config({
+  path: "./.env",
+});
 import cors from "cors";
 import cookieparser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
@@ -8,14 +11,12 @@ import executionRoutes from "./routes/execution.routes";
 import submissionRoutes from "./routes/submission.routes";
 import playlistRoutes from "./routes/playlist.routes";
 import path from "path";
+import passport from "./config/passport.config";
 
 const app = express();
-dotenv.config({
-  path: "./.env",
-});
+
 app.use(express.json());
 app.use("/public", express.static(path.join(process.cwd(), "src/public")));
-
 app.use(
   express.urlencoded({
     extended: true,
@@ -29,6 +30,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   }),
 );
+app.use(passport.initialize());
 const PORT = process.env.PORT || 3000;
 app
   .listen(PORT, () => {

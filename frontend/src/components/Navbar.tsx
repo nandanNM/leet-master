@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 // import Logo from "./Logo"
 import { Loader2, Menu, X } from "lucide-react";
 import { menuItems } from "@/constants";
-import { Button } from "./ui/button";
 import { useAuthStore } from "@/store";
 import UserButton from "./UserButton";
 import Logo from "./Logo";
@@ -12,7 +11,7 @@ import Logo from "./Logo";
 export default function Navbar() {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { isFetchingUser, isAuthenticated } = useAuthStore();
+  const { isFetchingUser } = useAuthStore();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -87,21 +86,7 @@ export default function Navbar() {
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                 {/* userButton */}
                 {isFetchingUser && <Loader2 className="size-5 animate-spin" />}
-                {isAuthenticated && !isFetchingUser ? (
-                  <UserButton />
-                ) : isFetchingUser ? null : (
-                  <>
-                    <Button
-                      asChild
-                      size="sm"
-                      className={cn(isScrolled ? "lg:inline-flex" : "hidden")}
-                    >
-                      <Link to="#">
-                        <span>Get Started</span>
-                      </Link>
-                    </Button>
-                  </>
-                )}
+                <UserButton />
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { Toaster } from "sonner";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import RootLayout from "./_root/RootLayout";
 import AuthLayout from "./_auth/AuthLayout";
 import { Home } from "./_root/pages";
@@ -19,6 +19,7 @@ export default function App() {
   useEffect(() => {
     getCurrentUser();
   }, [getCurrentUser]);
+  const { authUser } = useAuthStore((state) => state);
 
   return (
     <main className="flex min-h-screen antialiased">
@@ -28,13 +29,31 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<RegisterPage />} />
         </Route>
-        <Route path="/" element={<Home />} />
         {/* private routes */}
         <Route element={<RootLayout />}>
-          <Route path="/problems" element={<Problems />} />
-          <Route path="/problems/:id" element={<ProblemWorkspace />} />
-          <Route path="/profile/:id" element={<ProfilePage />} />
-          <Route path="/playlist/:id" element={<PlaylistPage />} />
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/problems"
+            element={authUser ? <Problems /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/problems/:id"
+            element={
+              authUser ? <ProblemWorkspace /> : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/profile/:id"
+            element={
+              authUser ? <ProfilePage /> : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/playlist/:id"
+            element={
+              authUser ? <PlaylistPage /> : <Navigate to="/login" replace />
+            }
+          />
           {/* admin routes */}
           <Route element={<AdminRoute />}>
             <Route path="/add-problem" element={<AddProblem />} />

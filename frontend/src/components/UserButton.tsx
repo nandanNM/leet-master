@@ -31,27 +31,28 @@ export default function UserButton({ className }: UserButtonProps) {
   const { authUser: user } = useAuthStore();
   const { logout } = useAuthStore();
   const navigate = useNavigate();
-  if (!user) return null;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           className={cn("flex-none cursor-pointer rounded-full", className)}
         >
-          <UserAvatar avatarUrl={user.avatar} size={40} />
+          <UserAvatar avatarUrl={user?.avatar} size={40} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
-          Logged in as {user.name.split(" ")[0]}
+          Logged in as {user?.name.split(" ")[0]}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link to={`/profile/${user.id}`}>
-          <DropdownMenuItem>
-            <UserIcon className="mr-2 size-4" />
-            Profile
-          </DropdownMenuItem>
-        </Link>
+        {user && (
+          <Link to={`/profile/${user?.id}`}>
+            <DropdownMenuItem>
+              <UserIcon className="mr-2 size-4" />
+              Profile
+            </DropdownMenuItem>
+          </Link>
+        )}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Monitor className="mr-2 size-4" />
@@ -76,15 +77,17 @@ export default function UserButton({ className }: UserButtonProps) {
         </DropdownMenuSub>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            logout();
-            navigate("/");
-          }}
-        >
-          <LogOutIcon className="mr-2 size-4" />
-          Logout
-        </DropdownMenuItem>
+        {user && (
+          <DropdownMenuItem
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
+          >
+            <LogOutIcon className="mr-2 size-4" />
+            Logout
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
