@@ -9,7 +9,7 @@ import {usersTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
 import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/lib/cloudinary";
-import {slugifyName} from "../utils";
+import {generateToken, slugifyName} from "../utils";
 import {eq} from "drizzle-orm";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
@@ -23,10 +23,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, "User already exists", "USER_EXISTS");
   }
 
-  if (!password) {
-    throw new ApiError(400, "Password is required", "MISSING_PASSWORD");
-  }
-
   const hashedPassword = await bcrypt.hash(password, 10);
   const [newUser] = await db
     .insert(usersTable)
@@ -37,11 +33,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     })
     .returning();
 
-  const token = jwt.sign(
-    {id: newUser.id, email: newUser.email},
-    process.env.JWT_SECRET!,
-    {expiresIn: "7d"},
-  );
+  const token = generateToken({id: newUser.id, email: newUser.email});
 
   res.cookie("leet-master-token", token, {
     httpOnly: true,
