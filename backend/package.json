@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "tsx watch --env-file .env ./src/index.ts",
-    "build": "tsc",
+    "build": "npm run db:generate && tsc",
     "start": "node --env-file .env dist/src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

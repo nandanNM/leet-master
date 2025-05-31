@@ -45,6 +45,7 @@ export const getAllSubmissionByProblemId = asyncHandler(
         eq(submissionsTable.problemId, problemId),
       orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
     });
+    console.log("submissions 🚀🚀🚀", submissions);
 
     if (!submissions || submissions.length === 0) {
       throw new ApiError(404, "No submissions found", "NOT_FOUND");
