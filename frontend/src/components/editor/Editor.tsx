@@ -30,7 +30,6 @@ export default function MonocoEditor({ problem }: MonocoEditorProps) {
   const handleRefresh = () => {
     if (editor) {
       editor.setValue(defaultCode);
-
       localStorage.removeItem(`editor-code-${problem.id}-${language}`);
     }
   };

@@ -11,7 +11,6 @@ import {
   Loader2,
   Play,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/crazxy-ui/badge";
@@ -48,9 +47,11 @@ export default function ProblemWorkspace() {
   const { id } = useParams();
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
   const {
-    executeCode,
     isExecuting,
     submission: testResults,
+    runCode: executeCode,
+    submitCode,
+    isSubmitting,
   } = useExecutionStore();
   const {
     getSubmissionForProblem,
@@ -100,6 +101,24 @@ export default function ProblemWorkspace() {
 
     try {
       await executeCode({
+        expected_outputs,
+        stdin,
+        source_code: code,
+        language_id: language_id || "",
+        problemId: id as string,
+      });
+      clearProblemCode(problem.id);
+    } catch (error) {
+      console.error("Error running code:", error);
+    }
+  };
+  const handleSubmitCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const language_id = getLanguageId(selectedLanguage);
+    const stdin = problem?.testcases.map((tc) => tc.input);
+    const expected_outputs = problem?.testcases.map((tc) => tc.output);
+    try {
+      await submitCode({
         expected_outputs,
         stdin,
         source_code: code,
@@ -265,28 +284,28 @@ export default function ProblemWorkspace() {
                   <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger
                       value="description"
-                      className="flex items-center gap-2 text-xs"
+                      className="flex cursor-pointer items-center gap-2 text-xs"
                     >
                       <FileText className="h-4 w-4" />
                       Description
                     </TabsTrigger>
                     <TabsTrigger
                       value="submissions"
-                      className="flex items-center gap-2 text-xs"
+                      className="flex cursor-pointer items-center gap-2 text-xs"
                     >
                       <Code2 className="h-4 w-4" />
                       Submissions
                     </TabsTrigger>
                     <TabsTrigger
                       value="discussion"
-                      className="flex items-center gap-2 text-xs"
+                      className="flex cursor-pointer items-center gap-2 text-xs"
                     >
                       <MessageSquare className="h-4 w-4" />
                       Discussion
                     </TabsTrigger>
                     <TabsTrigger
                       value="hints"
-                      className="flex items-center gap-2 text-xs"
+                      className="flex cursor-pointer items-center gap-2 text-xs"
                     >
                       <Lightbulb className="h-4 w-4" />
                       Hints
@@ -319,12 +338,14 @@ export default function ProblemWorkspace() {
                     <Play className="h-4 w-4" />
                     Run Code
                   </LoadingButton>
-                  <Button
+                  <LoadingButton
+                    loading={isSubmitting}
+                    onClick={handleSubmitCode}
                     variant="default"
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Submit Solution
-                  </Button>
+                  </LoadingButton>
                 </div>
               </div>
             </div>

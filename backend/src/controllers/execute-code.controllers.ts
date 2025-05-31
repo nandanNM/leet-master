@@ -123,3 +123,76 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
     submissionWithTestCases,
   ).send(res);
 });
+
+export const runCode = asyncHandler(async (req: Request, res: Response) => {
+  if (!isAuthenticated(req)) {
+    throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+  }
+
+  const {source_code, language_id, stdin, expected_outputs, problemId} =
+    req.body as SubmitCode;
+  const {id: userId} = req.user;
+
+  const submissions = stdin.map((input) => ({
+    source_code,
+    language_id: Number(language_id),
+    stdin: input,
+  }));
+
+  const judge0Response = await submitBatch(submissions);
+  const tokens = judge0Response.map((submission) => submission.token);
+
+  const results = await pullBatchResults(tokens);
+
+  let allTestCasesPassed = true;
+  const testCases = results.map((result, index) => {
+    const expected = expected_outputs[index]?.trim() ?? "";
+    const actual = result.stdout?.trim() ?? "";
+    const passed =
+      actual.replace(/\r\n/g, "\n") === expected.replace(/\r\n/g, "\n");
+
+    if (!passed) allTestCasesPassed = false;
+
+    return {
+      testCase: index + 1,
+      passed,
+      stdout: actual,
+      expected,
+      stderr: result.stderr ?? null,
+      compileOutput: result.compile_output ?? null,
+      status: result.status?.description ?? "Unknown",
+      memory: result.memory ? `${result.memory} KB` : null,
+      time: result.time ? `${result.time} s` : null,
+    };
+  });
+
+  const now = new Date().toISOString();
+
+  const fakeSubmission = {
+    id: crypto.randomUUID(),
+    userId,
+    problemId,
+    sourceCode: source_code,
+    language: getLanguage(Number(language_id)),
+    stdin: stdin.join("\n"),
+    stdout: JSON.stringify(testCases.map((tc) => tc.stdout)),
+    stderr: testCases.some((tc) => tc.stderr)
+      ? JSON.stringify(testCases.map((tc) => tc.stderr))
+      : null,
+    compileOutput: testCases.some((tc) => tc.compileOutput)
+      ? JSON.stringify(testCases.map((tc) => tc.compileOutput))
+      : null,
+    status: allTestCasesPassed ? "ACCEPTED" : "WRONG_ANSWER",
+    memory: testCases.some((tc) => tc.memory)
+      ? JSON.stringify(testCases.map((tc) => tc.memory))
+      : null,
+    time: testCases.some((tc) => tc.time)
+      ? JSON.stringify(testCases.map((tc) => tc.time))
+      : null,
+    createdAt: now,
+    updatedAt: now,
+    testCases,
+  };
+
+  new ApiResponse(200, "Code executed successfully", fakeSubmission).send(res);
+});
