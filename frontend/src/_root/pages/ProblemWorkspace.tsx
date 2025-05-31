@@ -39,11 +39,12 @@ import SubmissionTable from "@/components/SubmissionTable";
 import MonocoEditor from "@/components/editor/Editor";
 import { useCodeEditorStore } from "@/store";
 import ProblemHeader from "@/components/ProblemHeader";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
-
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const { id } = useParams();
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
   const {
@@ -59,7 +60,7 @@ export default function ProblemWorkspace() {
     submissionCount,
   } = useSubmissionStore();
   const { language: selectedLanguage, clearProblemCode } = useCodeEditorStore();
-  console.log("submissionResults", submissionResults);
+  console.log("submissionResults ❤️", submissionResults);
   useEffect(() => {
     if (!id) return;
     getProblemById(id as string);
@@ -128,11 +129,13 @@ export default function ProblemWorkspace() {
                 <div className="text-muted-foreground flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span>{formatNumber(submissionCount || 0)}</span>
+                    <span>
+                      {formatNumber(submissionCount?.submissionCount || 0)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <ThumbsUp className="h-4 w-4" />
-                    <span>95%</span>
+                    <span>{submissionCount?.successRate}%</span>
                   </div>
                 </div>
               </div>
@@ -232,44 +235,58 @@ export default function ProblemWorkspace() {
         return null;
     }
   };
+  if (isMobile) {
+    return (
+      <div className="bg-background mt-4 min-h-screen px-4">
+        <p className="text-center">Mobile view not supported</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background mt-4 min-h-screen px-4">
       {/* Header */}
-      <ProblemHeader problem={problem} submissionCount={submissionCount} />
-      {/* playlist add dailog */}
+      <ProblemHeader
+        problem={problem}
+        submissionCount={submissionCount?.submissionCount}
+        successRate={submissionCount?.successRate}
+      />
       <div className="container mx-auto p-4">
-        <ResizablePanelGroup direction="horizontal" className="min-h-[800px]">
+        <ResizablePanelGroup direction={"horizontal"} className="min-h-[800px]">
           {/* Problem Description Panel */}
-          <ResizablePanel defaultSize={45} minSize={30}>
+          <ResizablePanel defaultSize={45} minSize={35}>
             <Card className="h-full">
               <CardHeader className="pb-3">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
                   <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger
                       value="description"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-xs"
                     >
                       <FileText className="h-4 w-4" />
                       Description
                     </TabsTrigger>
                     <TabsTrigger
                       value="submissions"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-xs"
                     >
                       <Code2 className="h-4 w-4" />
                       Submissions
                     </TabsTrigger>
                     <TabsTrigger
                       value="discussion"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-xs"
                     >
                       <MessageSquare className="h-4 w-4" />
                       Discussion
                     </TabsTrigger>
                     <TabsTrigger
                       value="hints"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-xs"
                     >
                       <Lightbulb className="h-4 w-4" />
                       Hints

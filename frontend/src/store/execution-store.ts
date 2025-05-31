@@ -22,6 +22,7 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
       console.log("Submission:", JSON.stringify(data));
       const res = (await axiosInstance.post("/execute-code", data)).data;
       set({ submission: res.data });
+      console.log("Submission result:", res.data);
       toast.success(res.message);
     } catch (error) {
       console.log("Error executing code", error);

@@ -19,7 +19,7 @@ userRoutes.post("/logout", authMiddleware, logout);
 userRoutes.get("/current-user", authMiddleware, getUserSessions);
 userRoutes.post(
   "/update",
-  // validate(UpdateUserSchema),
+  validate(UpdateUserSchema),
   authMiddleware,
   upload.fields([{name: "avatar", maxCount: 1}]),
   updateUser,

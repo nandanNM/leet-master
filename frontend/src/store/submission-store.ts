@@ -4,12 +4,14 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import type { SubmissionResponse } from "@/lib/validations";
 import type { SubmissionHeatmapEntry, UserSubmissionStats } from "@/types";
-
 interface SubmissionState {
   isLoading: boolean;
   submissions: SubmissionResponse[];
   submissionsForProblem: SubmissionResponse[];
-  submissionCount: number | null;
+  submissionCount: {
+    submissionCount: number;
+    successRate: number;
+  } | null;
   submissionStats: UserSubmissionStats | null;
   isSubmissionStatsLoading: boolean;
 

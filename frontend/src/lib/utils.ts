@@ -23,7 +23,7 @@ export function getErrorMessage(error: unknown): string {
 export const getDifficultyColor = (difficulty: Difficulty) => {
   switch (difficulty.toLowerCase()) {
     case "easy":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      return "";
     case "medium":
       return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
     case "hard":

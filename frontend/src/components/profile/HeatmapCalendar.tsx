@@ -21,7 +21,7 @@ export default function HeatmapCalendar({
         {/* <CardHeader className="pb-6 text-sm"></CardHeader> */}
         <CardContent className="overflow-auto px-2 pr-3">
           <div className="flex max-w-7xl">
-            <span className="flex flex-col justify-around py-2 pr-3 text-right text-xs text-gray-300">
+            <span className="text-muted-foreground flex flex-col justify-around py-2 pr-3 text-right text-xs">
               <span>Mon</span>
               <span>Wed</span>
               <span>Fri</span>

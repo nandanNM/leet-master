@@ -16,17 +16,24 @@ import LanguageSelector from "./editor/LanguageSelector";
 
 import AddToPlaylistModal from "./AddToPlaylistDialog";
 import { usePlaylistDialog } from "@/store";
+import { toast } from "sonner";
 
 interface ProblemHeaderProps {
   problem: Problem;
-  submissionCount: number | null;
+  submissionCount: number | undefined;
+  successRate: number | undefined;
 }
 export default function ProblemHeader({
   problem,
   submissionCount,
+  successRate,
 }: ProblemHeaderProps) {
   const { closeDialog, open, openDialog } = usePlaylistDialog();
-
+  const handleShare = () => {
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    navigator.clipboard.writeText(`${baseUrl}/problems/${problem.id}`);
+    toast.info("Link copied to clipboard 🎉");
+  };
   return (
     <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
       <div className="container mx-auto p-4">
@@ -55,7 +62,7 @@ export default function ProblemHeader({
                 <Separator orientation="vertical" className="h-4" />
                 <div className="flex items-center gap-1">
                   <ThumbsUp className="h-4 w-4" />
-                  <span>95% Success Rate</span>
+                  <span>{successRate}% Success Rate</span>
                 </div>
               </div>
             </div>
@@ -69,7 +76,7 @@ export default function ProblemHeader({
             >
               <Bookmark className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" onClick={handleShare} size="icon">
               <Share2 className="h-4 w-4" />
             </Button>
             <div className="flex w-full items-center gap-2">

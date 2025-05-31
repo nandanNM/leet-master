@@ -34,6 +34,10 @@ export type AuthUser = {
 export type UserSubmissionStats = {
   totalSubmissions: number;
   submissionsLast24Hours: number;
+  mostUsedLanguage: string;
+  successRate: number;
+  totalLanguagesUsed: number;
+  totalSuccesses: number;
 };
 export type SubmissionHeatmapEntry = {
   date: string; // Format: YYYY-MM-DD

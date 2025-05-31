@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { editor } from "monaco-editor";
 import type { LanguageKey } from "@/types";
+import { toast } from "sonner";
 
 // Language keys in UPPERCASE format
 
@@ -115,6 +116,9 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           localStorage.removeItem(key);
         }
       });
+      toast.success(
+        "✨ Poof! All saved problem codes vanished from local storage!",
+      );
     },
   };
 });

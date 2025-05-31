@@ -64,17 +64,30 @@ export const getAllSubmissionCount = asyncHandler(
       throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
     }
 
-    const submissionCount = await db.$count(
-      submissionsTable,
-      eq(submissionsTable.problemId, problemId),
-    );
-    // console.log("Submission count:", submissionCount);
+    const submissions = await db.query.submissionsTable.findMany({
+      where: (submissionsTable, {eq}) =>
+        eq(submissionsTable.problemId, problemId),
+      columns: {
+        status: true,
+      },
+    });
+    const submissionCount = submissions.length;
+    const acceptedCount = submissions.filter(
+      (submission) => submission.status === "ACCEPTED",
+    ).length;
 
-    new ApiResponse(
-      200,
-      "Submission count fetched successfully",
+    const successRate =
+      submissionCount > 0
+        ? Math.round((acceptedCount / submissionCount) * 100)
+        : 0;
+    const data = {
       submissionCount,
-    ).send(res);
+      successRate,
+    };
+
+    new ApiResponse(200, "Submission count fetched successfully", data).send(
+      res,
+    );
   },
 );
 
@@ -83,6 +96,7 @@ export const getAllSubmissionStats = asyncHandler(
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
+
     const {id: userId} = req.user;
     if (!userId) {
       throw new ApiError(400, "User ID is required", "MISSING_USER_ID");
@@ -91,15 +105,16 @@ export const getAllSubmissionStats = asyncHandler(
     const now = new Date();
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    // Total submissions
-    const totalResult = await db
-      .select({count: count()})
-      .from(submissionsTable)
-      .where(eq(submissionsTable.userId, userId));
+    const submissions = await db.query.submissionsTable.findMany({
+      where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
+      columns: {
+        status: true,
+        problemId: true,
+        language: true,
+        createdAt: true,
+      },
+    });
 
-    const totalSubmissions = Number(totalResult[0]?.count || 0);
-
-    // Submissions in the last 24 hours
     const last24hResult = await db
       .select({count: count()})
       .from(submissionsTable)
@@ -112,10 +127,44 @@ export const getAllSubmissionStats = asyncHandler(
 
     const submissionsLast24Hours = Number(last24hResult[0]?.count || 0);
 
-    new ApiResponse(200, "User submission stats fetched successfully", {
-      totalSubmissions,
+    const stats = {
+      total: submissions.length,
+      accepted: 0,
+      byLanguage: {} as Record<string, number>,
+      solvedProblems: new Set<string>(),
+    };
+    for (const sub of submissions) {
+      stats.byLanguage[sub.language] =
+        (stats.byLanguage[sub.language] || 0) + 1;
+      if (sub.status === "ACCEPTED") {
+        stats.accepted++;
+        stats.solvedProblems.add(sub.problemId);
+      }
+    }
+
+    const successRate =
+      stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0;
+
+    const mostUsedLanguage =
+      Object.entries(stats.byLanguage).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+      "N/A";
+    const totalLanguagesUsed = Object.keys(stats.byLanguage).length;
+
+    const dashboardStats = {
+      totalSubmissions: stats.total,
       submissionsLast24Hours,
-    }).send(res);
+      problemsSolved: stats.solvedProblems.size,
+      totalSuccesses: stats.accepted,
+      successRate,
+      totalLanguagesUsed,
+      mostUsedLanguage,
+    };
+
+    new ApiResponse(
+      200,
+      "User submission stats fetched successfully",
+      dashboardStats,
+    ).send(res);
   },
 );
 export const getSubmissionHeatMap = asyncHandler(
