@@ -14,6 +14,7 @@ dotenv.config({
   path: "./.env",
 });
 app.use(express.json());
+app.use("/public", express.static(path.join(process.cwd(), "src/public")));
 
 app.use(
   express.urlencoded({

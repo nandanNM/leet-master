@@ -57,7 +57,6 @@ export default function EditProfileDialog({
       ? new File([croppedAvater], `avatar_${user.id}.webp`)
       : undefined;
     updateProfile({ ...values, avatar: newAvatarFile });
-    onOpenChange(false);
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

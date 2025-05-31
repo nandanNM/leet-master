@@ -1,7 +1,6 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file .env ./src/index.ts",
     "build": "tsc",
@@ -9,7 +8,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "copy-public": "copyfiles -u 1 public/**/* dist/public"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +38,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.15.18",
+    "copyfiles": "^2.4.1",
     "drizzle-kit": "^0.31.1",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.5",
