@@ -1,6 +1,9 @@
 import axios from "axios";
 import "dotenv/config";
 
+const headers = {
+  Authorization: `Bearer ${process.env.JUDGE0_API_KEY}`,
+};
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -28,7 +31,7 @@ export async function submitBatch(
 ): Promise<SubmissionResult[]> {
   const {data} = await axios.post(
     `${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,
-    {submissions},
+    {headers, submissions},
   );
   console.log("Submission result:", data);
   return data;
@@ -44,6 +47,7 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
           tokens: tokens.join(","),
           base64_encoded: false,
         },
+        headers,
       },
     );
     // console.log("Pulling results for tokens:", tokens);
