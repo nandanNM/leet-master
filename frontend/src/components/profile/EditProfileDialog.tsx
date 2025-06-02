@@ -51,12 +51,13 @@ export default function EditProfileDialog({
     },
   });
 
-  function onSubmit(values: UpdateUserProfileValues) {
+  async function onSubmit(values: UpdateUserProfileValues) {
     // submit the form data
     const newAvatarFile = croppedAvater
       ? new File([croppedAvater], `avatar_${user.id}.webp`)
       : undefined;
-    updateProfile({ ...values, avatar: newAvatarFile });
+    await updateProfile({ ...values, avatar: newAvatarFile });
+    onOpenChange(false);
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

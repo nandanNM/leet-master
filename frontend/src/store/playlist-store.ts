@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
-
 import { getErrorMessage } from "@/lib/utils";
 import type {
   BasicPlaylist,
@@ -32,6 +31,11 @@ interface PlaylistStore {
   getAllPlaylistsForUser: () => Promise<void>;
   userPlaylists: BasicPlaylist[];
   isLoadingUserPlaylists: boolean;
+
+  updatePlaylist: (
+    playlistId: string,
+    playlistData: PlaylistValues,
+  ) => Promise<void>;
 }
 
 export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
@@ -153,6 +157,29 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
       toast.success("Playlist deleted successfully");
     } catch (error) {
       console.error("Error deleting playlist:", error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  updatePlaylist: async (playlistId, playlistData) => {
+    try {
+      set({ isLoading: true });
+      const res = (
+        await axiosInstance.post(`/playlist/update/${playlistId}`, playlistData)
+      ).data;
+      console.log(res);
+      set((state) => ({
+        userPlaylists: state.userPlaylists.map((p) =>
+          p.id === playlistId ? { ...p, ...res.data } : p,
+        ),
+      }));
+      if (get().currentPlaylist?.id === playlistId) {
+        set({ currentPlaylist: { ...get().currentPlaylist, ...res.data } });
+      }
+      toast.success("Playlist updated successfully");
+    } catch (error) {
+      console.error("Error updating playlist:", error);
       toast.error(getErrorMessage(error));
     } finally {
       set({ isLoading: false });

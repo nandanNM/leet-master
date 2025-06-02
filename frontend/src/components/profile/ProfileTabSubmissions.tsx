@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/crazxy-ui/badge";
 import { usePlaylistStore, useSubmissionStore } from "@/store";
 import { capitalizeWord, formatRelativeDate } from "@/lib/utils";
 import LoadingButton from "../LoadingButton";
+import EditPlaylistDialog from "../EditPlaylistDialog";
 
 const TABS = [
   {
@@ -249,11 +250,14 @@ export default function ProfileTabSubmissions() {
                               </span>
                             </div>
                           </div>
-                          <div
-                            className="absolute top-6 right-6 z-10"
-                            onClick={() => deletePlaylist(playlist.id)}
-                          >
+                          <div className="absolute top-6 right-6 z-10 flex gap-2">
+                            <EditPlaylistDialog
+                              playlistId={playlist.id}
+                              name={playlist.name}
+                              description={playlist.description}
+                            />
                             <LoadingButton
+                              onClick={() => deletePlaylist(playlist.id)}
                               loading={isDeletingPlaylist}
                               variant="destructive"
                               size="icon"

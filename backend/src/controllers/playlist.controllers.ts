@@ -162,10 +162,11 @@ export const updatePlaylist = asyncHandler(async (req, res) => {
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }
-  const {id: userId} = req.params;
+  const {id: userId} = req.user;
   const {id: playListId} = req.params;
+
   const {name, description} = req.body as Playlist;
-  const updatedPlaylist = await db
+  const [updatedPlaylist] = await db
     .update(playlistsTable)
     .set({
       name,
@@ -175,11 +176,11 @@ export const updatePlaylist = asyncHandler(async (req, res) => {
       and(eq(playlistsTable.id, playListId), eq(playlistsTable.userId, userId)),
     )
     .returning();
+  // console.log(updatedPlaylist, "updatedPlaylist");
 
   if (!updatedPlaylist) {
     throw new ApiError(404, "Playlist not found", "NOT_FOUND");
   }
-
   new ApiResponse(200, "Playlist updated successfully", updatedPlaylist).send(
     res,
   );
