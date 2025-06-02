@@ -1,9 +1,9 @@
-import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
+import {pgEnum, pgTable as table} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
-import { usersTable } from "./user";
-import { relations } from "drizzle-orm";
-import { problemsTable } from "./problem";
-import { testCaseResultsTable } from "./test-case";
+import {usersTable} from "./user";
+import {relations} from "drizzle-orm";
+import {problemsTable} from "./problem";
+import {testCaseResultsTable} from "./test-case";
 export const submissionStatusEnum = pgEnum("submission_status", [
   "ACCEPTED",
   "WRONG_ANSWER",
@@ -17,21 +17,21 @@ export const submissionsTable = table("submissions", {
   id: t.uuid("id").primaryKey().defaultRandom(),
   userId: t
     .uuid("user_id")
-    .references(() => usersTable.id, { onDelete: "cascade" })
+    .references(() => usersTable.id, {onDelete: "cascade"})
     .notNull(),
   problemId: t
     .uuid("problem_id")
-    .references(() => problemsTable.id, { onDelete: "cascade" })
+    .references(() => problemsTable.id, {onDelete: "cascade"})
     .notNull(),
   sourceCode: t.json("source_code").notNull(),
-  language: t.varchar("language", { length: 100 }).notNull(),
+  language: t.varchar("language", {length: 100}).notNull(),
   stdin: t.text("stdin"),
   stdout: t.text("stdout"),
   stderr: t.text("stderr"),
   compileOutput: t.text("compile_output"),
   status: submissionStatusEnum("status"),
-  memory: t.varchar("memory", { length: 50 }),
-  time: t.varchar("time", { length: 50 }),
+  memory: t.text("memory"),
+  time: t.text("time"),
   createdAt: t.timestamp("created_at").defaultNow(),
   updatedAt: t
     .timestamp("updated_at")
@@ -41,7 +41,7 @@ export const submissionsTable = table("submissions", {
 
 export const submissionsRelations = relations(
   submissionsTable,
-  ({ one, many }) => ({
+  ({one, many}) => ({
     user: one(usersTable, {
       fields: [submissionsTable.userId],
       references: [usersTable.id],
@@ -51,5 +51,5 @@ export const submissionsRelations = relations(
       references: [problemsTable.id],
     }),
     testCases: many(testCaseResultsTable),
-  })
+  }),
 );
