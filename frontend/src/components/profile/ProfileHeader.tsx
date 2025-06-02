@@ -20,7 +20,7 @@ import { Separator } from "../ui/separator";
 
 interface ProfileHeaderProps {
   submissionStats: UserSubmissionStats | null;
-  userData: AuthUser;
+  userData: AuthUser | null;
   isLoading: boolean;
 }
 
@@ -71,7 +71,7 @@ function ProfileHeader({
       },
     },
   ];
-  if (isLoading) {
+  if (isLoading && !userData) {
     return <ProfileHeaderSkeleton />;
   }
 
@@ -102,7 +102,7 @@ function ProfileHeader({
             {userData?.email}
           </p>
           <Separator className="my-1" />
-          <p className="line-clamp-1 text-sm">{userData.bio}</p>
+          <p className="line-clamp-1 text-sm">{userData?.bio}</p>
         </div>
         <div className="ml-auto flex flex-wrap items-center justify-center gap-2 md:gap-3">
           {userData && <EditProfileButton user={userData} />}
