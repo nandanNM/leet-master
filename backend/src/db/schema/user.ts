@@ -3,6 +3,7 @@ import {pgEnum, pgTable as table} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import {submissionsTable} from "./submission";
 import {problemsTable, solvedProblemsTable} from "./problem";
+import {discussionTable} from "./discussion";
 export const rolesEnum = pgEnum("role", ["ADMIN", "USER"]);
 
 export const usersTable = table("users", {
@@ -27,4 +28,5 @@ export const usersRelations = relations(usersTable, ({many}) => ({
   submissions: many(submissionsTable),
   problems: many(problemsTable),
   solvedProblems: many(solvedProblemsTable),
+  discussions: many(discussionTable),
 }));

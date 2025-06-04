@@ -39,6 +39,8 @@ import MonocoEditor from "@/components/editor/Editor";
 import { useCodeEditorStore } from "@/store";
 import ProblemHeader from "@/components/ProblemHeader";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import { useDiscussionStore } from "@/store/discussion-store";
+import CodeDiscussion from "@/components/CodeDiscussion";
 
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
@@ -61,7 +63,11 @@ export default function ProblemWorkspace() {
     submissionCount,
   } = useSubmissionStore();
   const { language: selectedLanguage, clearProblemCode } = useCodeEditorStore();
-  console.log("submissionResults ❤️", submissionResults);
+  const {
+    discussions,
+    getAllDiscussions,
+    isLoading: isDiscussionLoading,
+  } = useDiscussionStore();
   useEffect(() => {
     if (!id) return;
     getProblemById(id as string);
@@ -72,9 +78,12 @@ export default function ProblemWorkspace() {
       if (activeTab === "submissions" && id) {
         getSubmissionForProblem(id);
       }
+      if (activeTab === "discussion" && id) {
+        getAllDiscussions(id);
+      }
     }, 200);
     return () => clearTimeout(timeout);
-  }, [activeTab, id, getSubmissionForProblem]);
+  }, [activeTab, id, getSubmissionForProblem, getAllDiscussions]);
 
   useEffect(() => {
     if (problem) setCode(problem.codeSnippets?.[selectedLanguage] || "");
@@ -135,7 +144,7 @@ export default function ProblemWorkspace() {
     switch (activeTab) {
       case "description":
         return (
-          <ScrollArea className="h-[600px] pr-4">
+          <ScrollArea className="h-[620px] pr-4">
             <div className="space-y-6">
               <div className="flex items-center gap-2">
                 <Badge
@@ -223,12 +232,11 @@ export default function ProblemWorkspace() {
         );
       case "discussion":
         return (
-          <div className="text-muted-foreground flex h-[600px] items-center justify-center">
-            <div className="text-center">
-              <MessageSquare className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No discussions yet</p>
-            </div>
-          </div>
+          <CodeDiscussion
+            messages={discussions}
+            isLoading={isDiscussionLoading}
+            problemId={problem.id}
+          />
         );
       case "hints":
         return problem.hints ? (
@@ -270,8 +278,8 @@ export default function ProblemWorkspace() {
         submissionCount={submissionCount?.submissionCount}
         successRate={submissionCount?.successRate}
       />
-      <div className="container mx-auto p-4">
-        <ResizablePanelGroup direction={"horizontal"} className="min-h-[800px]">
+      <div className="mx-auto p-4">
+        <ResizablePanelGroup direction={"horizontal"} className="min-h-[550px]">
           {/* Problem Description Panel */}
           <ResizablePanel defaultSize={45} minSize={35}>
             <Card className="h-full">
@@ -313,7 +321,7 @@ export default function ProblemWorkspace() {
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent className="p-6 pt-0">
+              <CardContent className="p-4 pt-0">
                 {renderTabContent()}
               </CardContent>
             </Card>
@@ -324,7 +332,7 @@ export default function ProblemWorkspace() {
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={55} minSize={40}>
             <div className="h-full gap-4">
-              <div className="h-[500px] overflow-hidden rounded-lg">
+              <div className="h-[550px] overflow-hidden rounded-lg">
                 <MonocoEditor problem={problem} />
               </div>
               <div className="bg-muted/50 border-t p-4">

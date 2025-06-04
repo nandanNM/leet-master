@@ -1,18 +1,18 @@
-import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
+import {pgTable as table} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
-import { usersTable } from "./user";
-import { relations } from "drizzle-orm";
-import { problemsTable } from "./problem";
+import {usersTable} from "./user";
+import {relations} from "drizzle-orm";
+import {problemsTable} from "./problem";
 
 export const playlistsTable = table(
   "playlists",
   {
     id: t.uuid("id").primaryKey().defaultRandom(),
-    name: t.varchar({ length: 255 }).notNull(),
+    name: t.varchar({length: 255}).notNull(),
     description: t.text("description"),
     userId: t
       .uuid("user_id")
-      .references(() => usersTable.id, { onDelete: "cascade" })
+      .references(() => usersTable.id, {onDelete: "cascade"})
       .notNull(),
     createdAt: t.timestamp("created_at").defaultNow(),
     updatedAt: t
@@ -22,7 +22,7 @@ export const playlistsTable = table(
   },
   (table) => ({
     userIdNameUnique: t.unique().on(table.userId, table.name),
-  })
+  }),
 );
 
 export const problemsInPlaylistTable = table(
@@ -32,12 +32,12 @@ export const problemsInPlaylistTable = table(
     playListId: t
       .uuid("playlist_id")
       .notNull()
-      .references(() => playlistsTable.id, { onDelete: "cascade" }),
+      .references(() => playlistsTable.id, {onDelete: "cascade"}),
 
     problemId: t
       .uuid("problem_id")
       .notNull()
-      .references(() => problemsTable.id, { onDelete: "cascade" }),
+      .references(() => problemsTable.id, {onDelete: "cascade"}),
 
     createdAt: t.timestamp("created_at").defaultNow(),
     updatedAt: t
@@ -47,23 +47,20 @@ export const problemsInPlaylistTable = table(
   },
   (table) => ({
     uniqueProblemInPlaylist: t.unique().on(table.playListId, table.problemId),
-  })
+  }),
 );
 
-export const playlistsRelations = relations(
-  playlistsTable,
-  ({ one, many }) => ({
-    user: one(usersTable, {
-      fields: [playlistsTable.userId],
-      references: [usersTable.id],
-    }),
-    problems: many(problemsInPlaylistTable),
-  })
-);
+export const playlistsRelations = relations(playlistsTable, ({one, many}) => ({
+  user: one(usersTable, {
+    fields: [playlistsTable.userId],
+    references: [usersTable.id],
+  }),
+  problems: many(problemsInPlaylistTable),
+}));
 
 export const problemsInPlaylistRelations = relations(
   problemsInPlaylistTable,
-  ({ one }) => ({
+  ({one}) => ({
     playlist: one(playlistsTable, {
       fields: [problemsInPlaylistTable.playListId],
       references: [playlistsTable.id],
@@ -72,5 +69,5 @@ export const problemsInPlaylistRelations = relations(
       fields: [problemsInPlaylistTable.problemId],
       references: [problemsTable.id],
     }),
-  })
+  }),
 );

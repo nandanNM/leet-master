@@ -1,19 +1,20 @@
-import { pgEnum, pgTable as table, uniqueIndex } from "drizzle-orm/pg-core";
+import {pgEnum, pgTable as table, uniqueIndex} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
-import { usersTable } from "./user";
-import { relations } from "drizzle-orm";
-import { submissionsTable } from "./submission";
+import {usersTable} from "./user";
+import {relations} from "drizzle-orm";
+import {submissionsTable} from "./submission";
+import {discussionTable} from "./discussion";
 export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
 export const problemsTable = table("problems", {
   id: t.uuid("id").primaryKey().defaultRandom(),
-  title: t.varchar({ length: 255 }).notNull(),
+  title: t.varchar({length: 255}).notNull(),
   description: t.text("description").notNull(),
   difficulty: difficultyEnum().notNull(),
   tags: t.text("tags").array().notNull(), // text[]
   userId: t
     .uuid("user_id")
-    .references(() => usersTable.id, { onDelete: "cascade" })
+    .references(() => usersTable.id, {onDelete: "cascade"})
     .notNull(),
   examples: t.jsonb("examples").notNull(),
   constraints: t.text("constraints").notNull(),
@@ -34,11 +35,11 @@ export const solvedProblemsTable = table(
     id: t.uuid("id").primaryKey().defaultRandom(),
     userId: t
       .uuid("user_id")
-      .references(() => usersTable.id, { onDelete: "cascade" })
+      .references(() => usersTable.id, {onDelete: "cascade"})
       .notNull(),
     problemId: t
       .uuid("problem_id")
-      .references(() => problemsTable.id, { onDelete: "cascade" })
+      .references(() => problemsTable.id, {onDelete: "cascade"})
       .notNull(),
     createdAt: t.timestamp("created_at").defaultNow(),
     updatedAt: t
@@ -49,23 +50,24 @@ export const solvedProblemsTable = table(
   (t) => ({
     uniqueUserProblem: uniqueIndex("unique_user_problem").on(
       t.userId,
-      t.problemId
+      t.problemId,
     ),
-  })
+  }),
 );
 
-export const problemsRelations = relations(problemsTable, ({ one, many }) => ({
+export const problemsRelations = relations(problemsTable, ({one, many}) => ({
   user: one(usersTable, {
     fields: [problemsTable.userId],
     references: [usersTable.id],
   }),
   submissions: many(submissionsTable),
   solvedBy: many(solvedProblemsTable),
+  discussions: many(discussionTable),
 }));
 
 export const solvedProblemsRelations = relations(
   solvedProblemsTable,
-  ({ one }) => ({
+  ({one}) => ({
     user: one(usersTable, {
       fields: [solvedProblemsTable.userId],
       references: [usersTable.id],
@@ -74,5 +76,5 @@ export const solvedProblemsRelations = relations(
       fields: [solvedProblemsTable.problemId],
       references: [problemsTable.id],
     }),
-  })
+  }),
 );

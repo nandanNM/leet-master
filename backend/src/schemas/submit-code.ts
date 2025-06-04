@@ -1,6 +1,6 @@
-import { z } from "zod";
+import {z} from "zod";
 
-export const submitCodeSchema = z
+export const SubmitCodeSchema = z
   .object({
     source_code: z.string().min(1, "source_code is required"),
     language_id: z.union([z.string(), z.number()]),
@@ -12,4 +12,4 @@ export const submitCodeSchema = z
     message: "expected_outputs length must match stdin length",
     path: ["expected_outputs"],
   });
-export type SubmitCode = z.infer<typeof submitCodeSchema>;
+export type SubmitCode = z.infer<typeof SubmitCodeSchema>;

@@ -12,6 +12,8 @@ import submissionRoutes from "./routes/submission.routes";
 import playlistRoutes from "./routes/playlist.routes";
 import path from "path";
 import passport from "./config/passport.config";
+import discussionRoutes from "./routes/discussion.route";
+import {errorHandler} from "./middlewares/errorHandler.middleware";
 
 const app = express();
 
@@ -55,4 +57,5 @@ app.use("/api/v1/problem", problemRoutes);
 app.use("/api/v1/execute-code", executionRoutes);
 app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
-// app.use(errorHandler);
+app.use("/api/v1/discussion", discussionRoutes);
+app.use(errorHandler);

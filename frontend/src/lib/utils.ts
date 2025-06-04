@@ -104,3 +104,33 @@ export function formatRelativeDate(from: Date) {
 export function capitalizeWord(sentence: string): string {
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
+
+export const formatMessage = (content: string) => {
+  const escapeHTML = (str: string) =>
+    str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
+  const inlineCodeRegex = /`([^`]+)`/g;
+
+  let formatted = escapeHTML(content);
+
+  // Replace code blocks
+  formatted = formatted.replace(codeBlockRegex, (_, lang = "text", code) => {
+    return `
+          <div class="code-block">
+            <div class="code-header">${lang}</div>
+            <pre><code class="language-${lang}">${escapeHTML(code)}</code></pre>
+          </div>
+        `;
+  });
+  formatted = formatted.replace(inlineCodeRegex, (_, code) => {
+    return `<code class="inline-code">${escapeHTML(code)}</code>`;
+  });
+
+  return formatted;
+};

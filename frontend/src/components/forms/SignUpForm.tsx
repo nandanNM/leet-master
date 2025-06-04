@@ -13,8 +13,10 @@ import { signUpSchema, type SignUpValues } from "@/lib/validations";
 import { PasswordInput } from "../ui/password-input";
 import LoadingButton from "../LoadingButton";
 import { useAuthStore } from "@/store";
+import { useNavigate } from "react-router-dom";
 export default function SignUpForm() {
   const { signup, isSigninUp: isPending } = useAuthStore();
+  const navigate = useNavigate();
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
   });
@@ -22,6 +24,7 @@ export default function SignUpForm() {
   async function onSubmit(values: SignUpValues) {
     try {
       await signup(values);
+      navigate("/login");
     } catch (error) {
       console.error("Error during signup:", error);
     }

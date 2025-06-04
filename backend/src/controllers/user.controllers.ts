@@ -59,7 +59,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const {email, password} = req.body as LoginUser;
-
+  console.log("LOGIN");
   const user = await db.query.usersTable.findFirst({
     where: (usersTable, {eq}) => eq(usersTable.email, email),
   });

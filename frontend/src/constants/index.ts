@@ -5,7 +5,6 @@ import { Code2, Library, Play, Save, Send, Share2 } from "lucide-react";
 export const menuItems = [
   { name: "Home", to: "/" },
   { name: "Problems", to: "/problems" },
-  { name: "Pricing", to: "#link" },
   { name: "About", to: "#link" },
 ];
 

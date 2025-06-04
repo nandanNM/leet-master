@@ -1,67 +1,55 @@
+import { useEffect } from "react";
+import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import { Navigate, Route, Routes } from "react-router-dom";
+
+import { useAuthStore } from "./store";
+
 import RootLayout from "./_root/RootLayout";
 import AuthLayout from "./_auth/AuthLayout";
-import { Home } from "./_root/pages";
-import RegisterPage from "./_auth/forms/Signup";
-import LoginPage from "./_auth/forms/Signin";
-import { useAuthStore } from "./store";
-import { useEffect } from "react";
-import AdminRoute from "./_admin/AdminRoute";
-import AddProblem from "./_admin/pages/AddProblem";
-import Problems from "./_root/pages/Problems";
-import ProblemWorkspace from "./_root/pages/ProblemWorkspace";
-import ProfilePage from "./_root/pages/Profile";
-import PlaylistPage from "./_root/pages/PlaylistPage";
+import { RequireAuth } from "./components/RequireAuth";
 
+import {
+  Home,
+  PlaylistPage,
+  ProblemWorkspace,
+  Problems,
+  ProfilePage,
+} from "./_root/pages";
+import LoginPage from "./_auth/forms/Signin";
+import RegisterPage from "./_auth/forms/Signup";
+import AddProblem from "./_admin/pages/AddProblem";
 export default function App() {
-  const getCurrentUser = useAuthStore((state) => state.getCurrentUser);
+  const { getCurrentUser } = useAuthStore();
+
   useEffect(() => {
     getCurrentUser();
   }, [getCurrentUser]);
-  const { authUser } = useAuthStore((state) => state);
 
   return (
     <main className="flex min-h-screen antialiased">
       <Routes>
-        {/* public routes */}
+        {/* Public routes */}
         <Route element={<AuthLayout />}>
-          <Route
-            path="/login"
-            element={authUser ? <Navigate to="/" /> : <LoginPage />}
-          />
-          <Route
-            path="/signup"
-            element={authUser ? <Navigate to="/" /> : <RegisterPage />}
-          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<RegisterPage />} />
         </Route>
-        {/* private routes */}
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/problems"
-            element={authUser ? <Problems /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/problems/:id"
-            element={
-              authUser ? <ProblemWorkspace /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/profile/:id"
-            element={
-              authUser ? <ProfilePage /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/playlist/:id"
-            element={
-              authUser ? <PlaylistPage /> : <Navigate to="/login" replace />
-            }
-          />
-          {/* admin routes */}
-          <Route element={<AdminRoute />}>
+        </Route>
+
+        {/* Authenticated routes */}
+        <Route element={<RequireAuth />}>
+          <Route element={<RootLayout />}>
+            <Route path="/problems" element={<Problems />} />
+            <Route path="/problems/:id" element={<ProblemWorkspace />} />
+            <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/playlist/:id" element={<PlaylistPage />} />
+          </Route>
+        </Route>
+
+        {/* Admin-only routes */}
+        <Route element={<RequireAuth role="ADMIN" />}>
+          <Route element={<RootLayout />}>
             <Route path="/add-problem" element={<AddProblem />} />
           </Route>
         </Route>

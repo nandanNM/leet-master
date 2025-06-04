@@ -12,15 +12,17 @@ import { loginSchema, type LoginValues } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingButton from "../LoadingButton";
 import { useAuthStore } from "@/store";
-
+import { useNavigate } from "react-router-dom";
 export default function LoginForm() {
   const { login, isLoggingIn: isPending } = useAuthStore();
+  const navigate = useNavigate();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
   });
   async function onSubmit(values: LoginValues) {
     try {
       await login(values);
+      navigate("/");
     } catch (error) {
       console.error("Error during login:", error);
     }

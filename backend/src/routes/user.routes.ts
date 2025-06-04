@@ -55,7 +55,7 @@ userRoutes.get(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    const redirectUrl = `${process.env.CLIENT_URL!}`;
+    const redirectUrl = `${process.env.CLIENT_URL}`;
     res.redirect(redirectUrl);
   },
 );

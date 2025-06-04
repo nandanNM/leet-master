@@ -1,20 +1,13 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware"; // <- import persist
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import type { AuthUser } from "@/types";
 import type { UpdateUserProfileValues } from "@/lib/validations";
 
-type LoginData = {
-  email: string;
-  password: string;
-};
-
-type SignupData = {
-  name: string;
-  email: string;
-  password: string;
-};
+type LoginData = { email: string; password: string };
+type SignupData = { name: string; email: string; password: string };
 
 interface AuthState {
   authUser: AuthUser | null;
@@ -29,87 +22,85 @@ interface AuthState {
   logout: () => Promise<void>;
   updateProfile: (data: UpdateUserProfileValues) => Promise<void>;
 }
-export const useAuthStore = create<AuthState>((set) => ({
-  authUser: null,
-  isSigninUp: false,
-  isLoggingIn: false,
-  isFetchingUser: false,
-  isAuthenticated: false,
-  isUpdatingUser: false,
 
-  getCurrentUser: async () => {
-    set({ isFetchingUser: true });
-    try {
-      const res = (await axiosInstance.get("/auth/current-user")).data;
-      console.log("checkauth response", res.data);
-      set({ authUser: res.data, isAuthenticated: true });
-    } catch (error) {
-      console.error("❌ Error checking auth:", error);
-      set({ authUser: null });
-    } finally {
-      set({ isFetchingUser: false });
-    }
-  },
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      authUser: null,
+      isSigninUp: false,
+      isLoggingIn: false,
+      isFetchingUser: false,
+      isAuthenticated: false,
+      isUpdatingUser: false,
 
-  signup: async (data) => {
-    set({ isSigninUp: true });
-    try {
-      const res = (await axiosInstance.post("/auth/register", data)).data;
-      set({ authUser: res.data, isAuthenticated: true });
-      toast.success(res.message);
-    } catch (error) {
-      console.log("Error signing up", error);
-      toast.error(getErrorMessage(error));
-    } finally {
-      set({ isSigninUp: false });
-    }
-  },
+      getCurrentUser: async () => {
+        set({ isFetchingUser: true });
+        try {
+          const res = (await axiosInstance.get("/auth/current-user")).data;
+          set({ authUser: res.data, isAuthenticated: true });
+        } catch (error) {
+          console.log(error);
+          set({ authUser: null, isAuthenticated: false });
+        } finally {
+          set({ isFetchingUser: false });
+        }
+      },
 
-  login: async (data) => {
-    set({ isLoggingIn: true });
-    try {
-      const res = (await axiosInstance.post("/auth/login", data)).data;
-      console.log("res", res);
-      set({ authUser: res.data.user, isAuthenticated: true });
-      console.log("user res", res);
-      toast.success(res.message);
-    } catch (error) {
-      console.log("Error logging in", error);
-      toast.error(getErrorMessage(error));
-    } finally {
-      set({ isLoggingIn: false });
-    }
-  },
+      signup: async (data) => {
+        set({ isSigninUp: true });
+        try {
+          const res = (await axiosInstance.post("/auth/register", data)).data;
+          set({ authUser: res.data, isAuthenticated: true });
+          toast.success(res.message);
+        } catch (error) {
+          toast.error(getErrorMessage(error));
+        } finally {
+          set({ isSigninUp: false });
+        }
+      },
 
-  logout: async () => {
-    try {
-      await axiosInstance.post("/auth/logout");
-      set({ authUser: null, isAuthenticated: false });
-      toast.success("Logout successful");
-    } catch (error) {
-      console.log("Error logging out", error);
-      toast.error(getErrorMessage(error));
-    }
-  },
+      login: async (data) => {
+        set({ isLoggingIn: true });
+        try {
+          const res = (await axiosInstance.post("/auth/login", data)).data;
+          set({ authUser: res.data.user, isAuthenticated: true });
+          toast.success(res.message);
+        } catch (error) {
+          toast.error(getErrorMessage(error));
+        } finally {
+          set({ isLoggingIn: false });
+        }
+      },
 
-  updateProfile: async (data) => {
-    set({ isUpdatingUser: true });
-    try {
-      console.log("Updating profile with data:", data);
-      const res = (
-        await axiosInstance.post("/auth/update", data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-      ).data;
-      set({ authUser: res.data, isAuthenticated: true });
-      toast.success(res.message);
-    } catch (error) {
-      console.log("Error updating profile", error);
-      toast.error(getErrorMessage(error));
-    } finally {
-      set({ isUpdatingUser: false });
-    }
-  },
-}));
+      logout: async () => {
+        try {
+          await axiosInstance.post("/auth/logout");
+          set({ authUser: null, isAuthenticated: false });
+          toast.success("Logout successful");
+        } catch (error) {
+          toast.error(getErrorMessage(error));
+        }
+      },
+
+      updateProfile: async (data) => {
+        set({ isUpdatingUser: true });
+        try {
+          const res = (
+            await axiosInstance.post("/auth/update", data, {
+              headers: { "Content-Type": "multipart/form-data" },
+            })
+          ).data;
+          set({ authUser: res.data, isAuthenticated: true });
+          toast.success(res.message);
+        } catch (error) {
+          toast.error(getErrorMessage(error));
+        } finally {
+          set({ isUpdatingUser: false });
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
+    },
+  ),
+);
