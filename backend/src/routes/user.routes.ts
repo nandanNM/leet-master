@@ -39,13 +39,13 @@ userRoutes.get(
 userRoutes.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=auth_failed`,
+    failureRedirect: `${process.env.CLIENT_URL}/login`,
     session: false,
   }),
 
   (req: Request, res: Response) => {
     if (!req.user) {
-      return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
+      return res.redirect(`${process.env.CLIENT_URL}/login`);
     }
     const {id, email} = req.user;
     const accessToken = generateToken({id, email});
@@ -55,7 +55,9 @@ userRoutes.get(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    const redirectUrl = `${process.env.CLIENT_URL}`;
+    console.log("email,", email);
+    console.log("process.env.CLIENT_URL", process.env.CLIENT_URL);
+    const redirectUrl = `https://www.leetmaster.in/problems`;
     res.redirect(redirectUrl);
   },
 );
