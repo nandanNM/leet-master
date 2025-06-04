@@ -1,4 +1,4 @@
-import { MessageSquare, Send } from "lucide-react";
+import { Loader2, MessageSquare, Send } from "lucide-react";
 import { useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { formatMessage, formatRelativeDate } from "@/lib/utils";
@@ -42,7 +42,11 @@ export default function CodeDiscussion({
     setInput("");
   };
   if (isDiscussionLoading)
-    return <div className="mt-2 text-center">Loading...</div>;
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="size-6 animate-spin" />
+      </div>
+    );
   return (
     <div className="flex h-[620px] flex-1 flex-col p-0">
       <div className="flex-1 space-y-6 overflow-y-auto p-6">

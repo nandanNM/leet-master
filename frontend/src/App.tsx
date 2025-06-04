@@ -10,6 +10,7 @@ import { RequireAuth } from "./components/RequireAuth";
 
 import {
   Home,
+  NotFound,
   PlaylistPage,
   ProblemWorkspace,
   Problems,
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/add-problem" element={<AddProblem />} />
           </Route>
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster richColors />
     </main>

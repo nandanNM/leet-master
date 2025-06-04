@@ -24,7 +24,6 @@ export default function SubmissionTable({
   submissions,
   isLoading,
 }: SubmissionTableProps) {
-  console.log("su", submissions);
   if (!submissions.length && !isLoading)
     return (
       <div className="text-muted-foreground flex h-[600px] items-center justify-center">

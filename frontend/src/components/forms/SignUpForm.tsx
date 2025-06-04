@@ -24,7 +24,7 @@ export default function SignUpForm() {
   async function onSubmit(values: SignUpValues) {
     try {
       await signup(values);
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Error during signup:", error);
     }

@@ -2,16 +2,14 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { Link } from "react-router-dom";
 // import Logo from "./Logo"
-import { Loader2, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { menuItems } from "@/constants";
-import { useAuthStore } from "@/store";
 import UserButton from "./UserButton";
 import Logo from "./Logo";
 
 export default function Navbar() {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { isFetchingUser } = useAuthStore();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -85,7 +83,6 @@ export default function Navbar() {
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                 {/* userButton */}
-                {isFetchingUser && <Loader2 className="size-5 animate-spin" />}
                 <UserButton />
               </div>
             </div>
