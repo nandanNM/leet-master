@@ -42,11 +42,22 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { useTheme } from "../theme-provider";
-
-export default function CreateProblemForm() {
+// import { useProblemStore } from "@/store";
+interface CreateProblemFormProps {
+  action: "create" | "update";
+  problemId?: string;
+}
+export default function CreateProblemForm({
+  action,
+  problemId,
+}: CreateProblemFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sampleType, setSampleType] = useState("DP");
+  // const {getProblemById,problem}= useProblemStore()
   const navigate = useNavigate();
+  // if(action ==="update" && problemId){
+  //   useEffect(() => {}, []);
+  // }
   const form = useForm<ProblemValues>({
     resolver: zodResolver(problemSchema),
     defaultValues: {
@@ -114,11 +125,19 @@ export default function CreateProblemForm() {
   });
 
   async function onSubmit(values: ProblemValues) {
-    // console.log("Form submitted with values:", values);
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("/problem/create-problem", values);
-      toast.success(res.data.message || "Problem Created successfully⚡");
+      if (action === "create") {
+        const res = await axiosInstance.post("/problem/create-problem", values);
+        toast.success(res.data.message || "Problem Created successfully⚡");
+      }
+      if (action === "update" && problemId) {
+        const res = await axiosInstance.post(
+          `/problem/update-problem/${problemId}`,
+          values,
+        );
+        toast.success(res.data.message || "Problem Updated successfully⚡");
+      }
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -144,35 +163,37 @@ export default function CreateProblemForm() {
           <div className="mb-6 flex flex-col items-start justify-between border-b pb-4 md:mb-8 md:flex-row md:items-center">
             <h2 className="card-title flex items-center gap-3 text-2xl md:text-3xl">
               <FileTextIcon className="text-primary h-6 w-6 md:h-8 md:w-8" />
-              Create Problem
+              {action === "create" ? "Create Problem" : "Update Problem"}
             </h2>
 
-            <div className="mt-4 flex flex-col gap-3 md:mt-0 md:flex-row">
-              <div className="join flex gap-2">
+            {action === "create" && (
+              <div className="mt-4 flex flex-col gap-3 md:mt-0 md:flex-row">
+                <div className="join flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setSampleType("DP")}
+                  >
+                    DP Problem
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setSampleType("ST")}
+                  >
+                    String Problem
+                  </Button>
+                </div>
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setSampleType("DP")}
+                  variant="secondary"
+                  className="gap-2"
+                  onClick={loadSampleData}
                 >
-                  DP Problem
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setSampleType("ST")}
-                >
-                  String Problem
+                  <ArrowDown className="h-4 w-4" />
+                  Load Sample
                 </Button>
               </div>
-              <Button
-                variant="secondary"
-                className="gap-2"
-                onClick={loadSampleData}
-              >
-                <ArrowDown className="h-4 w-4" />
-                Load Sample
-              </Button>
-            </div>
+            )}
           </div>
           {/* form */}
           <div className="mx-auto max-w-6xl p-6">
@@ -662,7 +683,7 @@ export default function CreateProblemForm() {
                     loading={isLoading}
                     disabled={isLoading}
                   >
-                    Create Problem
+                    {action === "create" ? "Create Problem" : "Update Problem"}
                   </LoadingButton>
                 </div>
               </form>

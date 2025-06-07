@@ -50,8 +50,6 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
         headers,
       },
     );
-    // console.log("Pulling results for tokens:", tokens);
-    console.log("Data:", data);
 
     const result = data.submissions;
     if (!result) throw new Error("No result found  for the given tokens.");

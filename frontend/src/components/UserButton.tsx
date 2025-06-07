@@ -43,7 +43,11 @@ export default function UserButton({ className }: UserButtonProps) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {user && <DropdownMenuLabel>Logged in as</DropdownMenuLabel>}
+        {user && (
+          <DropdownMenuLabel>
+            Logged in as {user.name.split(" ")[0]}
+          </DropdownMenuLabel>
+        )}
         {user ? (
           <>
             <DropdownMenuSeparator />

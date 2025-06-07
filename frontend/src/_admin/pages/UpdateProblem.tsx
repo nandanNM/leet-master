@@ -1,9 +1,9 @@
 import CreateProblemForm from "@/components/forms/CreateProblemForm";
 
-export default function AddProblem() {
+export default function UpdateProblem() {
   return (
     <>
-      <CreateProblemForm action="create" />
+      <CreateProblemForm action="update" />
     </>
   );
 }
