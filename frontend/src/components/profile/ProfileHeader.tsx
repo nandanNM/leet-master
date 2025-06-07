@@ -50,7 +50,7 @@ function ProfileHeader({
       icon: Sparkle,
       color: "from-yellow-500 to-orange-500",
       gradient: "group-hover:via-yellow-400",
-      description: "Saved for later",
+      description: "Percentage of successful runs",
       metric: {
         label: "Total solved",
         value: submissionStats?.totalSuccesses ?? "N/A",

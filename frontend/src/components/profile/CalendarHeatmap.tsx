@@ -59,7 +59,7 @@ export default function CalendarHeatmap({
 
   return (
     <div
-      className="grid grid-flow-col gap-1"
+      className="grid grid-flow-col gap-[2px]"
       style={{ gridTemplateRows: "repeat(7, minmax(0, 1fr))" }}
     >
       {calendarGrid.map((day) => {

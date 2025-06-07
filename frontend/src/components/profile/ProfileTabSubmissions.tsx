@@ -121,7 +121,7 @@ export default function ProfileTabSubmissions() {
                   submissions?.map((execution) => (
                     <Card
                       key={execution.id}
-                      className="group hover:border-primary/50 hover:shadow-primary/10 overflow-hidden transition-all hover:shadow-md"
+                      className="group hover:border-primary/50 hover:shadow-primary/10 gap-2 overflow-hidden py-0 transition-all hover:shadow-md"
                     >
                       <div className="bg-muted/50 flex items-center justify-between rounded-t-xl border-b p-4">
                         <div className="flex items-center gap-3">

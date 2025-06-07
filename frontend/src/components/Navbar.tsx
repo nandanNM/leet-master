@@ -6,10 +6,12 @@ import { Menu, X } from "lucide-react";
 import { menuItems } from "@/constants";
 import UserButton from "./UserButton";
 import Logo from "./Logo";
+import { useAuthStore } from "@/store";
 
 export default function Navbar() {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const { authUser: user } = useAuthStore();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -63,6 +65,16 @@ export default function Navbar() {
                     </Link>
                   </li>
                 ))}
+                {user?.role === "ADMIN" && (
+                  <li>
+                    <Link
+                      to={"/add-problem"}
+                      className="text-muted-foreground hover:text-accent-foreground block duration-150"
+                    >
+                      <span>Add Problem</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
 

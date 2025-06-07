@@ -16,7 +16,7 @@ import discussionRoutes from "./routes/discussion.route";
 // import {errorHandler} from "./middlewares/errorHandler.middleware";
 
 const app = express();
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 app.use(express.json());
 app.use("/public", express.static(path.join(process.cwd(), "src/public")));
 app.use(
@@ -51,7 +51,7 @@ app.use("/api/v1/health", (req, res) => {
     message: "Server is running",
   });
 });
-console.log(process.env.CLIENT_URL);
+// console.log(process.env.CLIENT_URL);
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/problem", problemRoutes);
 app.use("/api/v1/execute-code", executionRoutes);

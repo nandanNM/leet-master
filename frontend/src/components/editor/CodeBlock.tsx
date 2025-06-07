@@ -28,7 +28,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
           padding: "1rem",
           borderRadius: "0.5rem",
           background:
-            theme === "dark" ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.1)",
+            theme === "dark" ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.06)",
           margin: 0,
         }}
       >
@@ -38,7 +38,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
       {lines.length > 6 && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute right-2 bottom-2 flex items-center gap-1 rounded bg-blue-500/20 px-2 py-1 text-xs text-blue-400 transition-colors hover:bg-blue-500/30"
+          className="absolute right-2 bottom-2 flex cursor-pointer items-center gap-1 rounded bg-blue-500/10 px-2 py-1 text-xs text-blue-400 transition-colors hover:bg-blue-500/20"
         >
           {isExpanded ? (
             <>

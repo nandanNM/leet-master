@@ -8,7 +8,7 @@ import {
   submitBatch,
 } from "../utils/lib/judge0";
 import {problemsTable} from "../db/schema";
-import {eq} from "drizzle-orm";
+import {eq, sql} from "drizzle-orm";
 import {isAuthenticated} from "../utils/auth";
 import {asyncHandler} from "../utils/async-handler";
 
@@ -286,5 +286,41 @@ export const getAllProblemsSolvedByUser = asyncHandler(
     new ApiResponse(200, "Problems fetched successfully", solvedProblems).send(
       res,
     );
+  },
+);
+
+export const getUserSolvedRank = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    const {id: userId} = req.params;
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    const result = await db.execute(
+      sql`
+      SELECT
+        user_id,
+        COUNT(problem_id) AS "solvedCount",
+        RANK() OVER (ORDER BY COUNT(problem_id) DESC) AS "rank"
+      FROM solved_problems
+      GROUP BY user_id
+      HAVING user_id = ${userId}
+    `,
+    );
+
+    if (!result.rows.length) {
+      new ApiResponse(200, "No solved problems yet", {
+        solvedCount: 0,
+        rank: null,
+      }).send(res);
+    }
+    const {solvedCount, rank} = result.rows[0] as {
+      solvedCount: number;
+      rank: number;
+    };
+
+    new ApiResponse(200, "Rank fetched", {solvedCount, rank}).send(res);
   },
 );

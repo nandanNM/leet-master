@@ -41,6 +41,7 @@ import LoadingButton from "../LoadingButton";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { axiosInstance } from "@/lib/axios";
+import { useTheme } from "../theme-provider";
 
 export default function CreateProblemForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -116,8 +117,7 @@ export default function CreateProblemForm() {
     // console.log("Form submitted with values:", values);
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post("/problems/create-problem", values);
-      // console.log(res.data);
+      const res = await axiosInstance.post("/problem/create-problem", values);
       toast.success(res.data.message || "Problem Created successfully⚡");
       navigate("/");
     } catch (error) {
@@ -127,12 +127,10 @@ export default function CreateProblemForm() {
       setIsLoading(false);
     }
   }
-
+  const { theme } = useTheme();
   const loadSampleData = () => {
     const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem;
     replacetestcases(sampleData.testcases.map((tc) => tc));
-    // Reset the form with sample data
-    // console.log("Loading sample data:", sampleData);
     form.reset({
       ...sampleData,
       difficulty: sampleData.difficulty as Difficulty,
@@ -150,18 +148,18 @@ export default function CreateProblemForm() {
             </h2>
 
             <div className="mt-4 flex flex-col gap-3 md:mt-0 md:flex-row">
-              <div className="join">
+              <div className="join flex gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setSampleType("array")}
+                  onClick={() => setSampleType("DP")}
                 >
                   DP Problem
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setSampleType("string")}
+                  onClick={() => setSampleType("ST")}
                 >
                   String Problem
                 </Button>
@@ -429,16 +427,34 @@ export default function CreateProblemForm() {
                                         <Editor
                                           height="300px"
                                           language={language.toLowerCase()}
-                                          theme="vs-dark"
+                                          theme={
+                                            theme === "dark"
+                                              ? "vs-dark"
+                                              : "vs-light"
+                                          }
                                           value={field.value}
                                           onChange={field.onChange}
                                           options={{
                                             minimap: { enabled: false },
                                             fontSize: 14,
-                                            lineNumbers: "on",
-                                            roundedSelection: false,
-                                            scrollBeyondLastLine: false,
                                             automaticLayout: true,
+                                            scrollBeyondLastLine: false,
+                                            padding: { top: 16, bottom: 16 },
+                                            renderWhitespace: "selection",
+                                            fontFamily:
+                                              '"Fira Code", "Cascadia Code", Consolas, monospace',
+                                            fontLigatures: true,
+                                            cursorBlinking: "smooth",
+                                            smoothScrolling: true,
+                                            contextmenu: true,
+                                            renderLineHighlight: "all",
+                                            lineHeight: 1.6,
+                                            letterSpacing: 0.5,
+                                            roundedSelection: true,
+                                            scrollbar: {
+                                              verticalScrollbarSize: 8,
+                                              horizontalScrollbarSize: 8,
+                                            },
                                           }}
                                         />
                                       </div>
@@ -469,16 +485,34 @@ export default function CreateProblemForm() {
                                         <Editor
                                           height="300px"
                                           language={language.toLowerCase()}
-                                          theme="vs-dark"
+                                          theme={
+                                            theme === "dark"
+                                              ? "vs-dark"
+                                              : "vs-light"
+                                          }
                                           value={field.value}
                                           onChange={field.onChange}
                                           options={{
                                             minimap: { enabled: false },
                                             fontSize: 14,
-                                            lineNumbers: "on",
-                                            roundedSelection: false,
-                                            scrollBeyondLastLine: false,
                                             automaticLayout: true,
+                                            scrollBeyondLastLine: false,
+                                            padding: { top: 16, bottom: 16 },
+                                            renderWhitespace: "selection",
+                                            fontFamily:
+                                              '"Fira Code", "Cascadia Code", Consolas, monospace',
+                                            fontLigatures: true,
+                                            cursorBlinking: "smooth",
+                                            smoothScrolling: true,
+                                            contextmenu: true,
+                                            renderLineHighlight: "all",
+                                            lineHeight: 1.6,
+                                            letterSpacing: 0.5,
+                                            roundedSelection: true,
+                                            scrollbar: {
+                                              verticalScrollbarSize: 8,
+                                              horizontalScrollbarSize: 8,
+                                            },
                                           }}
                                         />
                                       </div>

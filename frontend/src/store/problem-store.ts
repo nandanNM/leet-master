@@ -2,18 +2,24 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import type { Problem, ProblemWithSolvedStatus } from "@/lib/validations";
+import type {
+  Problem,
+  ProblemWithSolvedStatus,
+  UserRankForSolvedProblems,
+} from "@/lib/validations";
 
 interface ProblemStore {
   problems: ProblemWithSolvedStatus[];
   problem: Problem | null;
   solvedProblemsByUser: Problem[];
+  userRank: UserRankForSolvedProblems | null;
   isProblemsLoading: boolean;
   isProblemLoading: boolean;
   getAllProblems: () => Promise<void>;
   getProblemById: (id: string) => Promise<void>;
   getSolvedProblemsByUser: () => Promise<void>;
   removeProblem: (id: string) => void;
+  getUserSolvedProblemsRank: (id: string) => Promise<void>;
 }
 
 export const useProblemStore = create<ProblemStore>((set) => ({
@@ -22,6 +28,7 @@ export const useProblemStore = create<ProblemStore>((set) => ({
   solvedProblemsByUser: [],
   isProblemsLoading: false,
   isProblemLoading: false,
+  userRank: null,
 
   getAllProblems: async () => {
     try {
@@ -53,8 +60,7 @@ export const useProblemStore = create<ProblemStore>((set) => ({
 
   getSolvedProblemsByUser: async () => {
     try {
-      const res = (await axiosInstance.get("/problems/get-solved-problem"))
-        .data;
+      const res = (await axiosInstance.get("/problem/get-solved-problem")).data;
       set({ solvedProblemsByUser: res.data });
     } catch (error) {
       console.error("Error getting solved problems:", error);
@@ -65,4 +71,13 @@ export const useProblemStore = create<ProblemStore>((set) => ({
     set((state) => ({
       problems: state.problems.filter((problem) => problem.id !== id),
     })),
+  getUserSolvedProblemsRank: async (id: string) => {
+    try {
+      const res = (await axiosInstance.get(`/problem/user-rank/${id}`)).data;
+      set({ userRank: res.data });
+    } catch (error) {
+      console.error("Error getting solved problems:", error);
+      toast.error(getErrorMessage(error));
+    }
+  },
 }));

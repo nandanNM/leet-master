@@ -25,11 +25,6 @@ passport.use(
       profile,
       done: VerifyCallback,
     ) => {
-      console.log("--- Passport Google Strategy Callback Started ---");
-      console.log("Profile ID:", profile.id);
-      console.log("Profile Emails:", profile.emails);
-      console.log("Profile DisplayName:", profile.displayName);
-      console.log("Profile Photos:", profile.photos);
       try {
         const email = profile?.emails?.[0]?.value;
         const displayName = profile.displayName || "";

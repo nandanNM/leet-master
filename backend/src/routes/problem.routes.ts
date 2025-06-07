@@ -1,15 +1,16 @@
-import { Router } from "express";
-import { authMiddleware, checkAdmin } from "../middlewares/auth.middleware";
+import {Router} from "express";
+import {authMiddleware, checkAdmin} from "../middlewares/auth.middleware";
 import {
   createProblem,
   deleteProblem,
   getAllProblems,
   getAllProblemsSolvedByUser,
   getProblemById,
+  getUserSolvedRank,
   updateProblem,
 } from "../controllers/problem.controllers";
-import { validate } from "../middlewares/validate.middleware";
-import { ProblemSchema } from "../schemas/problem";
+import {validate} from "../middlewares/validate.middleware";
+import {ProblemSchema} from "../schemas/problem";
 
 const problemRoutes = Router();
 
@@ -18,7 +19,7 @@ problemRoutes.post(
   validate(ProblemSchema),
   authMiddleware,
   checkAdmin,
-  createProblem
+  createProblem,
 );
 problemRoutes.get("/get-all-problems", authMiddleware, getAllProblems);
 problemRoutes.get("/get-problem/:id", authMiddleware, getProblemById);
@@ -27,17 +28,19 @@ problemRoutes.put(
   validate(ProblemSchema),
   authMiddleware,
   checkAdmin,
-  updateProblem
+  updateProblem,
 );
 problemRoutes.delete(
   "/delete-problem/:id",
   authMiddleware,
   checkAdmin,
-  deleteProblem
+  deleteProblem,
 );
 problemRoutes.get(
   "/get-solved-problems",
   authMiddleware,
-  getAllProblemsSolvedByUser
+  getAllProblemsSolvedByUser,
 );
+problemRoutes.get("/user-rank/:id", authMiddleware, getUserSolvedRank);
+
 export default problemRoutes;

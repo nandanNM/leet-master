@@ -221,3 +221,8 @@ export type DiscussionWithUser = Discussion & {
     avatar: string;
   };
 };
+
+export interface UserRankForSolvedProblems {
+  solvedCount: number;
+  rank: number;
+}
