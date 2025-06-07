@@ -33,7 +33,7 @@ export async function submitBatch(
     `${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,
     {headers, submissions},
   );
-  console.log("Submission result:", data);
+
   return data;
 }
 

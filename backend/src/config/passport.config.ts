@@ -29,7 +29,6 @@ passport.use(
         const email = profile?.emails?.[0]?.value;
         const displayName = profile.displayName || "";
         const photo = profile.photos?.[0]?.value;
-        console.log(req, accessToken, refreshToken);
         if (!email) {
           throw new Error("Email not provided by Google");
         }

@@ -59,7 +59,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const {email, password} = req.body as LoginUser;
-  console.log("LOGIN");
   const user = await db.query.usersTable.findFirst({
     where: (usersTable, {eq}) => eq(usersTable.email, email),
   });
@@ -127,7 +126,6 @@ export const getUserSessions = asyncHandler(
         bio: true,
       },
     });
-    console.log("userSessions", userSessions);
     new ApiResponse(
       200,
       "User sessions fetched successfully",
@@ -137,7 +135,6 @@ export const getUserSessions = asyncHandler(
 );
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
-  // console.log("req.files", req.files, req.body);
   if (!isAuthenticated(req)) {
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
   }

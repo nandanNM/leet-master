@@ -34,18 +34,14 @@ export const useDiscussionStore = create<DiscussionStore>((set) => ({
 
   createDiscussion: async (input, problemId) => {
     try {
-      console.log(
-        `Creating discussion with message: ${input} for problem: ${problemId}`,
-      );
       set({ isSending: true });
       const res = (
         await axiosInstance.post(`/discussion/create/${problemId}`, {
           message: input,
         })
       ).data;
-      // console.log(res);
       const newDiscussion = res.data;
-      // console.log("newDiscussion", newDiscussion);
+
       set((state) => ({
         discussions: [newDiscussion, ...state.discussions],
       }));

@@ -51,7 +51,6 @@ app.use("/api/v1/health", (req, res) => {
     message: "Server is running",
   });
 });
-// console.log(process.env.CLIENT_URL);
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/problem", problemRoutes);
 app.use("/api/v1/execute-code", executionRoutes);

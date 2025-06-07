@@ -9,7 +9,6 @@ interface MonocoEditorProps {
   problem: Problem;
 }
 export default function MonocoEditor({ problem }: MonocoEditorProps) {
-  // console.log("defultCode", problem);
   const { language, theme, fontSize, editor, setFontSize, setEditor } =
     useCodeEditorStore();
   const defaultCode = problem.codeSnippets[language];

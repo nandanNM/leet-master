@@ -33,7 +33,6 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
 
   // wait for all test cases to be completed
   const results = await pullBatchResults(tokens);
-  console.log("Results for tokens on judge0 code execution:", results);
 
   // analyze the results for test cases
   let allTestCasesPassed = true;

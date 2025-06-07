@@ -125,7 +125,6 @@ export const getAllProblems = asyncHandler(
 
 export const getProblemById = asyncHandler(
   async (req: Request, res: Response) => {
-    // console.log(" params ", req.params);
     const {id} = req.params;
     if (!id) {
       throw new ApiError(400, "Problem ID is required", "MISSING_ID");

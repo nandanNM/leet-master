@@ -25,7 +25,6 @@ interface SubmissionResultsProps {
 export default function SubmissionResults({
   submission,
 }: SubmissionResultsProps) {
-  // console.log("Submission come data:", submission);
   // Parse stringified arrays
   const memoryArr = JSON.parse(submission.memory || "[]");
   const timeArr = JSON.parse(submission.time || "[]");

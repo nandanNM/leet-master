@@ -33,7 +33,6 @@ export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
   }
   const {problemId: problemIdToExclude} = req.params;
   const {id: userId} = req.user;
-  // console.log(playlistIdToExclude, userId, "playlistIdToExclude");
   const playLists = await db.query.playlistsTable.findMany({
     where: (playlistsTable, {eq, and, not, exists}) =>
       and(
@@ -53,7 +52,6 @@ export const getAllPlaylistsDetails = asyncHandler(async (req, res) => {
         ),
       ),
   });
-  // console.log("playLists", playLists);
   new ApiResponse(200, "Playlists fetched successfully", playLists).send(res);
 });
 export const getAllPlaylistsForUser = asyncHandler(
@@ -176,7 +174,6 @@ export const updatePlaylist = asyncHandler(async (req, res) => {
       and(eq(playlistsTable.id, playListId), eq(playlistsTable.userId, userId)),
     )
     .returning();
-  // console.log(updatedPlaylist, "updatedPlaylist");
 
   if (!updatedPlaylist) {
     throw new ApiError(404, "Playlist not found", "NOT_FOUND");

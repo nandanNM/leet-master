@@ -10,7 +10,6 @@ export const authMiddleware = async (
 ): Promise<void> => {
   try {
     const token = req.cookies["leet-master-token"];
-    // console.log("token", token);
     if (!token) {
       throw new ApiError(401, "Unauthorized Access", "MISSING_TOKEN");
     }

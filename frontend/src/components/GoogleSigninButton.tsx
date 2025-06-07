@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 const backendUrl = import.meta.env.VITE_BACKEND_BASE_URL;
 export default function GoogleSignInButton() {
   const handaleGoogleLogin = () => {
-    console.log(backendUrl);
     window.location.href = `${backendUrl}/api/v1/auth/google`;
   };
   return (

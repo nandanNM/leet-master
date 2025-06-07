@@ -38,7 +38,6 @@ export const createDiscussion = asyncHandler(async (req, res) => {
       createdAt: true,
     },
   });
-  console.log("discussion", discussion);
   new ApiResponse(201, "Discussion created successfully", discussion).send(res);
 });
 

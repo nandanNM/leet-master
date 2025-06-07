@@ -48,8 +48,6 @@ export default function PlaylistPage() {
   const handleRemoveProblem = (problemId: string) => {
     removeProblemFromPlaylist(playlistId, Array.from([problemId]));
   };
-  console.log("poblamId", playlistId);
-  console.log("playlistData", playlistData.id);
   return (
     <div className="container mx-auto space-y-6 p-6">
       {/* Playlist Header */}

@@ -4,7 +4,6 @@ import {ApiError, errorResponse} from "../utils/responses";
 export function errorHandler(err: unknown, req: Request, res: Response): void {
   // Handle different error types
   if (err instanceof ApiError) {
-    console.log("errorrr", err);
     errorResponse(res, err);
   } else if (err instanceof Error) {
     errorResponse(

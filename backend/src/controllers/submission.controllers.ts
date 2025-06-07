@@ -13,12 +13,10 @@ export const getAllSubmissions = asyncHandler(
     }
 
     const {id: userId} = req.user;
-    console.log("userId", userId);
     const submissions = await db.query.submissionsTable.findMany({
       where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
       orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
     });
-    // console.log("submissions", submissions);
 
     new ApiResponse(200, "Submissions fetched successfully", submissions).send(
       res,
@@ -35,10 +33,6 @@ export const getAllSubmissionByProblemId = asyncHandler(
     const {id: userId} = req.user;
     const {problemId} = req.params;
 
-    console.log("problemId", problemId);
-
-    console.log("userId", userId);
-
     if (!problemId) {
       throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
     }
@@ -50,7 +44,6 @@ export const getAllSubmissionByProblemId = asyncHandler(
       orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
       limit: 10,
     });
-    console.log("submissions 🚀🚀🚀", submissions);
 
     if (!submissions || submissions.length === 0) {
       throw new ApiError(404, "No submissions found", "NOT_FOUND");
