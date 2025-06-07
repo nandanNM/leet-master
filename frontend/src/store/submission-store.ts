@@ -61,7 +61,7 @@ export const useSubmissionStore = create<SubmissionState>((set) => ({
       const res = (
         await axiosInstance.get(`/submission/get-submissions/${problemId}`)
       ).data;
-      console.log("this is res", res);
+      // console.log("this is res", res);
       set({
         submissionsForProblem: res.data,
         isLoading: false,

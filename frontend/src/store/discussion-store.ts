@@ -43,9 +43,9 @@ export const useDiscussionStore = create<DiscussionStore>((set) => ({
           message: input,
         })
       ).data;
-      console.log(res);
+      // console.log(res);
       const newDiscussion = res.data;
-      console.log("newDiscussion", newDiscussion);
+      // console.log("newDiscussion", newDiscussion);
       set((state) => ({
         discussions: [newDiscussion, ...state.discussions],
       }));

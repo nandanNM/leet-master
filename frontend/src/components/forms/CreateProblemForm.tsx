@@ -113,11 +113,11 @@ export default function CreateProblemForm() {
   });
 
   async function onSubmit(values: ProblemValues) {
-    console.log("Form submitted with values:", values);
+    // console.log("Form submitted with values:", values);
     try {
       setIsLoading(true);
       const res = await axiosInstance.post("/problems/create-problem", values);
-      console.log(res.data);
+      // console.log(res.data);
       toast.success(res.data.message || "Problem Created successfully⚡");
       navigate("/");
     } catch (error) {
@@ -132,7 +132,7 @@ export default function CreateProblemForm() {
     const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem;
     replacetestcases(sampleData.testcases.map((tc) => tc));
     // Reset the form with sample data
-    console.log("Loading sample data:", sampleData);
+    // console.log("Loading sample data:", sampleData);
     form.reset({
       ...sampleData,
       difficulty: sampleData.difficulty as Difficulty,

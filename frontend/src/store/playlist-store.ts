@@ -168,7 +168,7 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
       const res = (
         await axiosInstance.post(`/playlist/update/${playlistId}`, playlistData)
       ).data;
-      console.log(res);
+      // console.log(res);
       set((state) => ({
         userPlaylists: state.userPlaylists.map((p) =>
           p.id === playlistId ? { ...p, ...res.data } : p,

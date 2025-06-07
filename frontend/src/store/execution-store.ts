@@ -22,7 +22,7 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
   submitCode: async (data: SubmissionValues) => {
     try {
       set({ isSubmitting: true });
-      console.log("Submission:", JSON.stringify(data));
+      // console.log("Submission:", JSON.stringify(data));
       const res = (await axiosInstance.post("/execute-code/submit-code", data))
         .data;
       set({ submission: res.data });
@@ -37,7 +37,7 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
   runCode: async (data: SubmissionValues) => {
     try {
       set({ isExecuting: true });
-      console.log("Running code:", JSON.stringify(data));
+      // console.log("Running code:", JSON.stringify(data));
       const res = (await axiosInstance.post("/execute-code/run-code", data))
         .data;
       set({ submission: res.data });

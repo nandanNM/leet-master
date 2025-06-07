@@ -55,9 +55,7 @@ userRoutes.get(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    console.log("email,", email);
-    console.log("process.env.CLIENT_URL", process.env.CLIENT_URL);
-    const redirectUrl = `https://www.leetmaster.in/problems`;
+    const redirectUrl = `${process.env.CLIENT_URL}`;
     res.redirect(redirectUrl);
   },
 );
