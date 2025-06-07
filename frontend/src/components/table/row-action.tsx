@@ -4,6 +4,7 @@ import type { Row } from "@tanstack/react-table";
 import type { ProblemWithSolvedStatus } from "@/lib/validations";
 import { useActions, useAuthStore } from "@/store";
 import { usePlaylistDialog } from "@/store";
+import { Link } from "react-router-dom";
 
 export default function RowActions({
   row,
@@ -32,13 +33,15 @@ export default function RowActions({
               <TrashIcon className="h-4 w-4 text-white" />
             )}
           </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="bg-yellow-500 duration-200 ease-in hover:bg-yellow-600"
-          >
-            <PencilIcon className="h-4 w-4 text-white" />
-          </Button>
+          <Link to={`/update-problem/${row.original.id}`}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="bg-yellow-500 duration-200 ease-in hover:bg-yellow-600"
+            >
+              <PencilIcon className="h-4 w-4 text-white" />
+            </Button>
+          </Link>
         </div>
       )}
       <Button

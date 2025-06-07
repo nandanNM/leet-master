@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
@@ -38,7 +36,6 @@ const AddToPlaylistModal = ({
   const { playlists, getAllPlaylists, addProblemToPlaylist, isLoading } =
     usePlaylistStore();
   const [selectedPlaylist, setSelectedPlaylist] = useState("");
-  console.log("playlists", playlists);
   useEffect(() => {
     if (isOpen) {
       getAllPlaylists(problemId);

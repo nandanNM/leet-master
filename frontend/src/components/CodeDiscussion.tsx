@@ -43,7 +43,7 @@ export default function CodeDiscussion({
   };
   if (isDiscussionLoading)
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-screen w-full justify-center text-center">
         <Loader2 className="size-6 animate-spin" />
       </div>
     );

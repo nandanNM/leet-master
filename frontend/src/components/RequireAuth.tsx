@@ -6,7 +6,7 @@ import { Navigate, Outlet } from "react-router-dom";
 export function RequireAuth({ role }: { role?: "USER" | "ADMIN" }) {
   const { isAuthenticated, authUser, isFetchingUser } = useAuthStore();
   if (!authUser && isFetchingUser) {
-    <div className="w-full text-center">
+    <div className="flex h-screen w-full justify-center text-center">
       <Loader2 className="mt-9 h-6 w-6 animate-spin" />
     </div>;
   }

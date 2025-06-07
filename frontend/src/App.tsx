@@ -19,6 +19,7 @@ import {
 import LoginPage from "./_auth/forms/Signin";
 import RegisterPage from "./_auth/forms/Signup";
 import AddProblem from "./_admin/pages/AddProblem";
+import UpdateProblem from "./_admin/pages/UpdateProblem";
 export default function App() {
   const { getCurrentUser } = useAuthStore();
 
@@ -52,6 +53,7 @@ export default function App() {
         <Route element={<RequireAuth role="ADMIN" />}>
           <Route element={<RootLayout />}>
             <Route path="/add-problem" element={<AddProblem />} />
+            <Route path="/update-problem/:id" element={<UpdateProblem />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

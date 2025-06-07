@@ -1,5 +1,3 @@
-"use client";
-
 import { useCodeEditorStore } from "@/store/code-cditor-store";
 import { motion } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";

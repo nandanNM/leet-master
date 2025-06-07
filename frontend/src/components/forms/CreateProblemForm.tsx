@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowDown, FileTextIcon } from "lucide-react";
+import { ArrowDown, FileTextIcon, Loader2 } from "lucide-react";
 import { problemSchema, type ProblemValues } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Form,
@@ -42,7 +42,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { useTheme } from "../theme-provider";
-// import { useProblemStore } from "@/store";
+import { useProblemStore } from "@/store";
 interface CreateProblemFormProps {
   action: "create" | "update";
   problemId?: string;
@@ -53,11 +53,14 @@ export default function CreateProblemForm({
 }: CreateProblemFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [sampleType, setSampleType] = useState("DP");
-  // const {getProblemById,problem}= useProblemStore()
+  const { getProblemById, problem, isProblemLoading } = useProblemStore();
   const navigate = useNavigate();
-  // if(action ==="update" && problemId){
-  //   useEffect(() => {}, []);
-  // }
+  useEffect(() => {
+    if (action === "update" && problemId) {
+      getProblemById(problemId);
+    }
+  }, [problemId, getProblemById, action]);
+
   const form = useForm<ProblemValues>({
     resolver: zodResolver(problemSchema),
     defaultValues: {
@@ -87,7 +90,23 @@ export default function CreateProblemForm({
     },
   });
   const { control, setValue } = form;
-
+  useEffect(() => {
+    if (action === "update" && problem) {
+      form.reset({
+        title: problem.title,
+        description: problem.description,
+        difficulty: problem.difficulty,
+        testcases: problem.testcases,
+        tags: problem.tags,
+        constraints: problem.constraints,
+        hints: problem.hints,
+        editorial: problem.editorial,
+        examples: problem.examples,
+        codeSnippets: problem.codeSnippets,
+        referenceSolutions: problem.referenceSolutions,
+      });
+    }
+  }, [problem, action, form.reset, form]);
   const tagFields = useWatch({
     control,
     name: "tags",
@@ -155,6 +174,14 @@ export default function CreateProblemForm({
       difficulty: sampleData.difficulty as Difficulty,
     });
   };
+
+  if (isProblemLoading) {
+    return (
+      <div className="flex h-screen w-full justify-center text-center">
+        <Loader2 className="mt-9 h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">

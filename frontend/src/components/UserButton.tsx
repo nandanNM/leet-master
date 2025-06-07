@@ -32,7 +32,6 @@ export default function UserButton({ className }: UserButtonProps) {
   const { authUser: user } = useAuthStore();
   const { logout } = useAuthStore();
   const navigate = useNavigate();
-  console.log("username", user?.name);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
