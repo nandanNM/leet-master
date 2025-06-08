@@ -20,6 +20,7 @@ import LoginPage from "./_auth/forms/Signin";
 import RegisterPage from "./_auth/forms/Signup";
 import AddProblem from "./_admin/pages/AddProblem";
 import UpdateProblem from "./_admin/pages/UpdateProblem";
+import AboutUsPage from "./_root/pages/AboutUsPage";
 export default function App() {
   const { getCurrentUser } = useAuthStore();
 
@@ -37,6 +38,7 @@ export default function App() {
         </Route>
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/about-us" element={<AboutUsPage />} />
         </Route>
 
         {/* Authenticated routes */}
