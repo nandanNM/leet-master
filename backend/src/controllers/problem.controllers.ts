@@ -37,7 +37,13 @@ export const createProblem = asyncHandler(
         "UNAUTHORIZED",
       );
     }
-
+    if (!referenceSolutions || typeof referenceSolutions !== "object") {
+      throw new ApiError(
+        400,
+        "Reference solutions are missing or invalid",
+        "MISSING_REFERENCE_SOLUTIONS",
+      );
+    }
     for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
       const languageId = getJudge0LanguageCode(language);
       if (!languageId) {
@@ -64,9 +70,22 @@ export const createProblem = asyncHandler(
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
         if (result.status.id !== 3) {
+          console.log("Expected Output:", testcases[i].output);
+          console.log("Actual Output (stdout):", result.stdout);
+          console.log("Status Description:", result.status.description);
           throw new ApiError(
             400,
             `Test case ${i + 1} failed: ${result.status.description}`,
+            "TEST_CASE_FAILED",
+          );
+        }
+        if (
+          result.status.id === 4 &&
+          result.stdout.trim() !== testcases[i].output.trim()
+        ) {
+          throw new ApiError(
+            400,
+            `Test case ${i + 1} failed: Wrong Answer (Output Mismatch)`,
             "TEST_CASE_FAILED",
           );
         }

@@ -36,7 +36,7 @@ const exampleSchema = z.object({
   explanation: z.string().trim().optional(),
 });
 
-const codeSchema = z.string().trim().min(1, "Code snippet is required");
+const codeSchema = z.string().min(1, "Code snippet is required");
 
 export const problemSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters"),
@@ -67,8 +67,8 @@ export const problemSchema = z.object({
     .min(1, "At least one test case is required"),
 
   examples: z.object({
-    JAVASCRIPT: exampleSchema,
-    PYTHON: exampleSchema,
+    JAVASCRIPT: exampleSchema.optional(),
+    PYTHON: exampleSchema.optional(),
     JAVA: exampleSchema.optional(),
   }),
 

@@ -21,6 +21,7 @@ import RegisterPage from "./_auth/forms/Signup";
 import AddProblem from "./_admin/pages/AddProblem";
 import UpdateProblem from "./_admin/pages/UpdateProblem";
 import AboutUsPage from "./_root/pages/AboutUsPage";
+import ScrollToTop from "./components/ScrollToTop";
 export default function App() {
   const { getCurrentUser } = useAuthStore();
 
@@ -30,6 +31,7 @@ export default function App() {
 
   return (
     <main className="flex min-h-screen antialiased">
+      <ScrollToTop />
       <Routes>
         {/* Public routes */}
         <Route element={<AuthLayout />}>
