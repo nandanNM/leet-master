@@ -69,7 +69,7 @@ export const problemSchema = z.object({
   examples: z.object({
     JAVASCRIPT: exampleSchema,
     PYTHON: exampleSchema,
-    JAVA: exampleSchema,
+    JAVA: exampleSchema.optional(),
   }),
 
   codeSnippets: z.object({

@@ -93,17 +93,29 @@ export default function CreateProblemForm({
   useEffect(() => {
     if (action === "update" && problem) {
       form.reset({
-        title: problem.title,
-        description: problem.description,
-        difficulty: problem.difficulty,
-        testcases: problem.testcases,
-        tags: problem.tags,
-        constraints: problem.constraints,
-        hints: problem.hints,
-        editorial: problem.editorial,
-        examples: problem.examples,
-        codeSnippets: problem.codeSnippets,
-        referenceSolutions: problem.referenceSolutions,
+        title: problem.title || "",
+        description: problem.description || "",
+        difficulty: problem.difficulty || "EASY",
+        testcases: problem.testcases || [{ input: "", output: "" }],
+        tags: problem.tags || [""],
+        constraints: problem.constraints || "",
+        hints: problem.hints || "",
+        editorial: problem.editorial || "",
+        examples: problem.examples || {
+          JAVASCRIPT: { input: "", output: "", explanation: "" },
+          PYTHON: { input: "", output: "", explanation: "" },
+          JAVA: { input: "", output: "", explanation: "" },
+        },
+        codeSnippets: problem.codeSnippets || {
+          JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
+          PYTHON: "def solution():\n    # Write your code here\n    pass",
+          JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
+        },
+        referenceSolutions: problem.referenceSolutions || {
+          JAVASCRIPT: "// Add your reference solution here",
+          PYTHON: "# Add your reference solution here",
+          JAVA: "// Add your reference solution here",
+        },
       });
     }
   }, [problem, action, form.reset, form]);
@@ -111,6 +123,7 @@ export default function CreateProblemForm({
     control,
     name: "tags",
   });
+
   const appendTag = () => {
     setValue("tags", [...(tagFields || []), ""]);
   };
@@ -151,7 +164,7 @@ export default function CreateProblemForm({
         toast.success(res.data.message || "Problem Created successfully⚡");
       }
       if (action === "update" && problemId) {
-        const res = await axiosInstance.post(
+        const res = await axiosInstance.put(
           `/problem/update-problem/${problemId}`,
           values,
         );
@@ -584,7 +597,7 @@ export default function CreateProblemForm({
                                 <FormField
                                   control={form.control}
                                   name={`examples.${language}.input`}
-                                  render={({ field }) => (
+                                  render={({ field, fieldState }) => (
                                     <FormItem>
                                       <FormLabel>Input</FormLabel>
                                       <FormControl>
@@ -594,14 +607,16 @@ export default function CreateProblemForm({
                                           {...field}
                                         />
                                       </FormControl>
-                                      <FormMessage />
+                                      <FormMessage>
+                                        {fieldState.error?.message}
+                                      </FormMessage>
                                     </FormItem>
                                   )}
                                 />
                                 <FormField
                                   control={form.control}
                                   name={`examples.${language}.output`}
-                                  render={({ field }) => (
+                                  render={({ field, fieldState }) => (
                                     <FormItem>
                                       <FormLabel>Output</FormLabel>
                                       <FormControl>
@@ -611,7 +626,9 @@ export default function CreateProblemForm({
                                           {...field}
                                         />
                                       </FormControl>
-                                      <FormMessage />
+                                      <FormMessage>
+                                        {fieldState.error?.message}
+                                      </FormMessage>
                                     </FormItem>
                                   )}
                                 />

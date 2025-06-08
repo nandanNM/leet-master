@@ -11,7 +11,7 @@ export const problemsTable = table("problems", {
   title: t.varchar({length: 255}).notNull(),
   description: t.text("description").notNull(),
   difficulty: difficultyEnum().notNull(),
-  tags: t.text("tags").array().notNull(), // text[]
+  tags: t.text("tags").array().notNull(),
   userId: t
     .uuid("user_id")
     .references(() => usersTable.id, {onDelete: "cascade"})
