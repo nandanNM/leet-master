@@ -23,13 +23,6 @@ export default function CodeDiscussion({
   const { createDiscussion, isLoading } = useDiscussionStore();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // };
-
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -50,7 +43,7 @@ export default function CodeDiscussion({
   return (
     <div className="flex h-[620px] flex-1 flex-col p-0">
       <div className="flex-1 space-y-6 overflow-y-auto p-6">
-        {messages.length === 0 && (
+        {messages.length === 0 && !isDiscussionLoading && (
           <div className="py-12 text-center">
             <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
             <h3 className="mb-2 text-lg font-medium text-gray-900">
@@ -71,16 +64,16 @@ export default function CodeDiscussion({
 
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-center space-x-2">
-                <span className="font-medium text-gray-900">
+                <span className="text-foreground font-medium">
                   {message.user.name}
                 </span>
 
-                <span className="text-xs text-gray-500">
+                <span className="text-muted-foreground text-xs">
                   {formatRelativeDate(new Date(message.createdAt))}
                 </span>
               </div>
 
-              <div className="prose prose-sm max-w-none leading-relaxed text-gray-800">
+              <div className="prose prose-sm text-muted-foreground dark:text-muted-foreground max-w-none leading-relaxed">
                 <div
                   dangerouslySetInnerHTML={{
                     __html: formatMessage(message.message || ""),

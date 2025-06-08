@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {db} from "../db";
 import {submissionsTable} from "../db/schema";
-import {and, count, eq, gte, sql} from "drizzle-orm";
+import {and, count, desc, eq, gte, sql} from "drizzle-orm";
 import {ApiResponse, ApiError} from "../utils/responses";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
@@ -38,16 +38,13 @@ export const getAllSubmissionByProblemId = asyncHandler(
     }
 
     const submissions = await db.query.submissionsTable.findMany({
-      where: (submissionsTable, {eq}) =>
-        eq(submissionsTable.userId, userId) &&
+      where: and(
+        eq(submissionsTable.userId, userId),
         eq(submissionsTable.problemId, problemId),
-      orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
-      limit: 10,
+      ),
+      orderBy: [desc(submissionsTable.createdAt)],
     });
-
-    if (!submissions || submissions.length === 0) {
-      throw new ApiError(404, "No submissions found", "NOT_FOUND");
-    }
+    console.log(submissions);
 
     new ApiResponse(200, "Submissions fetched successfully", submissions).send(
       res,

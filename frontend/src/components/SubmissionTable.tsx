@@ -35,7 +35,7 @@ export default function SubmissionTable({
     );
   return (
     <ScrollArea className="h-[600px]">
-      {isLoading ? (
+      {isLoading && !submissions.length ? (
         <div className="flex h-screen w-full justify-center text-center">
           <Loader2 className="size-6 animate-spin" />
         </div>

@@ -78,6 +78,7 @@ export default function ProblemWorkspace() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (activeTab === "submissions" && id) {
+        console.log("calling getSubmissionForProblem");
         getSubmissionForProblem(id);
       }
       if (activeTab === "discussion" && id) {

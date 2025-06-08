@@ -17,6 +17,7 @@ import LanguageSelector from "./editor/LanguageSelector";
 import AddToPlaylistModal from "./AddToPlaylistDialog";
 import { usePlaylistDialog } from "@/store";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface ProblemHeaderProps {
   problem: Problem;
@@ -40,9 +41,14 @@ export default function ProblemHeader({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-muted-foreground flex items-center gap-2">
-              <Home className="h-4 w-4" />
+              <Link to="/">
+                <Home className="h-4 w-4" />
+              </Link>
               <ChevronRight className="h-4 w-4" />
-              <span className="text-sm">Problems</span>
+              <Link to="/problems">
+                <span className="text-sm">Problems</span>
+              </Link>
+
               <ChevronRight className="h-4 w-4" />
             </div>
             <div>
