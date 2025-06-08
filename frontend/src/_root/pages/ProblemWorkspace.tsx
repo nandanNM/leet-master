@@ -30,7 +30,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { formatNumber, getDifficultyColor, getLanguageId } from "@/lib/utils";
-import { mockProblem, type Difficulty } from "@/constants";
 import SubmissionResults from "@/components/Submission";
 import LoadingButton from "@/components/LoadingButton";
 import { useSubmissionStore } from "@/store";
@@ -41,6 +40,7 @@ import ProblemHeader from "@/components/ProblemHeader";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useDiscussionStore } from "@/store/discussion-store";
 import CodeDiscussion from "@/components/CodeDiscussion";
+import type { Difficulty } from "@/constants";
 
 export default function ProblemWorkspace() {
   const [code, setCode] = useState("");
@@ -362,7 +362,9 @@ export default function ProblemWorkspace() {
 
         {/* Test Results */}
         {testResults ? (
-          <SubmissionResults submission={testResults} />
+          testResults.problemId === problem.id && (
+            <SubmissionResults submission={testResults} />
+          )
         ) : (
           <Card className="mt-6">
             <CardHeader>
@@ -380,7 +382,7 @@ export default function ProblemWorkspace() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockProblem.testcases.map((testCase, index) => (
+                  {problem.testcases.map((testCase, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-mono text-sm">
                         {testCase.input}

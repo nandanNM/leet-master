@@ -38,7 +38,7 @@ export default function App() {
         </Route>
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/about-us" element={<AboutUsPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
         </Route>
 
         {/* Authenticated routes */}

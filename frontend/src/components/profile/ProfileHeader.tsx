@@ -46,7 +46,7 @@ function ProfileHeader({
     },
     {
       label: "Success Rate",
-      value: `${submissionStats?.successRate} %`,
+      value: `${submissionStats?.successRate || 0}  %`,
       icon: Sparkle,
       color: "from-yellow-500 to-orange-500",
       gradient: "group-hover:via-yellow-400",

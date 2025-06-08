@@ -111,13 +111,7 @@ export default function ProfileTabSubmissions() {
             {/* Executions Tab */}
             {activeTab === "executions" && (
               <div className="space-y-6">
-                {!submissions.length ? (
-                  <div className="flex items-center justify-center">
-                    <h1 className="text-2xl font-semibold">
-                      No submissions found
-                    </h1>
-                  </div>
-                ) : (
+                {!submissions.length &&
                   submissions?.map((execution) => (
                     <Card
                       key={execution.id}
@@ -190,8 +184,7 @@ export default function ProfileTabSubmissions() {
                         )}
                       </CardContent>
                     </Card>
-                  ))
-                )}
+                  ))}
 
                 {isLoadingExecutions ? (
                   <div className="py-12 text-center">
