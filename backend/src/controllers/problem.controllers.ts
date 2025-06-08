@@ -312,29 +312,60 @@ export const getUserSolvedRank = asyncHandler(
     if (!isAuthenticated(req)) {
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
+
     const {id: userId} = req.params;
-    if (!isAuthenticated(req)) {
-      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    if (!userId) {
+      throw new ApiError(400, "User ID is required", "BAD_REQUEST");
     }
-    const result = await db.execute(
+
+    // Get user solved count and rank
+    const userRankResult = await db.execute(
       sql`
-      SELECT
-        user_id,
-        COUNT(problem_id) AS "solvedCount",
-        RANK() OVER (ORDER BY COUNT(problem_id) DESC) AS "rank"
-      FROM solved_problems
-      GROUP BY user_id
-      HAVING user_id = ${userId}
-    `,
+        SELECT user_id, solvedCount, rank FROM (
+          SELECT
+            user_id,
+            COUNT(problem_id) AS solvedCount,
+            RANK() OVER (ORDER BY COUNT(problem_id) DESC) AS rank
+          FROM solved_problems
+          GROUP BY user_id
+        ) AS ranking
+        WHERE user_id = ${userId}
+      `,
     );
 
-    if (!result.rows.length) {
-      new ApiResponse(200, "No solved problems yet", {
+    // Get max rank (highest rank number)
+    const maxRankResult = await db.execute(
+      sql`
+        SELECT MAX(rank) AS maxRank FROM (
+          SELECT
+            user_id,
+            RANK() OVER (ORDER BY COUNT(problem_id) DESC) AS rank
+          FROM solved_problems
+          GROUP BY user_id
+        ) AS ranks
+      `,
+    );
+
+    const maxRankRow = maxRankResult.rows[0] as
+      | Record<string, unknown>
+      | undefined;
+    let maxRank = 0;
+    if (maxRankRow) {
+      const val = maxRankRow["maxrank"] ?? maxRankRow["maxRank"];
+      if (typeof val === "number") {
+        maxRank = val;
+      } else if (typeof val === "string") {
+        maxRank = Number(val);
+      }
+    }
+    if (!userRankResult.rows.length) {
+      new ApiResponse(200, "User has not solved any problems", {
         solvedCount: 0,
-        rank: null,
+        rank: maxRank + 1,
       }).send(res);
     }
-    const {solvedCount, rank} = result.rows[0] as {
+
+    const {solvedCount, rank} = userRankResult.rows[0] as {
       solvedCount: number;
       rank: number;
     };
