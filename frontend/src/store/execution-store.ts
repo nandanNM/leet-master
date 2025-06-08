@@ -13,6 +13,7 @@ interface ExecutionState {
   submission: SubmissionWithTestCases | null;
   submitCode: (data: SubmissionValues) => Promise<void>;
   runCode: (data: SubmissionValues) => Promise<void>;
+  clearSubmission: () => void;
 }
 
 export const useExecutionStore = create<ExecutionState>((set) => ({
@@ -48,4 +49,5 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
       set({ isExecuting: false });
     }
   },
+  clearSubmission: () => set({ submission: null }),
 }));

@@ -10,16 +10,16 @@ import { Badge } from "@/components/ui/crazxy-ui/badge";
 
 interface QuestionStatisticsProps {
   totalQuestions: number;
-  savedQuestions: number;
+  solvedQuestions: number;
   userRank: number | undefined;
   streak: number;
 }
 
 export default function QuestionStatistics({
-  totalQuestions = 500,
-  savedQuestions = 175,
-  userRank = 42,
-  streak = 7,
+  totalQuestions,
+  solvedQuestions,
+  userRank,
+  streak,
 }: QuestionStatisticsProps) {
   return (
     <Card className="flex gap-0 py-2">
@@ -49,7 +49,7 @@ export default function QuestionStatistics({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Questions</span>
             <Badge variant="outline" className="font-normal">
-              {savedQuestions} / {totalQuestions}
+              {solvedQuestions} / {totalQuestions}
             </Badge>
           </div>
           <div className="flex items-center gap-2 text-sm">

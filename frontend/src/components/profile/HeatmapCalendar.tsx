@@ -17,7 +17,7 @@ export default function HeatmapCalendar({
   isLoading,
 }: HeatmapCalendarProps) {
   const totalContributions = data.reduce((sum, item) => sum + item.count, 0);
-  const streak = data.reduce((max, item) => Math.max(max, item.count), 0);
+  console.log(data);
   const { problems } = useProblemStore();
   if (isLoading) return null;
   return (
@@ -50,9 +50,9 @@ export default function HeatmapCalendar({
       </Card>
       <QuestionStatistics
         totalQuestions={problems.length}
-        savedQuestions={userRank?.solvedCount || 0}
+        solvedQuestions={userRank?.solvedCount || 0}
         userRank={userRank?.rank || undefined}
-        streak={streak}
+        streak={data.length}
       />
     </section>
   );

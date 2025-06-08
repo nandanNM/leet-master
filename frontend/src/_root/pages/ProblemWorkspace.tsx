@@ -54,6 +54,7 @@ export default function ProblemWorkspace() {
     runCode: executeCode,
     submitCode,
     isSubmitting,
+    clearSubmission,
   } = useExecutionStore();
   const {
     getSubmissionForProblem,
@@ -72,7 +73,8 @@ export default function ProblemWorkspace() {
     if (!id) return;
     getProblemById(id as string);
     getSubmissionCountForProblem(id as string);
-  }, [id, getProblemById, getSubmissionCountForProblem]);
+    clearSubmission();
+  }, [id, getProblemById, getSubmissionCountForProblem, clearSubmission]);
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (activeTab === "submissions" && id) {
@@ -362,9 +364,7 @@ export default function ProblemWorkspace() {
 
         {/* Test Results */}
         {testResults ? (
-          testResults.problemId === problem.id && (
-            <SubmissionResults submission={testResults} />
-          )
+          <SubmissionResults submission={testResults} />
         ) : (
           <Card className="mt-6">
             <CardHeader>
