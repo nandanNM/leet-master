@@ -73,3 +73,9 @@ export interface Theme {
   label: string;
   color: string;
 }
+
+export type CodeReviewResponse = {
+  review: string;
+  language: string;
+  timestamp: string; // ISO date string
+};

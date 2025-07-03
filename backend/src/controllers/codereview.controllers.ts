@@ -1,9 +1,10 @@
 import OpenAI from "openai";
 import {asyncHandler} from "../utils/async-handler";
 import {ApiResponse} from "../utils/responses";
+import {CodeReview} from "../schemas/review";
 
 export const getCodeReview = asyncHandler(async (req, res) => {
-  const {code, language, problemTitle} = req.body;
+  const {code, language, problemTitle} = req.body as CodeReview;
 
   const systemPrompt = `You are a senior code reviewer and expert programming mentor specializing in ${language}. 
 Your job is to analyze submitted code for coding interview problems and provide structured feedback.
