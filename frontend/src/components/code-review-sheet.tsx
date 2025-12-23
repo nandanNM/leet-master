@@ -8,8 +8,9 @@ import {
 import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import { Bot } from "lucide-react";
-import { useEffect, useRef } from "react";
-import { useCodeEditorStore, useReviewStore } from "@/store";
+import { useRef } from "react";
+import { useReviewStore } from "@/store";
+import { ReviewDisplay } from "./code-review-display";
 interface CodeReviewSheetProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,15 +22,8 @@ export function CodeReviewSheet({
 }: CodeReviewSheetProps) {
   // const [initialReviewDone, setInitialReviewDone] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { getCodeReview, isLoading, review } = useReviewStore();
-  const { getCode, language } = useCodeEditorStore();
-  useEffect(() => {
-    getCodeReview({
-      code: getCode(),
-      language,
-      problemTitle: "Add too numbers",
-    });
-  }, [getCode, getCodeReview, language]);
+  const { isLoading, review: reviewData } = useReviewStore();
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="flex h-full w-full flex-col sm:max-w-2xl">
@@ -48,17 +42,22 @@ export function CodeReviewSheet({
         </SheetHeader>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 px-1" ref={scrollAreaRef}>
-          <div className="space-y-4 py-4">
-            {review?.review && !isLoading && (
+        <ScrollArea className="flex-1 px-2" ref={scrollAreaRef}>
+          <div className="space-y-4 p-6">
+            {!reviewData?.review && !isLoading && (
               <div className="py-8 text-center text-gray-500">
                 <Bot className="mx-auto mb-4 h-12 w-12 text-gray-300" />
                 <p>AI is analyzing your code...</p>
               </div>
             )}
 
-            {/* {messages.map((message, index) => renderMessage(message, index))} */}
-            <p>{review?.review}</p>
+            {reviewData?.review && !isLoading && (
+              <ReviewDisplay
+                review={reviewData.review}
+                language={reviewData.language}
+                timestamp={reviewData.timestamp}
+              />
+            )}
 
             {isLoading && (
               <div className="flex items-start space-x-3">

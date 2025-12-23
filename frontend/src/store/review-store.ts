@@ -17,14 +17,12 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   isLoading: false,
   review: null,
   getCodeReview: async (data) => {
+    console.log("Data:", data);
     try {
       set({ isLoading: true });
-      const res = (
-        await axiosInstance.get("/code-review", {
-          data,
-        })
-      ).data;
-      set({ review: res.data });
+      const res = (await axiosInstance.post("/code-review", data)).data;
+      console.log(res.data.data);
+      set({ review: res.data.data });
     } catch (error) {
       console.error("Failed to fetch code review:", error);
       const msg = getErrorMessage(error);

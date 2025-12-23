@@ -1,16 +1,20 @@
 import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
-import { RotateCcwIcon, TypeIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessageSquare, RotateCcwIcon, TypeIcon } from "lucide-react";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "@/constants";
-import { useCodeEditorStore } from "@/store";
+import { useCodeEditorStore, useReviewStore } from "@/store";
 import type { Problem } from "@/lib/validations";
+import { CodeReviewSheet } from "../code-review-sheet";
+import { Button } from "../ui/button";
 interface MonocoEditorProps {
   problem: Problem;
 }
 export default function MonocoEditor({ problem }: MonocoEditorProps) {
-  const { language, theme, fontSize, editor, setFontSize, setEditor } =
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
+  const { language, theme, fontSize, editor, setFontSize, setEditor, getCode } =
     useCodeEditorStore();
+  const { getCodeReview } = useReviewStore();
   const defaultCode = problem.codeSnippets[language];
   useEffect(() => {
     if (!editor) return;
@@ -39,6 +43,20 @@ export default function MonocoEditor({ problem }: MonocoEditorProps) {
     }
   };
 
+  const handleGetAIReview = async () => {
+    const code = getCode();
+    if (!code || code === problem.codeSnippets[language]) {
+      alert("Please write some code before requesting a review!");
+      return;
+    }
+    getCodeReview({
+      code,
+      language,
+      problemTitle: problem.title,
+    });
+    setIsSheetOpen(true);
+  };
+
   const handleFontSizeChange = (newSize: number) => {
     const size = Math.min(Math.max(newSize, 12), 24);
     setFontSize(size);
@@ -48,6 +66,7 @@ export default function MonocoEditor({ problem }: MonocoEditorProps) {
     <div className="relative">
       <div className="border-border bg-background/90 relative rounded-xl border p-6 backdrop-blur">
         {/* Header */}
+        <CodeReviewSheet isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} />
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-muted ring-border flex h-8 w-8 items-center justify-center rounded-lg ring-1">
@@ -70,6 +89,14 @@ export default function MonocoEditor({ problem }: MonocoEditorProps) {
           </div>
           <div className="flex items-center gap-3">
             {/* Font Size Slider */}
+
+            <Button
+              onClick={handleGetAIReview}
+              className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>Get AI Review </span>
+            </Button>
             <div className="bg-muted ring-border flex items-center gap-3 rounded-lg px-3 py-2 ring-1">
               <TypeIcon className="text-muted-foreground size-4" />
               <div className="flex items-center gap-3">

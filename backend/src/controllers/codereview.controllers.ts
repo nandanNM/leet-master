@@ -5,6 +5,7 @@ import {CodeReview} from "../schemas/review";
 
 export const getCodeReview = asyncHandler(async (req, res) => {
   const {code, language, problemTitle} = req.body as CodeReview;
+  console.log(`Generating code review for ${language}`, code, problemTitle);
 
   const systemPrompt = `You are a senior code reviewer and expert programming mentor specializing in ${language}. 
 Your job is to analyze submitted code for coding interview problems and provide structured feedback.
@@ -45,7 +46,6 @@ ${problemTitle ? `Problem Context: ${problemTitle}` : ""}`;
       review,
       language,
       timestamp: new Date().toISOString(),
-      tokensUsed: completion.usage?.total_tokens || 0,
     },
   };
 

@@ -7,8 +7,8 @@ import {authMiddleware} from "src/middlewares/auth.middleware";
 const codeReviewRoutes = Router();
 codeReviewRoutes.post(
   "/",
-  validate(codeReviewSchema),
-  authMiddleware,
+  // validate(codeReviewSchema),
+  // authMiddleware,
   getCodeReview,
 );
 export default codeReviewRoutes;
