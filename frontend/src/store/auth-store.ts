@@ -36,8 +36,8 @@ export const useAuthStore = create<AuthState>()(
       getCurrentUser: async () => {
         set({ isFetchingUser: true });
         try {
-          const res = (await axiosInstance.get("/auth/current-user")).data;
-          set({ authUser: res.data, isAuthenticated: true });
+          const res = (await axiosInstance.get("/auth/session")).data;
+          set({ authUser: res.data.user, isAuthenticated: true });
         } catch (error) {
           console.log(error);
           set({ authUser: null, isAuthenticated: false });
@@ -49,9 +49,9 @@ export const useAuthStore = create<AuthState>()(
       signup: async (data) => {
         set({ isSigninUp: true });
         try {
-          const res = (await axiosInstance.post("/auth/register", data)).data;
+          const res = (await axiosInstance.post("/auth/sign-up/email", data)).data;
           set({ authUser: res.data, isAuthenticated: true });
-          toast.success(res.message);
+          toast.success("Signup successful");
         } catch (error) {
           toast.error(getErrorMessage(error));
         } finally {
@@ -62,9 +62,9 @@ export const useAuthStore = create<AuthState>()(
       login: async (data) => {
         set({ isLoggingIn: true });
         try {
-          const res = (await axiosInstance.post("/auth/login", data)).data;
+          const res = (await axiosInstance.post("/auth/sign-in/email", data)).data;
           set({ authUser: res.data.user, isAuthenticated: true });
-          toast.success(res.message);
+          toast.success("Login successful");
         } catch (error) {
           toast.error(getErrorMessage(error));
         } finally {
@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          await axiosInstance.post("/auth/logout");
+          await axiosInstance.post("/auth/sign-out");
           set({ authUser: null, isAuthenticated: false });
           toast.success("Logout successful");
         } catch (error) {

@@ -1,12 +1,13 @@
 import OpenAI from "openai";
-import {asyncHandler} from "../utils/async-handler";
-import {ApiResponse} from "../utils/responses";
-import {CodeReview} from "../schemas/review";
+import {asyncHandler} from "../utils/async-handler.utils";
+import {ApiResponse} from "../utils/responses.utils";
+import {CodeReview} from "../validations/review";
 
-export const getCodeReview = asyncHandler(async (req, res) => {
-  const {code, language, problemTitle} = req.body as CodeReview;
+export const getCodeReview = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {code, language, problemTitle} = req.body as CodeReview;
 
-  const systemPrompt = `You are a senior code reviewer and expert programming mentor specializing in ${language}. 
+    const systemPrompt = `You are a senior code reviewer and expert programming mentor specializing in ${language}. 
 Your job is to analyze submitted code for coding interview problems and provide structured feedback.
 
 Analysis Framework:
@@ -24,34 +25,35 @@ Response Format:
 
 ${problemTitle ? `Problem Context: ${problemTitle}` : ""}`;
 
-  const client = new OpenAI();
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {role: "system", content: systemPrompt},
-      {
-        role: "user",
-        content: `Please review this ${language} code:\n\n\`\`\`${language}\n${code}\n\`\`\``,
+    const client = new OpenAI();
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {role: "system", content: systemPrompt},
+        {
+          role: "user",
+          content: `Please review this ${language} code:\n\n\`\`\`${language}\n${code}\n\`\`\``,
+        },
+      ],
+      max_tokens: 800,
+      temperature: 0.3,
+    });
+
+    const review = completion.choices[0].message.content;
+    const response = {
+      success: true,
+      data: {
+        review,
+        language,
+        timestamp: new Date().toISOString(),
+        tokensUsed: completion.usage?.total_tokens || 0,
       },
-    ],
-    max_tokens: 800,
-    temperature: 0.3,
-  });
+    };
 
-  const review = completion.choices[0].message.content;
-  const response = {
-    success: true,
-    data: {
-      review,
-      language,
-      timestamp: new Date().toISOString(),
-      tokensUsed: completion.usage?.total_tokens || 0,
-    },
-  };
+    console.log(
+      `Code review generated - Language: ${language}, Tokens: ${completion.usage?.total_tokens}`,
+    );
 
-  console.log(
-    `Code review generated - Language: ${language}, Tokens: ${completion.usage?.total_tokens}`,
-  );
-
-  new ApiResponse(200, "Code review generated", response).send(res);
-});
+    new ApiResponse(200, "Code review generated", response).send(res);
+  },
+);

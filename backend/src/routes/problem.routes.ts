@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {authMiddleware, checkAdmin} from "../middlewares/auth.middleware";
+import {requireAnyAuth, requireAdmin} from "../middlewares/role.middleware";
 import {
   createProblem,
   deleteProblem,
@@ -10,37 +10,37 @@ import {
   updateProblem,
 } from "../controllers/problem.controllers";
 import {validate} from "../middlewares/validate.middleware";
-import {ProblemSchema} from "../schemas/problem";
+import {ProblemSchema} from "../validations/problem";
 
 const problemRoutes = Router();
 
 problemRoutes.post(
   "/create-problem",
   validate(ProblemSchema),
-  authMiddleware,
-  checkAdmin,
+  requireAnyAuth,
+  requireAdmin,
   createProblem,
 );
-problemRoutes.get("/get-all-problems", authMiddleware, getAllProblems);
-problemRoutes.get("/get-problem/:id", authMiddleware, getProblemById);
+problemRoutes.get("/get-all-problems", requireAnyAuth, getAllProblems);
+problemRoutes.get("/get-problem/:id", requireAnyAuth, getProblemById);
 problemRoutes.put(
   "/update-problem/:id",
   validate(ProblemSchema),
-  authMiddleware,
-  checkAdmin,
+  requireAnyAuth,
+  requireAdmin,
   updateProblem,
 );
 problemRoutes.delete(
   "/delete-problem/:id",
-  authMiddleware,
-  checkAdmin,
+  requireAnyAuth,
+  requireAdmin,
   deleteProblem,
 );
 problemRoutes.get(
   "/get-solved-problems",
-  authMiddleware,
+  requireAnyAuth,
   getAllProblemsSolvedByUser,
 );
-problemRoutes.get("/user-rank/:id", authMiddleware, getUserSolvedRank);
+problemRoutes.get("/user-rank/:id", requireAnyAuth, getUserSolvedRank);
 
 export default problemRoutes;

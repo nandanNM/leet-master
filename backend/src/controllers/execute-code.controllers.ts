@@ -1,15 +1,19 @@
 import {Request, Response} from "express";
-import {SubmitCode} from "../schemas/submit-code";
-import {getLanguage, pullBatchResults, submitBatch} from "../utils/lib/judge0";
+import {SubmitCode} from "../validations/submit-code";
+import {
+  getLanguage,
+  pullBatchResults,
+  submitBatch,
+} from "../utils/judge0.utils";
 import {db} from "../db";
 import {
-  solvedProblemsTable,
-  submissionsTable,
-  testCaseResultsTable,
+  solvedProblemTable,
+  submissionTable,
+  testCaseResultTable,
 } from "../db/schema";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
-import {isAuthenticated} from "../utils/auth";
-import {asyncHandler} from "../utils/async-handler";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
+import {isAuthenticated} from "../utils/auth.utils";
+import {asyncHandler} from "../utils/async-handler.utils";
 
 export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   if (!isAuthenticated(req)) {
@@ -68,10 +72,10 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
 
   // entry for submission table in db
   const [submission] = await db
-    .insert(submissionsTable)
+    .insert(submissionTable)
     .values({
       userId,
-      problemId,
+      problemId: problemId as string,
       sourceCode: source_code,
       language: getLanguage(Number(language_id)),
       stdin: stdin.join("\n"),
@@ -95,13 +99,13 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   // if all passed mark the problem as solved
   if (allTestCasesPassed) {
     await db
-      .insert(solvedProblemsTable)
+      .insert(solvedProblemTable)
       .values({
         userId,
         problemId,
       })
       .onConflictDoNothing()
-      .returning({id: solvedProblemsTable.id});
+      .returning({id: solvedProblemTable.id});
   }
 
   // save individual test case results
@@ -109,7 +113,7 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
     submissionId: submission.id,
     ...result,
   }));
-  await db.insert(testCaseResultsTable).values(testCaseResults).returning();
+  await db.insert(testCaseResultTable).values(testCaseResults).returning();
 
   const submissionWithTestCases = {
     ...submission,
@@ -170,7 +174,7 @@ export const runCode = asyncHandler(async (req: Request, res: Response) => {
   const fakeSubmission = {
     id: crypto.randomUUID(),
     userId,
-    problemId,
+    problemId: problemId as string,
     sourceCode: source_code,
     language: getLanguage(Number(language_id)),
     stdin: stdin.join("\n"),

@@ -3,20 +3,20 @@ import {
   createDiscussion,
   getAllDiscussionsForProblem,
 } from "../controllers/discussion.controllers";
-import {authMiddleware} from "../middlewares/auth.middleware";
 import {validate} from "../middlewares/validate.middleware";
-import {DiscussionSchema} from "../schemas/discussion";
+import {DiscussionSchema} from "../validations/discussion";
+import {requireAnyAuth} from "src/middlewares/role.middleware";
 
 const discussionRoutes = Router();
 discussionRoutes.post(
   "/create/:problemId",
   validate(DiscussionSchema),
-  authMiddleware,
+  requireAnyAuth,
   createDiscussion,
 );
 discussionRoutes.get(
   "/:problemId",
-  authMiddleware,
+  requireAnyAuth,
   getAllDiscussionsForProblem,
 );
 

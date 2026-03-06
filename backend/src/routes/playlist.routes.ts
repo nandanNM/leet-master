@@ -10,31 +10,31 @@ import {
   updatePlaylist,
 } from "../controllers/playlist.controllers";
 import {validate} from "../middlewares/validate.middleware";
-import {PlaylistSchema} from "../schemas/playlist";
-import {authMiddleware} from "../middlewares/auth.middleware";
+import {PlaylistSchema} from "../validations/playlist";
+import {requireAnyAuth} from "../middlewares/role.middleware";
 
 const playlistRoutes = Router();
 
 playlistRoutes.post(
   "/create",
   validate(PlaylistSchema),
-  authMiddleware,
+  requireAnyAuth,
   createPlaylist,
 );
-playlistRoutes.get("/:problemId", authMiddleware, getAllPlaylistsDetails);
-playlistRoutes.get("/", authMiddleware, getAllPlaylistsForUser);
-playlistRoutes.get("/details/:id", authMiddleware, getPlaylistById);
-playlistRoutes.post("/:id/add-problem", authMiddleware, addProblemToPlaylist);
-playlistRoutes.delete("/:id", authMiddleware, deletePlaylist);
+playlistRoutes.get("/:problemId", requireAnyAuth, getAllPlaylistsDetails);
+playlistRoutes.get("/", requireAnyAuth, getAllPlaylistsForUser);
+playlistRoutes.get("/details/:id", requireAnyAuth, getPlaylistById);
+playlistRoutes.post("/:id/add-problem", requireAnyAuth, addProblemToPlaylist);
+playlistRoutes.delete("/:id", requireAnyAuth, deletePlaylist);
 playlistRoutes.post(
   "/:id/remove-problems",
-  authMiddleware,
+  requireAnyAuth,
   removeProblemFromPlaylist,
 );
 playlistRoutes.post(
   "/update/:id",
   validate(PlaylistSchema),
-  authMiddleware,
+  requireAnyAuth,
   updatePlaylist,
 );
 

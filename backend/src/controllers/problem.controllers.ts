@@ -1,16 +1,16 @@
 import {Request, Response, NextFunction, RequestHandler} from "express";
 import {db} from "../db";
-import {Problem} from "../schemas/problem";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {Problem} from "../validations/problem";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
 import {
   getJudge0LanguageCode,
   pullBatchResults,
   submitBatch,
-} from "../utils/lib/judge0";
-import {problemsTable} from "../db/schema";
+} from "../utils/judge0.utils";
+import {problemTable} from "../db/schema";
 import {eq, sql} from "drizzle-orm";
-import {isAuthenticated} from "../utils/auth";
-import {asyncHandler} from "../utils/async-handler";
+import {isAuthenticated} from "../utils/auth.utils";
+import {asyncHandler} from "../utils/async-handler.utils";
 
 export const createProblem = asyncHandler(
   async (req: Request, res: Response) => {
@@ -92,7 +92,7 @@ export const createProblem = asyncHandler(
       }
     }
 
-    const problem = await db.insert(problemsTable).values({
+    const problem = await db.insert(problemTable).values({
       userId: req.user.id,
       title,
       description,
@@ -117,11 +117,11 @@ export const getAllProblems = asyncHandler(
     if (!userId) {
       throw new ApiError(401, "Unauthorized", "UNAUTHORIZED");
     }
-    const problems = await db.query.problemsTable.findMany({
+    const problems = await db.query.problemTable.findMany({
       with: {
         solvedBy: {
-          where: (solvedProblemsTable, {eq}) =>
-            eq(solvedProblemsTable.userId, userId),
+          where: (solvedProblemTable, {eq}) =>
+            eq(solvedProblemTable.userId, userId),
           columns: {id: true},
         },
       },
@@ -149,8 +149,8 @@ export const getProblemById = asyncHandler(
       throw new ApiError(400, "Problem ID is required", "MISSING_ID");
     }
 
-    const problem = await db.query.problemsTable.findFirst({
-      where: (problemsTable, {eq}) => eq(problemsTable.id, id),
+    const problem = await db.query.problemTable.findFirst({
+      where: (problemTable, {eq}) => eq(problemTable.id, id as string),
     });
 
     if (!problem) {
@@ -228,7 +228,7 @@ export const updateProblem = asyncHandler(
     }
 
     const updatedProblem = await db
-      .update(problemsTable)
+      .update(problemTable)
       .set({
         userId: req.user.id,
         title,
@@ -243,7 +243,7 @@ export const updateProblem = asyncHandler(
         codeSnippets,
         referenceSolutions,
       })
-      .where(eq(problemsTable.id, id))
+      .where(eq(problemTable.id, id as string))
       .returning();
 
     new ApiResponse(200, "Problem updated successfully", updatedProblem).send(
@@ -271,8 +271,8 @@ export const deleteProblem = asyncHandler(
     }
 
     const deletedProblem = await db
-      .delete(problemsTable)
-      .where(eq(problemsTable.id, id));
+      .delete(problemTable)
+      .where(eq(problemTable.id, id as string));
 
     if (!deletedProblem) {
       throw new ApiError(404, "Problem not found", "NOT_FOUND");
@@ -289,9 +289,9 @@ export const getAllProblemsSolvedByUser = asyncHandler(
     }
     const {id: userId} = req.user;
 
-    const solvedProblems = await db.query.solvedProblemsTable.findMany({
-      where: (solvedProblemsTable, {eq}) =>
-        eq(solvedProblemsTable.userId, userId),
+    const solvedProblems = await db.query.solvedProblemTable.findMany({
+      where: (solvedProblemTable, {eq}) =>
+        eq(solvedProblemTable.userId, userId),
       with: {
         problem: true,
       },
