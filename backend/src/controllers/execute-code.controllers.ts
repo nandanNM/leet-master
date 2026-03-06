@@ -1,15 +1,19 @@
 import {Request, Response} from "express";
-import {SubmitCode} from "../schemas/submit-code";
-import {getLanguage, pullBatchResults, submitBatch} from "../utils/lib/judge0";
+import {SubmitCode} from "../validations/submit-code";
+import {
+  getLanguage,
+  pullBatchResults,
+  submitBatch,
+} from "../utils/judge0.utils";
 import {db} from "../db";
 import {
   solvedProblemTable,
   submissionTable,
   testCaseResultTable,
 } from "../db/schema";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
-import {isAuthenticated} from "../utils/auth";
-import {asyncHandler} from "../utils/async-handler";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
+import {isAuthenticated} from "../utils/auth.utils";
+import {asyncHandler} from "../utils/async-handler.utils";
 
 export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   if (!isAuthenticated(req)) {

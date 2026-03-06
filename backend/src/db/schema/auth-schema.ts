@@ -11,9 +11,12 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import {v7} from "uuid";
 
 export const baseSchema = {
-  id: t.uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .$defaultFn(() => v7()),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -27,6 +30,7 @@ export const userTable = pgTable(
     ...baseSchema,
     name: text("name").notNull(),
     email: text("email").notNull().unique(),
+    bio: text("bio"),
     emailVerified: boolean("emailVerified").default(false).notNull(),
     image: text("image"),
     role: text("role"),
@@ -44,7 +48,9 @@ export const userTable = pgTable(
 export const sessionTable = pgTable(
   "session",
   {
-    id: text("id").primaryKey(), // Keep it text only because drizzle doesn't support uuid for session id
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => v7()), // Keep it text only because drizzle doesn't support uuid for session id
     expiresAt: timestamp("expiresAt").notNull(),
     token: text("token").notNull().unique(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -65,7 +71,9 @@ export const accountTable = pgTable(
   "account",
   {
     ...baseSchema,
-    accountId: uuid("accountId").notNull(), //use uuid type for foreign key references
+    accountId: uuid("accountId")
+      .notNull()
+      .$defaultFn(() => v7()), //use uuid type for foreign key references
     providerId: text("providerId").notNull(),
     userId: uuid("userId") //use uuid type for foreign key references
       .notNull()

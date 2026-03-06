@@ -1,16 +1,16 @@
 import {Request, Response, NextFunction, RequestHandler} from "express";
 import {db} from "../db";
-import {Problem} from "../schemas/problem";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses";
+import {Problem} from "../validations/problem";
+import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
 import {
   getJudge0LanguageCode,
   pullBatchResults,
   submitBatch,
-} from "../utils/lib/judge0";
+} from "../utils/judge0.utils";
 import {problemTable} from "../db/schema";
 import {eq, sql} from "drizzle-orm";
-import {isAuthenticated} from "../utils/auth";
-import {asyncHandler} from "../utils/async-handler";
+import {isAuthenticated} from "../utils/auth.utils";
+import {asyncHandler} from "../utils/async-handler.utils";
 
 export const createProblem = asyncHandler(
   async (req: Request, res: Response) => {

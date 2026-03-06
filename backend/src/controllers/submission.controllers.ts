@@ -2,9 +2,9 @@ import {Request, Response} from "express";
 import {db} from "../db";
 import {submissionTable} from "../db/schema";
 import {and, count, desc, eq, gte, sql} from "drizzle-orm";
-import {ApiResponse, ApiError} from "../utils/responses";
-import {asyncHandler} from "../utils/async-handler";
-import {isAuthenticated} from "../utils/auth";
+import {ApiResponse, ApiError} from "../utils/responses.utils";
+import {asyncHandler} from "../utils/async-handler.utils";
+import {isAuthenticated} from "../utils/auth.utils";
 
 export const getAllSubmissions = asyncHandler(
   async (req: Request, res: Response) => {

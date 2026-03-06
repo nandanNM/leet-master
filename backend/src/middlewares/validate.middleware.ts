@@ -1,5 +1,5 @@
 import type {Request, Response, NextFunction, RequestHandler} from "express";
-import {errorResponse, ApiError} from "../utils/responses";
+import {errorResponse, ApiError} from "../utils/responses.utils";
 import {ZodSchema, ZodError} from "zod";
 
 export const validate = <T>(schema: ZodSchema<T>): RequestHandler => {

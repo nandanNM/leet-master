@@ -1,5 +1,5 @@
 import type {Request, Response, NextFunction} from "express";
-import {ApiError, errorResponse} from "../utils/responses";
+import {ApiError, errorResponse} from "../utils/responses.utils";
 
 export function errorHandler(err: unknown, req: Request, res: Response): void {
   // Handle different error types

@@ -3,11 +3,11 @@ import {pgEnum, pgTable as table, uniqueIndex} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import {baseSchema, userTable} from "./auth-schema";
 
-// --- Problem Enums and Tables ---
+// Problem Enums and Tables
 
 export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
-export const problemTable = table("problems", {
+export const problemTable = table("problem", {
   ...baseSchema,
   title: t.varchar({length: 255}).notNull(),
   description: t.text("description").notNull(),
@@ -27,7 +27,7 @@ export const problemTable = table("problems", {
 });
 
 export const solvedProblemTable = table(
-  "solved_problems",
+  "solved_problem",
   {
     id: t.uuid("id").primaryKey().defaultRandom(),
     userId: t
@@ -64,7 +64,7 @@ export const submissionStatusEnum = pgEnum("submission_status", [
   "INTERNAL_ERROR",
 ]);
 
-export const submissionTable = table("submissions", {
+export const submissionTable = table("submission", {
   ...baseSchema,
   userId: t
     .uuid("user_id")
@@ -88,7 +88,7 @@ export const submissionTable = table("submissions", {
 // --- Test Case Tables ---
 
 export const testCaseResultTable = table(
-  "test_case_results",
+  "test_case_result",
   {
     ...baseSchema,
     submissionId: t
@@ -115,7 +115,7 @@ export const testCaseResultTable = table(
 // --- Playlist Tables ---
 
 export const playlistTable = table(
-  "playlists",
+  "playlist",
   {
     ...baseSchema,
     name: t.varchar({length: 255}).notNull(),
@@ -152,7 +152,7 @@ export const problemInPlaylistTable = table(
 
 // --- Discussion Tables ---
 
-export const discussionTable = table("discussions", {
+export const discussionTable = table("discussion", {
   ...baseSchema,
   userId: t
     .uuid("user_id")

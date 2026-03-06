@@ -1,13 +1,10 @@
 import {Request} from "express";
+import {Session, User} from "better-auth";
 
 declare global {
   namespace Express {
-    interface User {
-      id: string;
-      email: string;
-      role: string;
-    }
     interface Request {
+      session?: Session;
       user?: User;
       files?: {
         avatar?: Express.Multer.File[];

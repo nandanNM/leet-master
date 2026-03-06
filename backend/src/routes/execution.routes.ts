@@ -1,21 +1,21 @@
 import {Router} from "express";
-import {authMiddleware} from "../middlewares/auth.middleware";
 import {executeCode, runCode} from "../controllers/execute-code.controllers";
 import {validate} from "../middlewares/validate.middleware";
-import {SubmitCodeSchema} from "../schemas/submit-code";
+import {SubmitCodeSchema} from "../validations/submit-code";
+import {requireAnyAuth} from "../middlewares/role.middleware";
 
 const executionRoutes = Router();
 
 executionRoutes.post(
   "/submit-code",
   validate(SubmitCodeSchema),
-  authMiddleware,
+  requireAnyAuth,
   executeCode,
 );
 executionRoutes.post(
   "/run-code",
   validate(SubmitCodeSchema),
-  authMiddleware,
+  requireAnyAuth,
   runCode,
 );
 
