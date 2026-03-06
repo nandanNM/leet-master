@@ -2,7 +2,9 @@ import axios from "axios";
 import "dotenv/config";
 
 const headers = {
-  Authorization: `Bearer ${process.env.JUDGE0_API_KEY}`,
+  "x-rapidapi-key": process.env.JUDGE0_API_KEY,
+  "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+  "Content-Type": "application/json",
 };
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,9 +33,13 @@ export async function submitBatch(
 ): Promise<SubmissionResult[]> {
   const {data} = await axios.post(
     `${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,
-    {headers, submissions},
+    {
+      submissions,
+    },
+    {
+      headers,
+    },
   );
-
   return data;
 }
 
