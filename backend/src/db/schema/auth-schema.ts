@@ -37,8 +37,7 @@ export const userTable = pgTable(
     disabledAt: timestamp("disabledAt"),
   },
   (table) => [
-    // unique email per school
-    // two different schools can have same email for different users
+    // unique email
   ],
 );
 

@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {db} from "../db";
-import {submissionsTable} from "../db/schema";
+import {submissionTable} from "../db/schema";
 import {and, count, desc, eq, gte, sql} from "drizzle-orm";
 import {ApiResponse, ApiError} from "../utils/responses";
 import {asyncHandler} from "../utils/async-handler";
@@ -13,9 +13,9 @@ export const getAllSubmissions = asyncHandler(
     }
 
     const {id: userId} = req.user;
-    const submissions = await db.query.submissionsTable.findMany({
-      where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
-      orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
+    const submissions = await db.query.submissionTable.findMany({
+      where: (submissionTable, {eq}) => eq(submissionTable.userId, userId),
+      orderBy: (submissionTable, {desc}) => [desc(submissionTable.createdAt)],
     });
 
     new ApiResponse(200, "Submissions fetched successfully", submissions).send(
@@ -37,12 +37,12 @@ export const getAllSubmissionByProblemId = asyncHandler(
       throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
     }
 
-    const submissions = await db.query.submissionsTable.findMany({
+    const submissions = await db.query.submissionTable.findMany({
       where: and(
-        eq(submissionsTable.userId, userId),
-        eq(submissionsTable.problemId, problemId),
+        eq(submissionTable.userId, userId),
+        eq(submissionTable.problemId, problemId as string),
       ),
-      orderBy: [desc(submissionsTable.createdAt)],
+      orderBy: [desc(submissionTable.createdAt)],
     });
     console.log(submissions);
 
@@ -60,9 +60,9 @@ export const getAllSubmissionCount = asyncHandler(
       throw new ApiError(400, "Problem ID is required", "MISSING_PROBLEM_ID");
     }
 
-    const submissions = await db.query.submissionsTable.findMany({
-      where: (submissionsTable, {eq}) =>
-        eq(submissionsTable.problemId, problemId),
+    const submissions = await db.query.submissionTable.findMany({
+      where: (submissionTable, {eq}) =>
+        eq(submissionTable.problemId, problemId as string),
       columns: {
         status: true,
       },
@@ -101,8 +101,8 @@ export const getAllSubmissionStats = asyncHandler(
     const now = new Date();
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const submissions = await db.query.submissionsTable.findMany({
-      where: (submissionsTable, {eq}) => eq(submissionsTable.userId, userId),
+    const submissions = await db.query.submissionTable.findMany({
+      where: (submissionTable, {eq}) => eq(submissionTable.userId, userId),
       columns: {
         status: true,
         problemId: true,
@@ -113,11 +113,11 @@ export const getAllSubmissionStats = asyncHandler(
 
     const last24hResult = await db
       .select({count: count()})
-      .from(submissionsTable)
+      .from(submissionTable)
       .where(
         and(
-          eq(submissionsTable.userId, userId),
-          gte(submissionsTable.createdAt, last24Hours),
+          eq(submissionTable.userId, userId),
+          gte(submissionTable.createdAt, last24Hours),
         ),
       );
 
@@ -175,13 +175,13 @@ export const getSubmissionHeatMap = asyncHandler(
 
     const result = await db
       .select({
-        date: sql<string>`DATE(${submissionsTable.createdAt})`.as("date"),
+        date: sql<string>`DATE(${submissionTable.createdAt})`.as("date"),
         count: sql<number>`COUNT(*)`.as("count"),
       })
-      .from(submissionsTable)
-      .where(eq(submissionsTable.userId, userId))
-      .groupBy(sql`DATE(${submissionsTable.createdAt})`)
-      .orderBy(sql`DATE(${submissionsTable.createdAt})`);
+      .from(submissionTable)
+      .where(eq(submissionTable.userId, userId))
+      .groupBy(sql`DATE(${submissionTable.createdAt})`)
+      .orderBy(sql`DATE(${submissionTable.createdAt})`);
 
     const formatted = result.map((r) => ({
       date: r.date,

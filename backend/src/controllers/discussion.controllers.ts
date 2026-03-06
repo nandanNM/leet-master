@@ -18,7 +18,7 @@ export const createDiscussion = asyncHandler(async (req, res) => {
     .values({
       message,
       userId,
-      problemId,
+      problemId: problemId as string,
     })
     .returning({id: discussionTable.id});
   const [discussion] = await db.query.discussionTable.findMany({
@@ -47,8 +47,8 @@ export const getAllDiscussionsForProblem = asyncHandler(async (req, res) => {
   }
   const {problemId} = req.params;
   const discussions = await db.query.discussionTable.findMany({
-    where: eq(discussionTable.problemId, problemId),
-    orderBy: (submissionsTable, {desc}) => [desc(submissionsTable.createdAt)],
+    where: eq(discussionTable.problemId, problemId as string),
+    orderBy: (discussionTable, {desc}) => [desc(discussionTable.createdAt)],
     with: {
       user: {
         columns: {

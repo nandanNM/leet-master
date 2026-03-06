@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import {LoginUser, RegisterUser, UpdateUser} from "../schemas/user";
 import {ApiResponse, ApiError} from "../utils/responses";
 import {db} from "../db";
-import {usersTable} from "../db/schema";
+import {userTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler";
 import {isAuthenticated} from "../utils/auth";
 import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/lib/cloudinary";
@@ -15,8 +15,8 @@ import {eq} from "drizzle-orm";
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const {name, email, password} = req.body as RegisterUser;
 
-  const existingUser = await db.query.usersTable.findFirst({
-    where: (usersTable, {eq}) => eq(usersTable.email, email),
+  const existingUser = await db.query.userTable.findFirst({
+    where: (userTable, {eq}) => eq(userTable.email, email),
   });
 
   if (existingUser) {
@@ -25,7 +25,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const [newUser] = await db
-    .insert(usersTable)
+    .insert(userTable)
     .values({
       name,
       email,
@@ -59,8 +59,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const {email, password} = req.body as LoginUser;
-  const user = await db.query.usersTable.findFirst({
-    where: (usersTable, {eq}) => eq(usersTable.email, email),
+  const user = await db.query.userTable.findFirst({
+    where: (userTable, {eq}) => eq(userTable.email, email),
   });
 
   if (!user) {
@@ -115,8 +115,8 @@ export const getUserSessions = asyncHandler(
       throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
     }
     const {id: userId} = req.user;
-    const userSessions = await db.query.usersTable.findFirst({
-      where: (usersTable, {eq}) => eq(usersTable.id, userId),
+    const userSessions = await db.query.userTable.findFirst({
+      where: (userTable, {eq}) => eq(userTable.id, userId),
       columns: {
         id: true,
         name: true,
@@ -140,8 +140,8 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   }
   const {id: userId} = req.user;
   const {name, bio} = req.body as UpdateUser;
-  const user = await db.query.usersTable.findFirst({
-    where: (usersTable, {eq}) => eq(usersTable.id, userId),
+  const user = await db.query.userTable.findFirst({
+    where: (userTable, {eq}) => eq(userTable.id, userId),
   });
   if (!user) {
     throw new ApiError(404, "User not found", "NOT_FOUND");
@@ -172,21 +172,21 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const [updatedUser] = await db
-    .update(usersTable)
+    .update(userTable)
     .set({
       name,
       bio,
       avatar: avatarUrl,
       avatarPublicId,
     })
-    .where(eq(usersTable.id, userId))
+    .where(eq(userTable.id, userId))
     .returning({
-      id: usersTable.id,
-      name: usersTable.name,
-      email: usersTable.email,
-      bio: usersTable.bio,
-      avatar: usersTable.avatar,
-      role: usersTable.role,
+      id: userTable.id,
+      name: userTable.name,
+      email: userTable.email,
+      bio: userTable.bio,
+      avatar: userTable.avatar,
+      role: userTable.role,
     });
   new ApiResponse(200, "User updated successfully", updatedUser).send(res);
 });

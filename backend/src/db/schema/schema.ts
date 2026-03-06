@@ -1,13 +1,13 @@
 import {relations} from "drizzle-orm";
 import {pgEnum, pgTable as table, uniqueIndex} from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
-import {baseSchema, userTable} from "./auth";
+import {baseSchema, userTable} from "./auth-schema";
 
 // --- Problem Enums and Tables ---
 
 export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
-export const problemsTable = table("problems", {
+export const problemTable = table("problems", {
   ...baseSchema,
   title: t.varchar({length: 255}).notNull(),
   description: t.text("description").notNull(),
@@ -26,7 +26,7 @@ export const problemsTable = table("problems", {
   referenceSolutions: t.jsonb("reference_solutions").notNull(),
 });
 
-export const solvedProblemsTable = table(
+export const solvedProblemTable = table(
   "solved_problems",
   {
     id: t.uuid("id").primaryKey().defaultRandom(),
@@ -36,7 +36,7 @@ export const solvedProblemsTable = table(
       .notNull(),
     problemId: t
       .uuid("problem_id")
-      .references(() => problemsTable.id, {onDelete: "cascade"})
+      .references(() => problemTable.id, {onDelete: "cascade"})
       .notNull(),
     createdAt: t.timestamp("created_at").defaultNow(),
     updatedAt: t
@@ -64,7 +64,7 @@ export const submissionStatusEnum = pgEnum("submission_status", [
   "INTERNAL_ERROR",
 ]);
 
-export const submissionsTable = table("submissions", {
+export const submissionTable = table("submissions", {
   ...baseSchema,
   userId: t
     .uuid("user_id")
@@ -72,7 +72,7 @@ export const submissionsTable = table("submissions", {
     .notNull(),
   problemId: t
     .uuid("problem_id")
-    .references(() => problemsTable.id, {onDelete: "cascade"})
+    .references(() => problemTable.id, {onDelete: "cascade"})
     .notNull(),
   sourceCode: t.json("source_code").notNull(),
   language: t.varchar("language", {length: 100}).notNull(),
@@ -87,13 +87,13 @@ export const submissionsTable = table("submissions", {
 
 // --- Test Case Tables ---
 
-export const testCaseResultsTable = table(
+export const testCaseResultTable = table(
   "test_case_results",
   {
     ...baseSchema,
     submissionId: t
       .uuid("submission_id")
-      .references(() => submissionsTable.id, {onDelete: "cascade"})
+      .references(() => submissionTable.id, {onDelete: "cascade"})
       .notNull(),
     testCase: t.integer("test_case").notNull(),
     passed: t.boolean("passed").notNull(),
@@ -114,7 +114,7 @@ export const testCaseResultsTable = table(
 
 // --- Playlist Tables ---
 
-export const playlistsTable = table(
+export const playlistTable = table(
   "playlists",
   {
     ...baseSchema,
@@ -130,7 +130,7 @@ export const playlistsTable = table(
   }),
 );
 
-export const problemsInPlaylistTable = table(
+export const problemInPlaylistTable = table(
   "problems_in_playlist",
   {
     ...baseSchema,
@@ -138,12 +138,12 @@ export const problemsInPlaylistTable = table(
     playListId: t
       .uuid("playlist_id")
       .notNull()
-      .references(() => playlistsTable.id, {onDelete: "cascade"}),
+      .references(() => playlistTable.id, {onDelete: "cascade"}),
 
     problemId: t
       .uuid("problem_id")
       .notNull()
-      .references(() => problemsTable.id, {onDelete: "cascade"}),
+      .references(() => problemTable.id, {onDelete: "cascade"}),
   },
   (table) => ({
     uniqueProblemInPlaylist: t.unique().on(table.playListId, table.problemId),
@@ -160,94 +160,94 @@ export const discussionTable = table("discussions", {
     .notNull(),
   problemId: t
     .uuid("problem_id")
-    .references(() => problemsTable.id, {onDelete: "cascade"})
+    .references(() => problemTable.id, {onDelete: "cascade"})
     .notNull(),
   message: t.text("message"),
 });
 
 // --- Relations ---
 
-export const problemsRelations = relations(problemsTable, ({one, many}) => ({
+export const problemRelations = relations(problemTable, ({one, many}) => ({
   user: one(userTable, {
-    fields: [problemsTable.userId],
+    fields: [problemTable.userId],
     references: [userTable.id],
   }),
-  submissions: many(submissionsTable),
-  solvedBy: many(solvedProblemsTable),
+  submissions: many(submissionTable),
+  solvedBy: many(solvedProblemTable),
   discussions: many(discussionTable),
 }));
 
-export const solvedProblemsRelations = relations(
-  solvedProblemsTable,
+export const solvedProblemRelations = relations(
+  solvedProblemTable,
   ({one}) => ({
     user: one(userTable, {
-      fields: [solvedProblemsTable.userId],
+      fields: [solvedProblemTable.userId],
       references: [userTable.id],
     }),
-    problem: one(problemsTable, {
-      fields: [solvedProblemsTable.problemId],
-      references: [problemsTable.id],
+    problem: one(problemTable, {
+      fields: [solvedProblemTable.problemId],
+      references: [problemTable.id],
     }),
   }),
 );
 
-export const submissionsRelations = relations(
-  submissionsTable,
+export const submissionRelations = relations(
+  submissionTable,
   ({one, many}) => ({
     user: one(userTable, {
-      fields: [submissionsTable.userId],
+      fields: [submissionTable.userId],
       references: [userTable.id],
     }),
-    problem: one(problemsTable, {
-      fields: [submissionsTable.problemId],
-      references: [problemsTable.id],
+    problem: one(problemTable, {
+      fields: [submissionTable.problemId],
+      references: [problemTable.id],
     }),
-    testCases: many(testCaseResultsTable),
+    testCases: many(testCaseResultTable),
   }),
 );
 
-export const testCaseResultsRelations = relations(
-  testCaseResultsTable,
+export const testCaseResultRelations = relations(
+  testCaseResultTable,
   ({one}) => ({
-    testCase: one(submissionsTable, {
-      fields: [testCaseResultsTable.submissionId],
-      references: [submissionsTable.id],
+    testCase: one(submissionTable, {
+      fields: [testCaseResultTable.submissionId],
+      references: [submissionTable.id],
     }),
   }),
 );
 
-export const playlistsRelations = relations(playlistsTable, ({one, many}) => ({
+export const playlistRelations = relations(playlistTable, ({one, many}) => ({
   user: one(userTable, {
-    fields: [playlistsTable.userId],
+    fields: [playlistTable.userId],
     references: [userTable.id],
   }),
-  problems: many(problemsInPlaylistTable),
+  problems: many(problemInPlaylistTable),
 }));
 
-export const problemsInPlaylistRelations = relations(
-  problemsInPlaylistTable,
+export const problemInPlaylistRelations = relations(
+  problemInPlaylistTable,
   ({one}) => ({
-    playlist: one(playlistsTable, {
-      fields: [problemsInPlaylistTable.playListId],
-      references: [playlistsTable.id],
+    playlist: one(playlistTable, {
+      fields: [problemInPlaylistTable.playListId],
+      references: [playlistTable.id],
     }),
-    problem: one(problemsTable, {
-      fields: [problemsInPlaylistTable.problemId],
-      references: [problemsTable.id],
+    problem: one(problemTable, {
+      fields: [problemInPlaylistTable.problemId],
+      references: [problemTable.id],
     }),
   }),
 );
 
-export const discussionsRelations = relations(
+export const discussionRelations = relations(
   discussionTable,
   ({one, many}) => ({
     user: one(userTable, {
       fields: [discussionTable.userId],
       references: [userTable.id],
     }),
-    problem: one(problemsTable, {
+    problem: one(problemTable, {
       fields: [discussionTable.problemId],
-      references: [problemsTable.id],
+      references: [problemTable.id],
     }),
   }),
 );

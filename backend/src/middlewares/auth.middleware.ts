@@ -20,8 +20,8 @@ export const authMiddleware = async (
     }
 
     const {id, email} = decoded as jwt.JwtPayload;
-    const user = await db.query.usersTable.findFirst({
-      where: (usersTable, {eq}) => eq(usersTable.email, email),
+    const user = await db.query.userTable.findFirst({
+      where: (userTable, {eq}) => eq(userTable.email, email),
       columns: {
         id: true,
         email: true,
@@ -33,7 +33,10 @@ export const authMiddleware = async (
       throw new ApiError(401, "Unauthorized Access", "USER_NOT_FOUND");
     }
 
-    req.user = user;
+    req.user = {
+      ...user,
+      role: user.role || "USER",
+    };
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
