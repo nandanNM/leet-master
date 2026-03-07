@@ -1,60 +1,25 @@
-import {relations} from "drizzle-orm";
-import {pgEnum, pgTable as table, uniqueIndex} from "drizzle-orm/pg-core";
-import * as t from "drizzle-orm/pg-core";
-import {baseSchema, userTable} from "./auth-schema";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+  foreignKey,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-// Problem Enums and Tables
+import {baseSchema, user} from "./auth-schema";
+
+//  ENUMS
 
 export const difficultyEnum = pgEnum("difficulty", ["EASY", "MEDIUM", "HARD"]);
 
-export const problemTable = table("problem", {
-  ...baseSchema,
-  title: t.varchar({length: 255}).notNull(),
-  description: t.text("description").notNull(),
-  difficulty: difficultyEnum().notNull(),
-  tags: t.text("tags").array().notNull(),
-  userId: t
-    .uuid("user_id")
-    .references(() => userTable.id, {onDelete: "cascade"})
-    .notNull(),
-  examples: t.jsonb("examples").notNull(),
-  constraints: t.text("constraints").notNull(),
-  hints: t.text("hints"),
-  editorial: t.text("editorial"),
-  testcases: t.jsonb("testcases").notNull(),
-  codeSnippets: t.jsonb("code_snippets").notNull(),
-  referenceSolutions: t.jsonb("reference_solutions").notNull(),
-});
-
-export const solvedProblemTable = table(
-  "solved_problem",
-  {
-    id: t.uuid("id").primaryKey().defaultRandom(),
-    userId: t
-      .uuid("user_id")
-      .references(() => userTable.id, {onDelete: "cascade"})
-      .notNull(),
-    problemId: t
-      .uuid("problem_id")
-      .references(() => problemTable.id, {onDelete: "cascade"})
-      .notNull(),
-    createdAt: t.timestamp("created_at").defaultNow(),
-    updatedAt: t
-      .timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (t) => ({
-    uniqueUserProblem: uniqueIndex("unique_user_problem").on(
-      t.userId,
-      t.problemId,
-    ),
-  }),
-);
-
-// --- Submission Enums and Tables ---
-
-export const submissionStatusEnum = pgEnum("submission_status", [
+export const submissionStatusEnum = pgEnum("submissionStatus", [
   "ACCEPTED",
   "WRONG_ANSWER",
   "TIME_LIMIT_EXCEEDED",
@@ -64,190 +29,199 @@ export const submissionStatusEnum = pgEnum("submission_status", [
   "INTERNAL_ERROR",
 ]);
 
-export const submissionTable = table("submission", {
+//PROBLEMS
+export const problem = pgTable(
+  "problem",
+  {
+    ...baseSchema,
+    title: varchar("title", {length: 255}).notNull(),
+    slug: varchar("slug", {length: 255}).notNull().unique(),
+    description: text("description").notNull(),
+    difficulty: difficultyEnum("difficulty").notNull(),
+    videoUrl: varchar("videoUrl", {length: 1000}),
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+
+    examples: jsonb("examples").notNull(),
+    constraints: text("constraints"),
+    hints: text("hints"),
+    editorialCode: jsonb("editorialCode").$type<Record<string, string>>(),
+
+    codeSnippets: jsonb("codeSnippets"),
+    referenceSolutions: jsonb("referenceSolutions"),
+
+    // Standardized to ms and KB for easier sorting/filtering
+    timeLimit: integer("timeLimit").default(2000),
+    memoryLimit: integer("memoryLimit").default(256),
+  },
+  (t) => ({
+    difficultyIdx: index("problemDifficultyIdx").on(t.difficulty),
+  }),
+);
+
+//TEST CASES & RESULTS
+
+export const problemTestCase = pgTable(
+  "problemTestCase",
+  {
+    ...baseSchema,
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+    input: text("input").notNull(),
+    expectedOutput: text("expectedOutput").notNull(),
+    isSample: boolean("isSample").default(false),
+    order: integer("order"),
+  },
+  (t) => ({
+    problemIdx: index("testCaseProblemIdx").on(t.problemId),
+  }),
+);
+
+export const submission = pgTable(
+  "submission",
+  {
+    ...baseSchema,
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+
+    sourceCode: text("sourceCode").notNull(),
+    language: varchar("language", {length: 50}).notNull(),
+    status: submissionStatusEnum("status"),
+
+    runtime: integer("runtime"), // in ms
+    memory: integer("memory"), // in KB
+
+    stdout: text("stdout"),
+    stderr: text("stderr"),
+    compileOutput: text("compileOutput"),
+  },
+  (t) => ({
+    userProblemIdx: index("submissionUserProblemIdx").on(t.userId, t.problemId),
+    statusIdx: index("submissionStatusIdx").on(t.status),
+  }),
+);
+
+export const testCaseResult = pgTable(
+  "testCaseResult",
+  {
+    ...baseSchema,
+    submissionId: uuid("submissionId")
+      .notNull()
+      .references(() => submission.id, {onDelete: "cascade"}),
+    testCaseId: uuid("testCaseId").references(() => problemTestCase.id),
+
+    passed: boolean("passed").notNull(),
+    stdout: text("stdout"),
+    expected: text("expected"),
+    stderr: text("stderr"),
+
+    status: varchar("status", {length: 50}),
+    memory: integer("memory"),
+    time: integer("time"),
+  },
+  (t) => ({
+    submissionIdx: index("testCaseSubmissionIdx").on(t.submissionId),
+  }),
+);
+
+// DISCUSSIONS & CATEGORIES
+
+export const discussion = pgTable(
+  "discussion",
+  {
+    ...baseSchema,
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+
+    parentId: uuid("parentId"), // For threaded replies
+    message: text("message").notNull(),
+  },
+  (t) => ({
+    parentIdx: index("discussionParentIdx").on(t.parentId),
+    problemIdx: index("discussionProblemIdx").on(t.problemId),
+    parentFk: foreignKey({
+      columns: [t.parentId],
+      foreignColumns: [t.id],
+    }).onDelete("cascade"),
+  }),
+);
+
+export const subject = pgTable("subject", {
   ...baseSchema,
-  userId: t
-    .uuid("user_id")
-    .references(() => userTable.id, {onDelete: "cascade"})
-    .notNull(),
-  problemId: t
-    .uuid("problem_id")
-    .references(() => problemTable.id, {onDelete: "cascade"})
-    .notNull(),
-  sourceCode: t.json("source_code").notNull(),
-  language: t.varchar("language", {length: 100}).notNull(),
-  stdin: t.text("stdin"),
-  stdout: t.text("stdout"),
-  stderr: t.text("stderr"),
-  compileOutput: t.text("compile_output"),
-  status: submissionStatusEnum("status"),
-  memory: t.text("memory"),
-  time: t.text("time"),
+  name: varchar("name", {length: 255}).notNull(),
+  slug: varchar("slug", {length: 255}).notNull().unique(),
 });
 
-// --- Test Case Tables ---
-
-export const testCaseResultTable = table(
-  "test_case_result",
+export const problemSubject = pgTable(
+  "problemSubject",
   {
-    ...baseSchema,
-    submissionId: t
-      .uuid("submission_id")
-      .references(() => submissionTable.id, {onDelete: "cascade"})
-      .notNull(),
-    testCase: t.integer("test_case").notNull(),
-    passed: t.boolean("passed").notNull(),
-    stdout: t.text("stdout"),
-    expected: t.text("expected"),
-    stderr: t.text("stderr"),
-    compileOutput: t.text("compile_output"),
-    status: t.varchar("status", {length: 50}),
-    memory: t.varchar("memory", {length: 50}),
-    time: t.varchar("time", {length: 50}),
-  },
-  (table) => ({
-    submissionIdIdx: t
-      .index("test_case_results_submission_id_idx")
-      .on(table.submissionId),
-  }),
-);
-
-// --- Playlist Tables ---
-
-export const playlistTable = table(
-  "playlist",
-  {
-    ...baseSchema,
-    name: t.varchar({length: 255}).notNull(),
-    description: t.text("description"),
-    userId: t
-      .uuid("user_id")
-      .references(() => userTable.id, {onDelete: "cascade"})
-      .notNull(),
-  },
-  (table) => ({
-    userIdNameUnique: t.unique().on(table.userId, table.name),
-  }),
-);
-
-export const problemInPlaylistTable = table(
-  "problems_in_playlist",
-  {
-    ...baseSchema,
-    id: t.uuid("id").primaryKey().defaultRandom(),
-    playListId: t
-      .uuid("playlist_id")
+    problemId: uuid("problemId")
       .notNull()
-      .references(() => playlistTable.id, {onDelete: "cascade"}),
-
-    problemId: t
-      .uuid("problem_id")
+      .references(() => problem.id, {onDelete: "cascade"}),
+    subjectId: uuid("subjectId")
       .notNull()
-      .references(() => problemTable.id, {onDelete: "cascade"}),
+      .references(() => subject.id, {onDelete: "cascade"}),
   },
-  (table) => ({
-    uniqueProblemInPlaylist: t.unique().on(table.playListId, table.problemId),
+  (t) => ({
+    pkIdx: index("problemSubjectIdx").on(t.problemId, t.subjectId),
   }),
 );
 
-// --- Discussion Tables ---
+export const solvedProblem = pgTable(
+  "solvedProblem",
+  {
+    ...baseSchema,
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+    submissionId: uuid("submissionId")
+      .notNull()
+      .references(() => submission.id),
+    solutionCode: text("solutionCode").notNull(),
+    language: varchar("language", {length: 50}).notNull(),
+    runtime: integer("runtime"),
+    memory: integer("memory"),
+    solvedAt: timestamp("solvedAt").defaultNow().notNull(),
+  },
+  (t) => ({
+    // Ensures a user only has one "Solved" entry per problem
+    userProblemUnique: uniqueIndex("userProblemUniqueIdx").on(
+      t.userId,
+      t.problemId,
+    ),
+    userSolvedIdx: index("userSolvedIdx").on(t.userId),
+  }),
+);
 
-export const discussionTable = table("discussion", {
+export const company = pgTable("company", {
   ...baseSchema,
-  userId: t
-    .uuid("user_id")
-    .references(() => userTable.id, {onDelete: "cascade"})
-    .notNull(),
-  problemId: t
-    .uuid("problem_id")
-    .references(() => problemTable.id, {onDelete: "cascade"})
-    .notNull(),
-  message: t.text("message"),
+  name: varchar("name", {length: 255}).notNull(),
 });
 
-// --- Relations ---
-
-export const problemRelations = relations(problemTable, ({one, many}) => ({
-  user: one(userTable, {
-    fields: [problemTable.userId],
-    references: [userTable.id],
-  }),
-  submissions: many(submissionTable),
-  solvedBy: many(solvedProblemTable),
-  discussions: many(discussionTable),
-}));
-
-export const solvedProblemRelations = relations(
-  solvedProblemTable,
-  ({one}) => ({
-    user: one(userTable, {
-      fields: [solvedProblemTable.userId],
-      references: [userTable.id],
-    }),
-    problem: one(problemTable, {
-      fields: [solvedProblemTable.problemId],
-      references: [problemTable.id],
-    }),
-  }),
-);
-
-export const submissionRelations = relations(
-  submissionTable,
-  ({one, many}) => ({
-    user: one(userTable, {
-      fields: [submissionTable.userId],
-      references: [userTable.id],
-    }),
-    problem: one(problemTable, {
-      fields: [submissionTable.problemId],
-      references: [problemTable.id],
-    }),
-    testCases: many(testCaseResultTable),
-  }),
-);
-
-export const testCaseResultRelations = relations(
-  testCaseResultTable,
-  ({one}) => ({
-    testCase: one(submissionTable, {
-      fields: [testCaseResultTable.submissionId],
-      references: [submissionTable.id],
-    }),
-  }),
-);
-
-export const playlistRelations = relations(playlistTable, ({one, many}) => ({
-  user: one(userTable, {
-    fields: [playlistTable.userId],
-    references: [userTable.id],
-  }),
-  problems: many(problemInPlaylistTable),
-}));
-
-export const problemInPlaylistRelations = relations(
-  problemInPlaylistTable,
-  ({one}) => ({
-    playlist: one(playlistTable, {
-      fields: [problemInPlaylistTable.playListId],
-      references: [playlistTable.id],
-    }),
-    problem: one(problemTable, {
-      fields: [problemInPlaylistTable.problemId],
-      references: [problemTable.id],
-    }),
-  }),
-);
-
-export const discussionRelations = relations(
-  discussionTable,
-  ({one, many}) => ({
-    user: one(userTable, {
-      fields: [discussionTable.userId],
-      references: [userTable.id],
-    }),
-    problem: one(problemTable, {
-      fields: [discussionTable.problemId],
-      references: [problemTable.id],
-    }),
+export const problemCompany = pgTable(
+  "problemCompany",
+  {
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+    companyId: uuid("companyId")
+      .notNull()
+      .references(() => company.id, {onDelete: "cascade"}),
+  },
+  (t) => ({
+    cpPk: uniqueIndex("problemCompanyUniqueIdx").on(t.problemId, t.companyId),
   }),
 );
