@@ -3,25 +3,13 @@ import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {admin, openAPI} from "better-auth/plugins";
 import {db} from "src/db";
 
-import {
-  accountTable,
-  sessionTable,
-  userTable,
-  verificationTable,
-} from "../db/schema";
-
 export const auth = betterAuth({
   baseURL: process.env.BACKEND_URL || "http://localhost:8080",
   database: drizzleAdapter(db, {
     provider: "pg",
     debugLogs: false,
+    camelCase: true,
     // better-auth expects schema keys matching its internal model names
-    schema: {
-      user: userTable,
-      session: sessionTable,
-      account: accountTable,
-      verification: verificationTable,
-    },
   }),
 
   emailAndPassword: {

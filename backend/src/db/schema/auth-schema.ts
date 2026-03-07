@@ -24,7 +24,7 @@ export const baseSchema = {
     .notNull(),
 };
 
-export const userTable = pgTable(
+export const user = pgTable(
   "user",
   {
     ...baseSchema,
@@ -45,7 +45,7 @@ export const userTable = pgTable(
   ],
 );
 
-export const sessionTable = pgTable(
+export const session = pgTable(
   "session",
   {
     id: text("id")
@@ -61,13 +61,13 @@ export const sessionTable = pgTable(
     userAgent: text("userAgent"),
     userId: uuid("userId") //use uuid type for foreign key references
       .notNull()
-      .references(() => userTable.id, {onDelete: "cascade"}),
+      .references(() => user.id, {onDelete: "cascade"}),
     impersonatedBy: text("impersonatedBy"),
   },
   (table) => [index("sessionUserIdIdx").on(table.userId)],
 );
 
-export const accountTable = pgTable(
+export const account = pgTable(
   "account",
   {
     ...baseSchema,
@@ -77,7 +77,7 @@ export const accountTable = pgTable(
     providerId: text("providerId").notNull(),
     userId: uuid("userId") //use uuid type for foreign key references
       .notNull()
-      .references(() => userTable.id, {onDelete: "cascade"}),
+      .references(() => user.id, {onDelete: "cascade"}),
     accessToken: text("accessToken"),
     refreshToken: text("refreshToken"),
     idToken: text("idToken"),
@@ -100,21 +100,21 @@ export const verificationTable = pgTable(
   (table) => [index("verificationIdentifierIdx").on(table.identifier)],
 );
 
-export const userRelations = relations(userTable, ({many}) => ({
-  sessions: many(sessionTable),
-  accounts: many(accountTable),
+export const userRelations = relations(user, ({many}) => ({
+  sessions: many(session),
+  accounts: many(account),
 }));
 
-export const sessionRelations = relations(sessionTable, ({one}) => ({
-  user: one(userTable, {
-    fields: [sessionTable.userId],
-    references: [userTable.id],
+export const sessionRelations = relations(session, ({one}) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
   }),
 }));
 
-export const accountRelations = relations(accountTable, ({one}) => ({
-  user: one(userTable, {
-    fields: [accountTable.userId],
-    references: [userTable.id],
+export const accountRelations = relations(account, ({one}) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
   }),
 }));
