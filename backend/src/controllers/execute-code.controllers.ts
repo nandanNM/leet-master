@@ -7,13 +7,15 @@ import {
 } from "../utils/judge0.utils";
 import {db} from "../db";
 import {
-  solvedProblemTable,
-  submissionTable,
-  testCaseResultTable,
+  solvedProblem as solvedProblemTable,
+  submission as submissionTable,
+  testCaseResult as testCaseResultTable,
+  problem as problemTable,
 } from "../db/schema";
 import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
 import {isAuthenticated} from "../utils/auth.utils";
 import {asyncHandler} from "../utils/async-handler.utils";
+import {eq} from "drizzle-orm";
 
 export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   if (!isAuthenticated(req)) {
@@ -24,9 +26,24 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
     req.body as SubmitCode;
   const {id: userId} = req.user;
 
+  // Look up driver code for this problem + language
+  const lang = getLanguage(Number(language_id)).toLowerCase();
+  const problemRecord = problemId
+    ? await db
+        .select({driverCode: problemTable.driverCode})
+        .from(problemTable)
+        .where(eq(problemTable.id, problemId as string))
+        .then((rows) => rows[0])
+    : null;
+
+  const driver = problemRecord?.driverCode?.[lang];
+  const finalCode = driver
+    ? driver.replace("{{USER_CODE}}", source_code)
+    : source_code;
+
   // prepare all test cases for judge0 submission
   const submissions = stdin.map((input) => ({
-    source_code,
+    source_code: finalCode,
     language_id: Number(language_id),
     stdin: input,
   }));
@@ -136,8 +153,23 @@ export const runCode = asyncHandler(async (req: Request, res: Response) => {
     req.body as SubmitCode;
   const {id: userId} = req.user;
 
+  // Look up driver code for this problem + language
+  const lang = getLanguage(Number(language_id)).toLowerCase();
+  const problemRecord = problemId
+    ? await db
+        .select({driverCode: problemTable.driverCode})
+        .from(problemTable)
+        .where(eq(problemTable.id, problemId as string))
+        .then((rows) => rows[0])
+    : null;
+
+  const driver = problemRecord?.driverCode?.[lang];
+  const finalCode = driver
+    ? driver.replace("{{USER_CODE}}", source_code)
+    : source_code;
+
   const submissions = stdin.map((input) => ({
-    source_code,
+    source_code: finalCode,
     language_id: Number(language_id),
     stdin: input,
   }));
