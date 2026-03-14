@@ -50,6 +50,7 @@ export const problem = pgTable(
 
     codeSnippets: jsonb("codeSnippets"),
     referenceSolutions: jsonb("referenceSolutions"),
+    driverCode: jsonb("driverCode").$type<Record<string, string>>(),
 
     // Standardized to ms and KB for easier sorting/filtering
     timeLimit: integer("timeLimit").default(2000),

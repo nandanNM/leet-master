@@ -44,7 +44,6 @@ export async function submitBatch(
 }
 
 export async function pullBatchResults(tokens: string[]): Promise<any[]> {
-  // it called pooling
   while (true) {
     const {data} = await axios.get(
       `${process.env.JUDGE0_API_URL}/submissions/batch`,
@@ -57,14 +56,18 @@ export async function pullBatchResults(tokens: string[]): Promise<any[]> {
       },
     );
 
-    const result = data.submissions;
-    if (!result) throw new Error("No result found  for the given tokens.");
-    const isAllCompleted = result.every(
-      (submission: any) =>
-        submission.status.id !== 1 && submission.status.id !== 2,
+    const submissions = data.submissions;
+    if (!submissions) throw new Error("No submissions returned from API.");
+
+    // Status IDs: 1 = In Queue, 2 = Processing
+    const isAllFinished = submissions.every(
+      (sub: any) => sub.status && sub.status.id > 2,
     );
-    if (isAllCompleted) return result;
-    await sleep(1000); // Wait for 2 seconds before checking again
+
+    if (isAllFinished) return submissions;
+
+    // Back off slightly to avoid hitting RapidAPI rate limits
+    await sleep(2000);
   }
 }
 

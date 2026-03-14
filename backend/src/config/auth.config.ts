@@ -4,7 +4,9 @@ import {admin, openAPI} from "better-auth/plugins";
 import {db} from "src/db";
 
 export const auth = betterAuth({
+  appName: "Leet Master",
   baseURL: process.env.BACKEND_URL || "http://localhost:8080",
+  basePath: "/api/v1/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
     debugLogs: false,
@@ -54,7 +56,7 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [process.env.CLIENT_URL || "http://localhost:3000"],
+  trustedOrigins: [process.env.CLIENT_URL || "http://localhost:5173"],
 
   plugins: [
     openAPI(),
