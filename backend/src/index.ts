@@ -4,6 +4,7 @@ import cors from "cors";
 import {toNodeHandler} from "better-auth/node";
 import path from "path";
 import morgan from "morgan";
+import http from "http";
 
 import userRoutes from "./routes/user.routes";
 import problemRoutes from "./routes/problem.routes";
@@ -18,18 +19,26 @@ import {asyncHandler} from "./utils/async-handler.utils";
 import {ApiResponse, ApiError} from "./utils/responses.utils";
 import {errorHandler} from "./middlewares/error-handler.middleware";
 import {pool} from "./db";
+import {attachWebSocketServer} from "./ws/server";
+
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
 
 // Middlewares
+
 app.use(morgan("dev"));
+
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
   }),
 );
+
 app.use(
   cors({
     origin: process.env.CLIENT_URL as string,
@@ -40,10 +49,12 @@ app.use(
 
 app.use("/public", express.static(path.join(process.cwd(), "src/public")));
 
-// Better-auth router
+// Auth Routes
+
 app.use("/api/v1/auth", toNodeHandler(auth));
 
-// Routes
+// Health Routes
+
 app.get("/api/v1", (req: Request, res: Response) => {
   res.send("Hello Guys welcome to leetlab 🔥");
 });
@@ -54,6 +65,8 @@ app.get("/api/v1/health", (req: Request, res: Response) => {
     message: "Server is running",
   });
 });
+
+// Session Route
 
 app.get(
   "/api/v1/me",
@@ -70,6 +83,8 @@ app.get(
   }),
 );
 
+// API Routes
+
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/problem", problemRoutes);
 app.use("/api/v1/execute-code", executionRoutes);
@@ -78,30 +93,39 @@ app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/discussion", discussionRoutes);
 app.use("/api/v1/code-review", codeReviewRoutes);
 
-// Server Start
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`Server is running on port http://localhost:${PORT}`);
+// Error Middleware
+
+app.use(errorHandler);
+
+// WebSocket Server
+
+const {broadcastMatchCreated} = attachWebSocketServer(server);
+app.locals.broadcastMatchCreated = broadcastMatchCreated;
+
+// Start Server
+
+server.listen(Number(PORT), HOST, () => {
+  const baseUrl =
+    HOST === "0.0.0.0" ? `http://localhost:${PORT}` : `http://${HOST}:${PORT}`;
+
+  console.log(`🚀 Server running on ${baseUrl}`);
+  console.log(`🔌 WebSocket running on ${baseUrl.replace("http", "ws")}/ws`);
 });
-// app.use(errorHandler);
 
 server.on("error", (err) => {
   console.error("Server failed to start:", err);
 });
 
 // Graceful Shutdown
-process.on("SIGTERM", async () => {
-  console.log("SIGTERM received. Closing server...");
-  server.close(async () => {
-    await pool.end();
-    process.exit(0);
-  });
-});
 
-process.on("SIGINT", async () => {
-  console.log("SIGINT received. Closing server...");
+const shutdown = async () => {
+  console.log("Shutting down server...");
+
   server.close(async () => {
     await pool.end();
     process.exit(0);
   });
-});
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
