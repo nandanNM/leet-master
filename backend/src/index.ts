@@ -99,8 +99,10 @@ app.use(errorHandler);
 
 // WebSocket Server
 
-const {broadcastMatchCreated} = attachWebSocketServer(server);
-app.locals.broadcastMatchCreated = broadcastMatchCreated;
+const {broadcastMessageCreated, broadcastEventCreated} =
+  attachWebSocketServer(server);
+app.locals.broadcastMessageCreated = broadcastMessageCreated;
+app.locals.broadcastEventCreated = broadcastEventCreated;
 
 // Start Server
 

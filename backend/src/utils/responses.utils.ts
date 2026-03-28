@@ -1,18 +1,18 @@
-import { Response } from "express";
+import {Response} from "express";
 
 interface ApiResponseBody<T = any> {
   statusCode: number;
   success: boolean;
   message: string;
   data?: T | null;
-  error?: { code?: string; details?: string[] } | null;
+  error?: {code?: string; details?: string[]} | null;
 }
 
 export class ApiResponse<T = any> {
   constructor(
     public readonly statusCode: number,
     public readonly message: string = "🎉 Success!",
-    public readonly data: T | null = null
+    public readonly data: T | null = null,
   ) {}
 
   send(res: Response): Response {
@@ -33,7 +33,7 @@ export class ApiError extends Error {
     message: string,
     public readonly errorCode?: string,
     public readonly details: string[] = [],
-    public readonly isOperational: boolean = true
+    public readonly isOperational: boolean = true,
   ) {
     super(message);
     Error.captureStackTrace(this, this.constructor);
@@ -41,6 +41,13 @@ export class ApiError extends Error {
 }
 
 export function errorResponse(res: Response, error: unknown): Response {
+  // Log the original error first to preserve debugging information
+  if (!(error instanceof ApiError)) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[ERROR] Original error:", error);
+    }
+  }
+
   const err =
     error instanceof ApiError
       ? error
@@ -49,8 +56,8 @@ export function errorResponse(res: Response, error: unknown): Response {
   console.error(`[ERROR] ${err.statusCode} ${err.message}`, {
     code: err.errorCode,
     stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    originalError: process.env.NODE_ENV === "development" ? error : undefined,
   });
-
   const body: ApiResponseBody = {
     statusCode: err.statusCode,
     success: false,

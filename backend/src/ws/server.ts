@@ -4,18 +4,20 @@ import {WebSocket, WebSocketServer} from "ws";
 export interface ExtendedWebSocket extends WebSocket {
   isAlive: boolean;
 }
-export interface Match {
+export interface Message {
   id: string;
-  sport: string;
-  homeTeam: string;
-  awayTeam: string;
-  homeScore: number;
-  awayScore: number;
-  status: "scheduled" | "live" | "finished";
+  text: string;
+  senderId: string; // important for chat
+}
+export interface MatchEvent {
+  id: string;
+  eventType: "WIN" | "LOSE" | "DRAW";
+  winnerId?: string;
 }
 export type ServerPayload =
   | {type: "welcome"}
-  | {type: "match_created"; data: Match}
+  | {type: "message_created"; data: Message}
+  | {type: "event_created"; data: MatchEvent}
   | {type: "error"; message: string};
 
 function sendJson(socket: WebSocket, payload: ServerPayload) {
@@ -65,9 +67,12 @@ export function attachWebSocketServer(server: Server) {
 
   wss.on("close", () => clearInterval(interval));
 
-  function broadcastMatchCreated(match: Match) {
-    broadcast(wss, {type: "match_created", data: match});
+  function broadcastMessageCreated(message: Message) {
+    broadcast(wss, {type: "message_created", data: message});
+  }
+  function broadcastEventCreated(event: MatchEvent) {
+    broadcast(wss, {type: "event_created", data: event});
   }
 
-  return {broadcastMatchCreated};
+  return {broadcastMessageCreated, broadcastEventCreated};
 }

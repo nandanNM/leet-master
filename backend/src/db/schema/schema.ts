@@ -28,6 +28,24 @@ export const submissionStatusEnum = pgEnum("submissionStatus", [
   "COMPILE_ERROR",
   "INTERNAL_ERROR",
 ]);
+export const challengeStatusEnum = pgEnum("challengeStatus", [
+  "PENDING", // Waiting for participants to accept
+  "ACTIVE", // Challenge is currently ongoing
+  "COMPLETED",
+  "CANCELLED",
+]);
+
+export const participantStatusEnum = pgEnum("participantStatus", [
+  "INVITED",
+  "ACCEPTED",
+  "DECLINED",
+  "LEFT",
+]);
+export const invitationStatusEnum = pgEnum("invitationStatus", [
+  "PENDING",
+  "ACCEPTED",
+  "EXPIRED",
+]);
 
 //PROBLEMS
 export const problem = pgTable(
@@ -131,7 +149,7 @@ export const testCaseResult = pgTable(
   }),
 );
 
-// DISCUSSIONS & CATEGORIES
+// DISCUSSIONS
 
 export const discussion = pgTable(
   "discussion",
@@ -156,7 +174,7 @@ export const discussion = pgTable(
     }).onDelete("cascade"),
   }),
 );
-
+// CATEGORIES
 export const subject = pgTable("subject", {
   ...baseSchema,
   name: varchar("name", {length: 255}).notNull(),
@@ -224,5 +242,81 @@ export const problemCompany = pgTable(
   },
   (t) => ({
     cpPk: uniqueIndex("problemCompanyUniqueIdx").on(t.problemId, t.companyId),
+  }),
+);
+
+export const challenge = pgTable(
+  "challenge",
+  {
+    ...baseSchema,
+    creatorId: uuid("creatorId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+    problemId: uuid("problemId")
+      .notNull()
+      .references(() => problem.id, {onDelete: "cascade"}),
+
+    title: varchar("title", {length: 255}),
+    status: challengeStatusEnum("status").default("PENDING").notNull(),
+
+    // WINNER TRACKING
+    winnerId: uuid("winnerId").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    winningSubmissionId: uuid("winningSubmissionId").references(
+      () => submission.id,
+      {onDelete: "set null"},
+    ),
+
+    expiresAt: timestamp("expiresAt").notNull(),
+    startsAt: timestamp("startsAt"),
+    endsAt: timestamp("endsAt"),
+  },
+  (t) => ({
+    creatorIdx: index("challengeCreatorIdx").on(t.creatorId),
+    winnerIdx: index("challengeWinnerIdx").on(t.winnerId),
+  }),
+);
+
+export const challengeParticipant = pgTable(
+  "challengeParticipant",
+  {
+    ...baseSchema,
+    challengeId: uuid("challengeId")
+      .notNull()
+      .references(() => challenge.id, {onDelete: "cascade"}),
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id, {onDelete: "cascade"}),
+
+    status: participantStatusEnum("status").default("INVITED").notNull(),
+
+    // The specific submission used for this challenge
+    submissionId: uuid("submissionId").references(() => submission.id, {
+      onDelete: "set null",
+    }),
+
+    // The exact moment they clicked "Submit" and passed
+    completedAt: timestamp("completedAt"),
+  },
+  (t) => ({
+    cpPk: uniqueIndex("challengeParticipantIdx").on(t.challengeId, t.userId),
+  }),
+);
+export const challengeInvitation = pgTable(
+  "challengeInvitation",
+  {
+    ...baseSchema,
+    challengeId: uuid("challengeId")
+      .notNull()
+      .references(() => challenge.id, {onDelete: "cascade"}),
+    email: varchar("email", {length: 255}).notNull(),
+    token: varchar("token", {length: 255}).notNull().unique(), // For the unique signup link
+    status: invitationStatusEnum("status").default("PENDING").notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+  },
+  (t) => ({
+    emailIdx: index("invitationEmailIdx").on(t.email),
+    challengeIdx: index("invitationChallengeIdx").on(t.challengeId),
   }),
 );

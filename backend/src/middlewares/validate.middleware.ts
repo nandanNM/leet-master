@@ -20,3 +20,17 @@ export const validate = <T>(schema: ZodSchema<T>): RequestHandler => {
     next();
   };
 };
+
+// This helper parses the object and throws a formatted ApiError if it fails
+export const validateData = <T>(schema: ZodSchema<T>, data: unknown): T => {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const details = result.error.errors.map(
+      (e) => `${e.path.join(".")}: ${e.message}`,
+    );
+    throw new ApiError(400, "Validation failed", "VALIDATION_ERROR", details);
+  }
+
+  return result.data;
+};
