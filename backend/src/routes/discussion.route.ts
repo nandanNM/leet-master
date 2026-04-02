@@ -9,15 +9,11 @@ import {requireAnyAuth} from "src/middlewares/role.middleware";
 
 const discussionRoutes = Router();
 discussionRoutes.post(
-  "/create/:problemId",
+  "/create/:id",
   validate(DiscussionSchema),
   requireAnyAuth,
   createDiscussion,
 );
-discussionRoutes.get(
-  "/:problemId",
-  requireAnyAuth,
-  getAllDiscussionsForProblem,
-);
+discussionRoutes.get("/:id", requireAnyAuth, getAllDiscussionsForProblem);
 
 export default discussionRoutes;

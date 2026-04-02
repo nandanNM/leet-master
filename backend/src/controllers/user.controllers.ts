@@ -3,12 +3,9 @@ import {Request, Response} from "express";
 import {UpdateUser} from "../validations/user";
 import {ApiResponse, ApiError} from "../utils/responses.utils";
 import {db} from "../db";
-import {userTable} from "../db/schema";
 import {asyncHandler} from "../utils/async-handler.utils";
 import {isAuthenticated} from "../utils/auth.utils";
 import {uploadOnCloudinary} from "../utils/cloudinary.utils";
-
-import {eq} from "drizzle-orm";
 import {slugifyName} from "../utils";
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
@@ -17,7 +14,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   }
   const {id: userId} = req.user;
   const {name, bio} = req.body as UpdateUser;
-  const user = await db.query.userTable.findFirst({
+  const user = await db.query.user.findFirst({
     where: (userTable, {eq}) => eq(userTable.id, userId),
   });
   if (!user) {
@@ -48,21 +45,21 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  const [updatedUser] = await db
-    .update(userTable)
-    .set({
-      name,
-      bio,
-      image: avatarUrl,
-    })
-    .where(eq(userTable.id, userId))
-    .returning({
-      id: userTable.id,
-      name: userTable.name,
-      email: userTable.email,
-      bio: userTable.bio,
-      image: userTable.image,
-      role: userTable.role,
-    });
-  new ApiResponse(200, "User updated successfully", updatedUser).send(res);
+  // const [updatedUser] = await db
+  //   .update(user)
+  //   .set({
+  //     name,
+  //     bio,
+  //     image: avatarUrl,
+  //   })
+  //   .where(eq(user.id, userId))
+  //   .returning({
+  //     id: user.id,
+  //     name: user.name,
+  //     email: user.email,
+  //     bio: user.bio,
+  //     image: user.image,
+  //     role: user.role,
+  //   });
+  new ApiResponse(200, "User updated successfully", {}).send(res);
 });

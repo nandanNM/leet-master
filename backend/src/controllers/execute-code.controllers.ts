@@ -12,222 +12,134 @@ import {
   testCaseResult as testCaseResultTable,
   problem as problemTable,
 } from "../db/schema";
-import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
+import {ApiResponse, ApiError} from "../utils/responses.utils";
 import {isAuthenticated} from "../utils/auth.utils";
 import {asyncHandler} from "../utils/async-handler.utils";
 import {eq} from "drizzle-orm";
+import {buildFinalCode, mapJudgeResults} from "../utils/submission.utils";
 
-export const executeCode = asyncHandler(async (req: Request, res: Response) => {
-  if (!isAuthenticated(req)) {
+export const submitCode = asyncHandler(async (req: Request, res: Response) => {
+  if (!isAuthenticated(req))
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
-  }
 
   const {source_code, language_id, stdin, expected_outputs, problemId} =
     req.body as SubmitCode;
   const {id: userId} = req.user;
 
-  // Look up driver code for this problem + language
   const lang = getLanguage(Number(language_id)).toLowerCase();
-  const problemRecord = problemId
-    ? await db
-        .select({driverCode: problemTable.driverCode})
-        .from(problemTable)
-        .where(eq(problemTable.id, problemId as string))
-        .then((rows) => rows[0])
-    : null;
+  const problemRecord = await db
+    .select({driverCode: problemTable.driverCode})
+    .from(problemTable)
+    .where(eq(problemTable.id, problemId))
+    .then((r) => r[0]);
 
-  const driver = problemRecord?.driverCode?.[lang];
-  const finalCode = driver
-    ? driver.replace("{{USER_CODE}}", source_code)
-    : source_code;
+  if (!problemRecord) throw new ApiError(404, "Problem not found", "NOT_FOUND");
 
-  // prepare all test cases for judge0 submission
-  const submissions = stdin.map((input) => ({
-    source_code: finalCode,
-    language_id: Number(language_id),
-    stdin: input,
-  }));
+  const finalCode = buildFinalCode(source_code, problemRecord.driverCode, lang);
 
-  // send batch test cases to judge0
-  const judge0Response = await submitBatch(submissions);
-  const tokens = judge0Response.map((submission) => submission.token);
+  const judge0Response = await submitBatch(
+    stdin.map((input) => ({
+      source_code: finalCode,
+      language_id: Number(language_id),
+      stdin: input,
+    })),
+  );
 
-  // wait for all test cases to be completed
-  const results = await pullBatchResults(tokens);
+  const results = await pullBatchResults(judge0Response.map((s) => s.token));
+  const {testCases, allPassed, status, runtime, memory} = mapJudgeResults(
+    results,
+    expected_outputs,
+  );
 
-  // analyze the results for test cases
-  let allTestCasesPassed = true;
-  const detailedResults = results.map((result, index) => {
-    const {
-      stdout: actualOutput,
-      time,
-      memory,
-      stderr,
-      compile_output,
-      status,
-    } = result;
-    const stdout = actualOutput?.trim();
-    const expectedOutput = expected_outputs[index]?.trim();
-    const isTestCasePassed =
-      (stdout.replace(/\r\n/g, "\n") || "") ===
-      (expectedOutput.replace(/\r\n/g, "\n") || "");
-
-    if (!isTestCasePassed) allTestCasesPassed = false;
-
-    return {
-      testCase: index + 1,
-      passed: isTestCasePassed,
-      stdout,
-      expected: expectedOutput,
-      stderr,
-      compileOutput: compile_output,
-      status: status.description || "Unknown",
-      memory: memory ? `${memory} KB` : undefined,
-      time: time ? `${time} s` : undefined,
-    };
-  });
-
-  // entry for submission table in db
   const [submission] = await db
     .insert(submissionTable)
     .values({
       userId,
-      problemId: problemId as string,
+      problemId,
       sourceCode: source_code,
       language: getLanguage(Number(language_id)),
-      stdin: stdin.join("\n"),
-      stdout: JSON.stringify(detailedResults.map((result) => result.stdout)),
-      stderr: detailedResults.some((result) => result.stderr)
-        ? JSON.stringify(detailedResults.map((result) => result.stderr))
+      status,
+      runtime,
+      memory,
+      stdout: JSON.stringify(testCases.map((tc) => tc.stdout)),
+      stderr: testCases.some((tc) => tc.stderr)
+        ? JSON.stringify(testCases.map((tc) => tc.stderr))
         : null,
-      compileOutput: detailedResults.some((result) => result.compileOutput)
-        ? JSON.stringify(detailedResults.map((result) => result.compileOutput))
-        : null,
-      status: allTestCasesPassed ? "ACCEPTED" : "WRONG_ANSWER",
-      memory: detailedResults.some((result) => result.memory)
-        ? JSON.stringify(detailedResults.map((result) => result.memory))
-        : null,
-      time: detailedResults.some((result) => result.time)
-        ? JSON.stringify(detailedResults.map((result) => result.time))
+      compileOutput: testCases.some((tc) => tc.compileOutput)
+        ? JSON.stringify(testCases.map((tc) => tc.compileOutput))
         : null,
     })
     .returning();
 
-  // if all passed mark the problem as solved
-  if (allTestCasesPassed) {
+  await db.insert(testCaseResultTable).values(
+    testCases.map((tc) => ({
+      submissionId: submission.id,
+      passed: tc.passed,
+      stdout: tc.stdout,
+      expected: tc.expected,
+      stderr: tc.stderr,
+      status: tc.status,
+      memory: tc.memoryRaw,
+      time: tc.timeRaw,
+    })),
+  );
+
+  if (allPassed) {
     await db
       .insert(solvedProblemTable)
       .values({
         userId,
         problemId,
+        submissionId: submission.id,
+        solutionCode: source_code,
+        language: getLanguage(Number(language_id)),
+        runtime,
+        memory,
       })
-      .onConflictDoNothing()
-      .returning({id: solvedProblemTable.id});
+      .onConflictDoNothing();
   }
-
-  // save individual test case results
-  const testCaseResults = detailedResults.map((result) => ({
-    submissionId: submission.id,
-    ...result,
-  }));
-  await db.insert(testCaseResultTable).values(testCaseResults).returning();
-
-  const submissionWithTestCases = {
+  new ApiResponse(201, "Code submitted successfully", {
     ...submission,
-    testCases: testCaseResults,
-  };
-
-  new ApiResponse(
-    201,
-    "Code executed successfully",
-    submissionWithTestCases,
-  ).send(res);
+    testCases,
+  }).send(res);
 });
 
 export const runCode = asyncHandler(async (req: Request, res: Response) => {
-  if (!isAuthenticated(req)) {
+  if (!isAuthenticated(req))
     throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
-  }
 
   const {source_code, language_id, stdin, expected_outputs, problemId} =
     req.body as SubmitCode;
-  const {id: userId} = req.user;
 
-  // Look up driver code for this problem + language
   const lang = getLanguage(Number(language_id)).toLowerCase();
-  const problemRecord = problemId
-    ? await db
-        .select({driverCode: problemTable.driverCode})
-        .from(problemTable)
-        .where(eq(problemTable.id, problemId as string))
-        .then((rows) => rows[0])
-    : null;
+  const problemRecord = await db
+    .select({driverCode: problemTable.driverCode})
+    .from(problemTable)
+    .where(eq(problemTable.id, problemId))
+    .then((r) => r[0]);
 
-  const driver = problemRecord?.driverCode?.[lang];
-  const finalCode = driver
-    ? driver.replace("{{USER_CODE}}", source_code)
-    : source_code;
+  if (!problemRecord) throw new ApiError(404, "Problem not found", "NOT_FOUND");
 
-  const submissions = stdin.map((input) => ({
-    source_code: finalCode,
-    language_id: Number(language_id),
-    stdin: input,
-  }));
+  const finalCode = buildFinalCode(source_code, problemRecord.driverCode, lang);
 
-  const judge0Response = await submitBatch(submissions);
-  const tokens = judge0Response.map((submission) => submission.token);
+  const judge0Response = await submitBatch(
+    stdin.map((input) => ({
+      source_code: finalCode,
+      language_id: Number(language_id),
+      stdin: input,
+    })),
+  );
 
-  const results = await pullBatchResults(tokens);
+  const results = await pullBatchResults(judge0Response.map((s) => s.token));
+  const {testCases, allPassed, status} = mapJudgeResults(
+    results,
+    expected_outputs,
+  );
 
-  let allTestCasesPassed = true;
-  const testCases = results.map((result, index) => {
-    const expected = expected_outputs[index]?.trim() ?? "";
-    const actual = result.stdout?.trim() ?? "";
-    const passed =
-      actual.replace(/\r\n/g, "\n") === expected.replace(/\r\n/g, "\n");
-
-    if (!passed) allTestCasesPassed = false;
-
-    return {
-      testCase: index + 1,
-      passed,
-      stdout: actual,
-      expected,
-      stderr: result.stderr ?? null,
-      compileOutput: result.compile_output ?? null,
-      status: result.status?.description ?? "Unknown",
-      memory: result.memory ? `${result.memory} KB` : null,
-      time: result.time ? `${result.time} s` : null,
-    };
-  });
-
-  const now = new Date().toISOString();
-
-  const fakeSubmission = {
-    id: crypto.randomUUID(),
-    userId,
-    problemId: problemId as string,
-    sourceCode: source_code,
+  new ApiResponse(200, "Code executed successfully", {
+    status,
+    allPassed,
     language: getLanguage(Number(language_id)),
-    stdin: stdin.join("\n"),
-    stdout: JSON.stringify(testCases.map((tc) => tc.stdout)),
-    stderr: testCases.some((tc) => tc.stderr)
-      ? JSON.stringify(testCases.map((tc) => tc.stderr))
-      : null,
-    compileOutput: testCases.some((tc) => tc.compileOutput)
-      ? JSON.stringify(testCases.map((tc) => tc.compileOutput))
-      : null,
-    status: allTestCasesPassed ? "ACCEPTED" : "WRONG_ANSWER",
-    memory: testCases.some((tc) => tc.memory)
-      ? JSON.stringify(testCases.map((tc) => tc.memory))
-      : null,
-    time: testCases.some((tc) => tc.time)
-      ? JSON.stringify(testCases.map((tc) => tc.time))
-      : null,
-    createdAt: now,
-    updatedAt: now,
     testCases,
-  };
-
-  new ApiResponse(200, "Code executed successfully", fakeSubmission).send(res);
+  }).send(res);
 });

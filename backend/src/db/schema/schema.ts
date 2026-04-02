@@ -81,8 +81,8 @@ export const problem = pgTable(
 
 //TEST CASES & RESULTS
 
-export const problemTestCase = pgTable(
-  "problemTestCase",
+export const testCase = pgTable(
+  "testCase",
   {
     ...baseSchema,
     problemId: uuid("problemId")
@@ -133,7 +133,7 @@ export const testCaseResult = pgTable(
     submissionId: uuid("submissionId")
       .notNull()
       .references(() => submission.id, {onDelete: "cascade"}),
-    testCaseId: uuid("testCaseId").references(() => problemTestCase.id),
+    testCaseId: uuid("testCaseId").references(() => testCase.id),
 
     passed: boolean("passed").notNull(),
     stdout: text("stdout"),

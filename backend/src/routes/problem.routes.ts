@@ -1,6 +1,10 @@
 import {Router} from "express";
 import {requireAnyAuth, requireAdmin} from "../middlewares/role.middleware";
-import {createProblem} from "../controllers/problem.controllers";
+import {
+  createProblem,
+  getAllProblems,
+  getProblemById,
+} from "../controllers/problem.controllers";
 import {validate} from "../middlewares/validate.middleware";
 import {createProblemSchema, updateProblemSchema} from "../validations";
 
@@ -12,8 +16,8 @@ problemRoutes.post(
   requireAdmin,
   createProblem,
 );
-// problemRoutes.get("/get-all-problems", requireAnyAuth, getAllProblems);
-// problemRoutes.get("/get-problem/:id", requireAnyAuth, getProblemById);
+problemRoutes.get("/", requireAnyAuth, getAllProblems);
+problemRoutes.get("/:id", requireAnyAuth, getProblemById);
 // problemRoutes.put(
 //   "/update-problem/:id",
 //   validate(updateProblemSchema),

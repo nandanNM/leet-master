@@ -4,6 +4,7 @@ import {
   createChallenge,
   startChallenge,
   acceptEmailInvite,
+  sendMatchMessage,
 } from "../controllers/match.controllers";
 import {createChallengeSchema, acceptEmailInviteSchema} from "../validations";
 import {validate} from "../middlewares/validate.middleware";
@@ -23,14 +24,13 @@ matchRoutes.post(
 //   validate(respondChallengeSchema),
 //   respondToChallenge,
 // );
-matchRoutes.post("/:challengeId/start", isAuthenticated, startChallenge);
+matchRoutes.post("/:id/start", isAuthenticated, startChallenge);
 matchRoutes.post(
   "/accept-invite",
   isAuthenticated,
   validate(acceptEmailInviteSchema),
   acceptEmailInvite,
 );
-
-// matchRoutes.get("/my-challenges", isAuthenticated, getMyChallenges);
+matchRoutes.post("/chat", sendMatchMessage);
 
 export default matchRoutes;

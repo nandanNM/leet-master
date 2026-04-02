@@ -166,13 +166,13 @@ export const acceptEmailInvite = asyncHandler(
       throw new ApiError(400, "Invitation link expired", "EXPIRED");
     }
 
-    // 1. Mark invite as accepted
+    // Mark invite as accepted
     await db
       .update(challengeInvitation)
       .set({status: "ACCEPTED"})
       .where(eq(challengeInvitation.token, token));
 
-    // 2. Add user to participants
+    //  Add user to participants
     await db.insert(challengeParticipant).values({
       challengeId: invite.challengeId,
       userId: req.user.id,
@@ -180,5 +180,16 @@ export const acceptEmailInvite = asyncHandler(
     });
 
     new ApiResponse(200, "Joined challenge successfully").send(res);
+  },
+);
+
+export const sendMatchMessage = asyncHandler(
+  async (req: Request, res: Response) => {
+    // if need to save in db
+
+    if (res.app.locals.broadcastMessageCreated) {
+      res.app.locals.broadcastMessageCreated(req.body);
+    }
+    new ApiResponse(200, "Messages created").send(res);
   },
 );

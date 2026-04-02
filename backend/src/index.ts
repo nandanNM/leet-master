@@ -13,6 +13,7 @@ import submissionRoutes from "./routes/submission.routes";
 import playlistRoutes from "./routes/playlist.routes";
 import discussionRoutes from "./routes/discussion.route";
 import codeReviewRoutes from "./routes/codereview.route";
+import matchRoutes from "./routes/match.route";
 
 import {auth} from "./config/auth.config";
 import {asyncHandler} from "./utils/async-handler.utils";
@@ -92,6 +93,7 @@ app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/discussion", discussionRoutes);
 app.use("/api/v1/code-review", codeReviewRoutes);
+app.use("/api/v1/metch", matchRoutes);
 
 // Error Middleware
 

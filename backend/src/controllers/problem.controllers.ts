@@ -6,11 +6,12 @@ import {
   pullBatchResults,
   submitBatch,
 } from "../utils/judge0.utils";
-import {eq, sql} from "drizzle-orm";
+import {and, eq} from "drizzle-orm";
 import {isAuthenticated} from "../utils/auth.utils";
 import {asyncHandler} from "../utils/async-handler.utils";
-import {CreateProblem} from "src/validations";
-import {problem, problemTestCase} from "src/db/schema";
+import {CreateProblem, requiredId} from "../validations";
+import {testCase, submission, problem} from "../db/schema";
+import {validateData} from "../middlewares/validate.middleware";
 
 export const createProblem = asyncHandler(
   async (req: Request, res: Response) => {
@@ -145,7 +146,7 @@ export const createProblem = asyncHandler(
       order: tc.order ?? index + 1,
     }));
 
-    await db.insert(problemTestCase).values(testCaseRows);
+    await db.insert(testCase).values(testCaseRows);
 
     new ApiResponse(201, "Problem created successfully", {
       problemId: createdProblem.id,
@@ -153,55 +154,55 @@ export const createProblem = asyncHandler(
   },
 );
 
-// export const getAllProblems = asyncHandler(
-//   async (req: Request, res: Response) => {
-//     const userId = req.user?.id;
-//     if (!userId) {
-//       throw new ApiError(401, "Unauthorized", "UNAUTHORIZED");
-//     }
-//     const problems = await db.query.problemTable.findMany({
-//       with: {
-//         solvedBy: {
-//           where: (solvedProblemTable, {eq}) =>
-//             eq(solvedProblemTable.userId, userId),
-//           columns: {id: true},
-//         },
-//       },
-//     });
-//     const problemsWithStatus = problems.map((problem) => ({
-//       ...problem,
-//       isSolved: problem.solvedBy.length > 0,
-//     }));
+export const getAllProblems = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
 
-//     if (!problemsWithStatus.length) {
-//       throw new ApiError(404, "No problems found", "NOT_FOUND");
-//     }
-//     new ApiResponse(
-//       200,
-//       "Problems fetched successfully",
-//       problemsWithStatus,
-//     ).send(res);
-//   },
-// );
+    const problems = await db
+      .select()
+      .from(problem)
+      .leftJoin(
+        submission,
+        and(
+          eq(problem.id, submission.problemId),
+          eq(submission.userId, req.user.id),
+          eq(submission.status, "ACCEPTED"),
+        ),
+      );
+    const problemsWithStatus = problems.map((problem) => ({
+      ...problem,
+      isSolved: !!problem.submission,
+    }));
 
-// export const getProblemById = asyncHandler(
-//   async (req: Request, res: Response) => {
-//     const {id} = req.params;
-//     if (!id) {
-//       throw new ApiError(400, "Problem ID is required", "MISSING_ID");
-//     }
+    if (!problemsWithStatus.length) {
+      throw new ApiError(404, "No problems found", "NOT_FOUND");
+    }
+    new ApiResponse(
+      200,
+      "Problems fetched successfully",
+      problemsWithStatus,
+    ).send(res);
+  },
+);
 
-//     const problem = await db.query.problemTable.findFirst({
-//       where: (problemTable, {eq}) => eq(problemTable.id, id as string),
-//     });
+export const getProblemById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {id: problemId} = validateData(requiredId, req.params);
 
-//     if (!problem) {
-//       throw new ApiError(404, "Problem not found", "NOT_FOUND");
-//     }
+    const result = await db
+      .select()
+      .from(problem)
+      .where(eq(problem.id, problemId));
 
-//     new ApiResponse(200, "Problem fetched successfully", problem).send(res);
-//   },
-// );
+    if (!result.length) {
+      throw new ApiError(404, "Problem not found", "NOT_FOUND");
+    }
+
+    new ApiResponse(200, "Problem fetched successfully", result[0]).send(res);
+  },
+);
 
 // export const updateProblem = asyncHandler(
 //   async (req: Request, res: Response) => {
