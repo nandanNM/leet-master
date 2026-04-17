@@ -15,6 +15,7 @@ import {
   ProblemWorkspace,
   Problems,
   ProfilePage,
+  MatchTestPage,
 } from "./_root/pages";
 import LoginPage from "./_auth/forms/Signin";
 import RegisterPage from "./_auth/forms/Signup";
@@ -41,6 +42,7 @@ export default function App() {
         <Route element={<RootLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/match-test" element={<MatchTestPage />} />
         </Route>
 
         {/* Authenticated routes */}

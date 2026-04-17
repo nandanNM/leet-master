@@ -4,3 +4,4 @@ export { default as ProblemWorkspace } from "./ProblemWorkspace";
 export { default as ProfilePage } from "./Profile";
 export { default as PlaylistPage } from "./PlaylistPage";
 export { default as NotFound } from "./NotFound";
+export { default as MatchTestPage } from "./MatchTestPage";
