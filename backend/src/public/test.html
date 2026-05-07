@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeetMaster — Test Dashboard</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0f0f0f;--surface:#1a1a1a;--card:#242424;--border:#3a3a3a;
+      --text:#eff1f6;--muted:#8d9298;--accent:#ffa116;
+      --success:#2cbb5d;--error:#ef4743;--info:#5c8def;--radius:8px
+    }
+    body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column}
+
+    /* NAV */
+    nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+    nav h1{font-size:17px;font-weight:800;color:var(--accent)}
+    .spacer{flex:1}
+    .badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;background:#2a2a2a;border:1px solid var(--border)}
+    .badge.admin{background:#3d2a00;border-color:var(--accent);color:var(--accent)}
+
+    /* LAYOUT */
+    .layout{display:grid;grid-template-columns:380px 1fr;flex:1;overflow:hidden}
+
+    /* LEFT PANEL */
+    .panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+    .tab-btn{padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+    .tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+    .tab-pane{display:none;flex:1;overflow-y:auto;padding:16px;flex-direction:column;gap:12px}
+    .tab-pane.active{display:flex}
+
+    /* INPUTS */
+    input,select,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:8px 12px;font-size:13px;width:100%;outline:none;transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+
+    /* BUTTONS */
+    .btn{padding:8px 16px;border-radius:var(--radius);border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;gap:6px}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn:not(:disabled):hover{opacity:.85}
+    .btn-primary{background:var(--accent);color:#000}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-danger{background:var(--error);color:#fff}
+    .btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border)}
+    .btn-sm{padding:5px 10px;font-size:12px}
+    .btn-full{width:100%;justify-content:center}
+
+    /* PROBLEM */
+    .problem-title{font-size:15px;font-weight:700}
+    .diff{display:inline-flex;align-items:center;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700}
+    .diff.EASY{background:#1c3a2a;color:var(--success)}
+    .diff.MEDIUM{background:#3d2e00;color:#ffb800}
+    .diff.HARD{background:#3a1818;color:var(--error)}
+    .problem-desc{color:#c9d1d9;line-height:1.6;font-size:13px}
+    .problem-desc code{background:var(--card);padding:1px 5px;border-radius:4px;font-family:monospace}
+    .example-box{background:var(--card);border-radius:var(--radius);padding:10px 12px;font-family:monospace;font-size:12px;line-height:1.7;border-left:3px solid var(--accent)}
+    .section-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.6px}
+    .divider{height:1px;background:var(--border);flex-shrink:0}
+
+    /* CHALLENGE */
+    .code-display{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+    .code-display .code-val{font-size:30px;font-weight:800;letter-spacing:8px;color:var(--accent);font-family:monospace;margin:8px 0}
+    .p-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--card);border-radius:6px;font-size:13px}
+    .rank-chip{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rank-chip.pending{background:var(--border);color:var(--muted)}
+
+    /* WS LOG */
+    .ws-log{background:#0d1117;border-radius:var(--radius);padding:10px;font-family:monospace;font-size:11px;height:150px;overflow-y:auto;border:1px solid var(--border)}
+    .ws-entry{padding:2px 0;line-height:1.5}
+    .ws-entry .ts{color:#4a5568}
+    .ws-entry.recv{color:#68d391}
+    .ws-entry.sent{color:#63b3ed}
+    .ws-entry.sys{color:var(--muted);font-style:italic}
+    .ws-entry.err{color:var(--error)}
+
+    /* EDITOR */
+    .editor-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+    .editor-bar select{width:auto}
+    #codeEditor{flex:1;background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Fira Code',Consolas,monospace;font-size:13px;line-height:1.6;padding:16px;border:none;border-radius:0;resize:none;tab-size:2}
+    #codeEditor:focus{outline:none}
+
+    /* RESULTS */
+    .results-panel{height:220px;flex-shrink:0;border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .results-bar{padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;background:var(--surface);flex-shrink:0}
+    .status-chip{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700}
+    .s-ACCEPTED{background:#1c3a2a;color:var(--success)}
+    .s-WRONG_ANSWER{background:#3a1818;color:var(--error)}
+    .results-body{flex:1;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+    .tc-row{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--card);border-radius:6px;font-size:12px;font-family:monospace;border-left:3px solid var(--border)}
+    .tc-row.pass{border-left-color:var(--success)}
+    .tc-row.fail{border-left-color:var(--error)}
+    .tc-details{flex:1;min-width:0}
+    .tc-meta{color:#6b7280;font-size:11px;margin-top:3px}
+
+    /* MISC */
+    .row{display:flex;gap:8px;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px}
+    .txt-muted{color:var(--muted)}
+    .txt-accent{color:var(--accent)}
+    .txt-sm{font-size:12px}
+    .txt-xs{font-size:11px}
+
+    /* SPINNER */
+    .spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* TOAST */
+    #toastArea{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;max-width:360px;animation:slidein .2s ease;display:flex;align-items:center;gap:8px}
+    .toast.success{background:#1c3a2a;color:var(--success);border:1px solid var(--success)}
+    .toast.error{background:#3a1818;color:var(--error);border:1px solid var(--error)}
+    .toast.info{background:#1a2d4a;color:var(--info);border:1px solid var(--info)}
+    @keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:100;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:360px}
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <h1>⚡ LeetMaster</h1>
+  <span class="txt-muted txt-sm">Test Dashboard</span>
+  <div class="spacer"></div>
+  <div id="navUser" style="display:flex;align-items:center;gap:10px">
+    <span class="txt-muted txt-sm">Not signed in</span>
+    <button class="btn btn-primary btn-sm" onclick="openAuth()">Sign In</button>
+  </div>
+</nav>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- ─── LEFT PANEL ─────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'problem')">Problem</button>
+      <button class="tab-btn" onclick="switchTab(this,'challenge')">Challenge</button>
+    </div>
+
+    <!-- PROBLEM TAB -->
+    <div class="tab-pane active" id="tab-problem">
+
+      <div class="col">
+        <span class="section-label">Load Problem</span>
+        <div class="row">
+          <input id="problemIdInput" placeholder="Problem UUID" style="flex:1"/>
+          <button class="btn btn-ghost btn-sm" onclick="loadProblem()">Load</button>
+        </div>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="loadDefault()">Use Two Sum (default)</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="problemPlaceholder" class="txt-muted txt-sm" style="text-align:center;padding:30px 0">
+        Load a problem to get started
+      </div>
+
+      <div id="problemInfo" style="display:none" class="col">
+        <div class="row" style="align-items:flex-start;gap:8px;flex-wrap:wrap">
+          <span class="problem-title" id="pTitle"></span>
+          <span class="diff" id="pDiff"></span>
+        </div>
+        <p class="problem-desc" id="pDesc"></p>
+
+        <span class="section-label">Examples</span>
+        <div id="pExamples" class="col"></div>
+
+        <span class="section-label">Constraints</span>
+        <pre id="pConstraints" style="font-size:12px;color:var(--muted);white-space:pre-wrap"></pre>
+
+        <span class="section-label">Test Cases</span>
+        <div id="pTestCases" class="col"></div>
+      </div>
+    </div>
+
+    <!-- CHALLENGE TAB -->
+    <div class="tab-pane" id="tab-challenge">
+
+      <!-- Create -->
+      <div class="col">
+        <span class="section-label">Create Challenge</span>
+        <div>
+          <label>Problem ID</label>
+          <input id="cProblemId" placeholder="Auto-filled when problem is loaded"/>
+        </div>
+        <div class="row">
+          <div style="flex:1">
+            <label>Mode</label>
+            <select id="cMode"><option value="1v1">1v1</option><option value="group">Group</option></select>
+          </div>
+          <div style="flex:1">
+            <label>Duration (sec)</label>
+            <input id="cDuration" type="number" value="3600" min="300"/>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="createChallenge()">Create Challenge</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Join -->
+      <div class="col">
+        <span class="section-label">Join Challenge</span>
+        <div class="row">
+          <input id="joinInput" placeholder="Challenge code" style="flex:1;text-transform:uppercase;letter-spacing:3px;font-family:monospace;font-weight:700"/>
+          <button class="btn btn-ghost btn-sm" onclick="joinChallenge()">Join</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Active Room -->
+      <div id="roomPanel" style="display:none" class="col">
+        <div class="code-display">
+          <div class="txt-muted txt-xs" style="text-transform:uppercase;letter-spacing:1px">Challenge Code</div>
+          <div class="code-val" id="roomCode"></div>
+          <button class="btn btn-ghost btn-sm" onclick="copyCode()">Copy</button>
+        </div>
+        <div class="row">
+          <div style="flex:1">
+            Status: <span id="roomStatus" class="txt-accent" style="font-weight:700">waiting</span>
+          </div>
+          <div id="roomTimer" class="txt-xs txt-muted" style="display:none">Ends: <span id="roomEndsAt"></span></div>
+          <button class="btn btn-danger btn-sm" onclick="leaveChallenge()">Leave</button>
+        </div>
+        <span class="section-label">Participants</span>
+        <div id="participantList" class="col"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- WS Log -->
+      <div class="col">
+        <div class="row">
+          <span class="section-label" style="flex:1">WebSocket</span>
+          <span id="wsStatus" class="txt-xs" style="color:var(--error)">● offline</span>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('wsLog').innerHTML=''">Clear</button>
+        </div>
+        <div class="ws-log" id="wsLog"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── RIGHT PANEL: EDITOR + RESULTS ───────────────────────── -->
+  <div style="display:flex;flex-direction:column;overflow:hidden;background:#0d1117">
+
+    <div class="editor-bar">
+      <select id="langSelect" onchange="onLangChange()">
+        <option value="63">JavaScript</option>
+        <option value="71">Python</option>
+        <option value="62">Java</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="resetCode()">Reset</button>
+      <button class="btn btn-ghost btn-sm" id="runBtn" onclick="execCode(false)">▶ Run</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="execCode(true)">Submit</button>
+    </div>
+
+    <textarea id="codeEditor" spellcheck="false"></textarea>
+
+    <!-- RESULTS -->
+    <div class="results-panel">
+      <div class="results-bar">
+        <span>Output</span>
+        <span id="statusChip" class="status-chip" style="display:none"></span>
+        <div class="spacer"></div>
+        <span id="resultMeta" class="txt-xs txt-muted"></span>
+      </div>
+      <div class="results-body" id="resultsBody">
+        <div class="txt-muted" style="text-align:center;padding:20px 0;font-size:13px">
+          Run or submit your code to see results
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="row" style="margin-bottom:20px">
+      <h2 id="authTitle" style="font-size:17px">Sign In</h2>
+      <div class="spacer"></div>
+      <button onclick="closeAuth()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div class="col">
+      <div id="nameField" style="display:none">
+        <label>Name</label>
+        <input id="authName" placeholder="Your name"/>
+      </div>
+      <div>
+        <label>Email</label>
+        <input id="authEmail" type="email" placeholder="you@example.com"/>
+      </div>
+      <div>
+        <label>Password</label>
+        <input id="authPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAuth()"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="authBtn" onclick="submitAuth()">Sign In</button>
+      <div style="text-align:center">
+        <button onclick="toggleMode()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px" id="authToggle">
+          Don't have an account? Sign up
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastArea"></div>
+
+<script>
+/* ── Config ──────────────────────────────────────────────────────────────── */
+const DEFAULT_PROBLEM_ID = '019e0346-02b7-7065-8d5b-d9f5d1d24919';
+const DEFAULT_TC = {
+  stdin: ['[2,7,11,15]\n9', '[3,2,4]\n6', '[3,3]\n6'],
+  expected: ['[0,1]', '[1,2]', '[0,1]'],
+};
+const SNIPPETS = {
+  63: `function twoSum(nums, target) {\n  // your solution here\n}`,
+  71: `def twoSum(nums, target):\n    # your solution here\n    pass`,
+  62: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // your solution here\n        return new int[]{};\n    }\n}`,
+};
+
+/* ── State ────────────────────────────────────────────────────────────────── */
+let user = null;
+let problem = null;   // {id, title, testCases:[{input, expectedOutput}], ...}
+let challenge = null; // {code, status}
+let ws = null;
+let isSignUp = false;
+
+/* ── Utilities ────────────────────────────────────────────────────────────── */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function toast(msg, type='info'){
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toastArea').appendChild(el);
+  setTimeout(()=>el.remove(), 4000);
+}
+
+function spin(btnId, on){
+  const b = document.getElementById(btnId);
+  if(!b) return;
+  b.disabled = on;
+  if(on){ b.dataset.html = b.innerHTML; b.innerHTML = '<span class="spin"></span>'; }
+  else { b.innerHTML = b.dataset.html || b.innerHTML; }
+}
+
+async function api(path, opts={}){
+  const r = await fetch(path, {
+    credentials:'include',
+    headers:{'Content-Type':'application/json',...(opts.headers||{})},
+    ...opts,
+  });
+  const d = await r.json();
+  if(!r.ok) throw Object.assign(new Error(d?.message||'Error'), {data:d, status:r.status});
+  return d;
+}
+
+/* ── Auth ─────────────────────────────────────────────────────────────────── */
+function openAuth(){ document.getElementById('authModal').classList.add('open') }
+function closeAuth(){ document.getElementById('authModal').classList.remove('open') }
+function toggleMode(){
+  isSignUp = !isSignUp;
+  document.getElementById('authTitle').textContent = isSignUp ? 'Sign Up' : 'Sign In';
+  document.getElementById('authBtn').textContent   = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('authToggle').textContent= isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+  document.getElementById('nameField').style.display = isSignUp ? '' : 'none';
+}
+
+async function submitAuth(){
+  const email = document.getElementById('authEmail').value.trim();
+  const pass  = document.getElementById('authPass').value;
+  const name  = document.getElementById('authName').value.trim();
+  if(!email || !pass) return toast('Email and password required','error');
+  spin('authBtn', true);
+  try {
+    if(isSignUp){
+      if(!name) return toast('Name required','error');
+      await api('/api/v1/auth/sign-up/email',{method:'POST',body:JSON.stringify({email,password:pass,name})});
+      toast('Account created!','success');
+    }
+    const res = await api('/api/v1/auth/sign-in/email',{method:'POST',body:JSON.stringify({email,password:pass})});
+    user = res.user;
+    updateNav();
+    closeAuth();
+    wsConnect();
+    toast(`Welcome, ${user.name}!`,'success');
+  } catch(e){
+    toast(e.message||'Auth failed','error');
+  } finally {
+    spin('authBtn', false);
+  }
+}
+
+async function signOut(){
+  try{ await api('/api/v1/auth/sign-out',{method:'POST'}) }catch{}
+  user = null; updateNav(); wsDisconnect();
+  toast('Signed out','info');
+}
+
+function updateNav(){
+  const el = document.getElementById('navUser');
+  if(user){
+    const role = user.role||'user';
+    el.innerHTML = `
+      <span class="txt-sm">${esc(user.name)}</span>
+      <span class="badge ${role}">${role}</span>
+      <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign Out</button>`;
+  } else {
+    el.innerHTML = `<span class="txt-muted txt-sm">Not signed in</span>
+      <button class="btn btn-primary btn-sm" onclick="openAuth()">Sign In</button>`;
+  }
+}
+
+async function restoreSession(){
+  try{
+    const res = await api('/api/v1/me');
+    user = res.data?.user;
+    if(user){ updateNav(); wsConnect(); }
+  }catch{}
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+function switchTab(btn, name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+/* ── Problem ──────────────────────────────────────────────────────────────── */
+function loadDefault(){
+  document.getElementById('problemIdInput').value = DEFAULT_PROBLEM_ID;
+  loadProblem();
+}
+
+async function loadProblem(){
+  const id = document.getElementById('problemIdInput').value.trim();
+  if(!id) return toast('Enter a problem ID','error');
+  try{
+    const res = await api(`/api/v1/problem/${id}`);
+    const {problem:p, testCases} = res.data;
+    setProblem({...p, testCases});
+    toast(`Loaded: ${p.title}`,'success');
+  } catch(e){
+    if(id === DEFAULT_PROBLEM_ID){
+      // Fallback: show Two Sum data inline
+      setProblem({
+        id, title:'Two Sum', difficulty:'EASY', slug:'two-sum',
+        description:'Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to <code>target</code>.',
+        examples:[
+          {input:'nums = [2,7,11,15], target = 9', output:'[0,1]', explanation:'nums[0]+nums[1] == 9'},
+          {input:'nums = [3,2,4], target = 6', output:'[1,2]'},
+          {input:'nums = [3,3], target = 6', output:'[0,1]'},
+        ],
+        constraints:'2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\nOnly one valid answer exists.',
+        testCases: DEFAULT_TC.stdin.map((s,i)=>({input:s, expectedOutput:DEFAULT_TC.expected[i]})),
+      });
+      toast('Loaded Two Sum (fallback)','info');
+    } else {
+      toast(e.message||'Failed to load problem','error');
+    }
+  }
+}
+
+function setProblem(p){
+  problem = p;
+  document.getElementById('problemPlaceholder').style.display = 'none';
+  document.getElementById('problemInfo').style.display = '';
+  document.getElementById('pTitle').textContent = p.title;
+  const d = document.getElementById('pDiff');
+  d.textContent = p.difficulty;
+  d.className = `diff ${p.difficulty}`;
+  document.getElementById('pDesc').innerHTML = p.description;
+  document.getElementById('pConstraints').textContent = p.constraints||'';
+
+  const exEl = document.getElementById('pExamples');
+  exEl.innerHTML='';
+  for(const ex of (p.examples||[])){
+    const div=document.createElement('div');
+    div.className='example-box';
+    div.innerHTML=`<b>Input:</b> ${esc(ex.input)}\n<b>Output:</b> ${esc(ex.output)}${ex.explanation?'\n<b>Explanation:</b> '+esc(ex.explanation):''}`;
+    exEl.appendChild(div);
+  }
+
+  const tcEl = document.getElementById('pTestCases');
+  tcEl.innerHTML='';
+  for(const [i,tc] of (p.testCases||[]).entries()){
+    const div=document.createElement('div');
+    div.className='example-box';
+    div.innerHTML=`<b>TC${i+1}</b>  stdin: <span style="color:var(--text)">${esc(tc.input.replace(/\n/g,'\\n'))}</span>  →  <span style="color:var(--success)">${esc(tc.expectedOutput)}</span>`;
+    tcEl.appendChild(div);
+  }
+
+  // auto-fill challenge problem id
+  document.getElementById('cProblemId').value = p.id;
+
+  // set code snippet if available
+  const lang = {63:'javascript',71:'python',62:'java'}[+document.getElementById('langSelect').value];
+  const snippet = p.codeSnippets?.[lang];
+  if(snippet) document.getElementById('codeEditor').value = typeof snippet==='object' ? snippet.code : snippet;
+}
+
+/* ── Editor ───────────────────────────────────────────────────────────────── */
+function onLangChange(){
+  const id = +document.getElementById('langSelect').value;
+  const lang = {63:'javascript',71:'python',62:'java'}[id];
+  const snippet = problem?.codeSnippets?.[lang];
+  if(snippet) document.getElementById('codeEditor').value = typeof snippet==='object'?snippet.code:snippet;
+}
+
+function resetCode(){
+  const id = +document.getElementById('langSelect').value;
+  document.getElementById('codeEditor').value = SNIPPETS[id]||'';
+}
+
+document.getElementById('codeEditor').addEventListener('keydown',function(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const s=this.selectionStart,end=this.selectionEnd;
+    this.value=this.value.slice(0,s)+'  '+this.value.slice(end);
+    this.selectionStart=this.selectionEnd=s+2;
+  }
+});
+
+/* ── Execution ────────────────────────────────────────────────────────────── */
+function buildPayload(){
+  const source_code = document.getElementById('codeEditor').value;
+  const language_id = +document.getElementById('langSelect').value;
+  const problemId   = problem?.id || DEFAULT_PROBLEM_ID;
+  const tcs = problem?.testCases?.length
+    ? problem.testCases
+    : DEFAULT_TC.stdin.map((s,i)=>({input:s,expectedOutput:DEFAULT_TC.expected[i]}));
+
+  return {
+    source_code, language_id, problemId,
+    stdin: tcs.map(tc=>tc.input),
+    expected_outputs: tcs.map(tc=>tc.expectedOutput),
+    ...(challenge?.status==='active' ? {challengeCode:challenge.code} : {}),
+  };
+}
+
+async function execCode(save){
+  if(!user) return toast('Sign in first','error');
+  const code = document.getElementById('codeEditor').value.trim();
+  if(!code) return toast('Write some code first','error');
+
+  const btnId = save ? 'submitBtn' : 'runBtn';
+  spin(btnId, true);
+  showRunning();
+
+  try{
+    const endpoint = save ? '/api/v1/execute-code/submit-code' : '/api/v1/execute-code/run-code';
+    const res = await api(endpoint, {method:'POST', body:JSON.stringify(buildPayload())});
+    renderResults(res.data, save);
+    if(save){
+      if(res.data.status==='ACCEPTED') toast('🎉 Accepted! Problem solved.','success');
+      else toast('Wrong answer — check your logic','error');
+    }
+  } catch(e){
+    toast(e.data?.message||e.message||'Execution failed','error');
+    showError(e.data?.message||e.message);
+  } finally {
+    spin(btnId, false);
+  }
+}
+
+function showRunning(){
+  document.getElementById('statusChip').style.display='none';
+  document.getElementById('resultMeta').textContent='';
+  document.getElementById('resultsBody').innerHTML=
+    '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:20px 0"><span class="spin"></span> Sending to Judge0...</div>';
+}
+
+function showError(msg){
+  document.getElementById('resultsBody').innerHTML=
+    `<div style="color:var(--error);font-size:13px;padding:10px 0">${esc(msg)}</div>`;
+}
+
+function renderResults(data, saved){
+  const chip = document.getElementById('statusChip');
+  chip.textContent = data.status;
+  chip.className = `status-chip s-${data.status}`;
+  chip.style.display='';
+
+  const passed = data.testCases?.filter(t=>t.passed).length||0;
+  const total  = data.testCases?.length||0;
+  document.getElementById('resultMeta').textContent =
+    `${passed}/${total} passed · ${saved?'saved to DB':'not saved'}`;
+
+  const body = document.getElementById('resultsBody');
+  body.innerHTML='';
+
+  if(!data.testCases?.length){
+    body.innerHTML='<div class="txt-muted">No test results</div>'; return;
+  }
+
+  for(const tc of data.testCases){
+    const row=document.createElement('div');
+    row.className=`tc-row ${tc.passed?'pass':'fail'}`;
+    const errLine = tc.stderr||tc.compileOutput
+      ? `<div style="color:var(--error);margin-top:3px">${esc(tc.stderr||tc.compileOutput||'')}</div>` : '';
+    row.innerHTML=`
+      <span style="font-size:16px;flex-shrink:0">${tc.passed?'✅':'❌'}</span>
+      <div class="tc-details">
+        <div style="font-weight:700;margin-bottom:2px">Test Case ${tc.testCase}</div>
+        <div>Output:&nbsp; <span style="color:${tc.passed?'var(--success)':'var(--error)'}">${esc(tc.stdout||'(empty)')}</span></div>
+        <div>Expected: <span style="color:var(--text)">${esc(tc.expected)}</span></div>
+        ${errLine}
+        <div class="tc-meta">${esc(tc.status||'')} · ${esc(tc.time||'—')} · ${esc(tc.memory||'—')}</div>
+      </div>`;
+    body.appendChild(row);
+  }
+}
+
+/* ── Challenge ────────────────────────────────────────────────────────────── */
+async function createChallenge(){
+  if(!user) return toast('Sign in first','error');
+  const problemId     = document.getElementById('cProblemId').value.trim()||DEFAULT_PROBLEM_ID;
+  const mode          = document.getElementById('cMode').value;
+  const durationSeconds = +document.getElementById('cDuration').value||3600;
+  try{
+    const res = await api('/api/v1/challenge/create',{method:'POST',body:JSON.stringify({problemId,mode,durationSeconds})});
+    const code = res.data.shareCode;
+    setChallenge(code,'waiting');
+    toast(`Challenge created! Code: ${code}`,'success');
+  } catch(e){ toast(e.data?.message||e.message||'Failed to create','error') }
+}
+
+async function joinChallenge(){
+  if(!user) return toast('Sign in first','error');
+  const code = document.getElementById('joinInput').value.trim().toUpperCase();
+  if(!code) return toast('Enter challenge code','error');
+  try{
+    const res = await api(`/api/v1/challenge/join/${code}`,{method:'POST'});
+    setChallenge(code, res.data.challenge.status);
+    await refreshRoom(code);
+    toast(`Joined ${code}!`,'success');
+  } catch(e){ toast(e.data?.message||e.message||'Failed to join','error') }
+}
+
+async function leaveChallenge(){
+  if(!challenge) return;
+  const code = challenge.code;
+  try{
+    await api(`/api/v1/challenge/leave/${code}`,{method:'POST'});
+    clearChallenge();
+    toast(`Left ${code}`,'info');
+  } catch(e){ toast(e.data?.message||e.message||'Failed to leave','error') }
+}
+
+function setChallenge(code, status){
+  challenge = {code, status};
+  document.getElementById('roomPanel').style.display='';
+  document.getElementById('roomCode').textContent  = code;
+  document.getElementById('roomStatus').textContent= status;
+  document.getElementById('joinInput').value = code;
+  wsSend({type:'join_challenge', challengeCode:code, userId:user?.id||''});
+  // switch to challenge tab
+  document.querySelectorAll('.tab-btn')[1].click();
+}
+
+function clearChallenge(){
+  challenge = null;
+  document.getElementById('roomPanel').style.display='none';
+  document.getElementById('participantList').innerHTML='';
+}
+
+async function refreshRoom(code){
+  try{
+    const res = await api(`/api/v1/challenge/${code}`);
+    const {challenge:c, participants} = res.data;
+    if(challenge){
+      challenge.status=c.status;
+      document.getElementById('roomStatus').textContent=c.status;
+    }
+    if(c.endsAt){
+      document.getElementById('roomTimer').style.display='';
+      document.getElementById('roomEndsAt').textContent=new Date(c.endsAt).toLocaleTimeString();
+    }
+    renderParticipants(participants);
+  }catch(e){ logWs(`Room refresh error: ${e.message}`,'err') }
+}
+
+function renderParticipants(list){
+  const el = document.getElementById('participantList');
+  el.innerHTML='';
+  if(!list?.length){ el.innerHTML='<span class="txt-muted txt-sm">No participants yet</span>'; return; }
+  for(const p of list){
+    const row=document.createElement('div');
+    row.className='p-row';
+    const you = p.userId===user?.id;
+    row.innerHTML=`
+      <span class="rank-chip ${p.rank?'':'pending'}">${p.rank?'#'+p.rank:'?'}</span>
+      <span>${esc(p.name)}${you?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</span>
+      <div class="spacer"></div>
+      <span style="font-size:11px;color:${p.status==='submitted'?'var(--success)':'var(--muted)'}">${p.status}</span>
+      ${p.finishedAt?`<span class="txt-xs txt-muted">${new Date(p.finishedAt).toLocaleTimeString()}</span>`:''}`;
+    el.appendChild(row);
+  }
+}
+
+function copyCode(){
+  const code = document.getElementById('roomCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>toast(`"${code}" copied!`,'success'));
+}
+
+/* ── WebSocket ────────────────────────────────────────────────────────────── */
+function wsConnect(){
+  if(ws && ws.readyState<2) return;
+  const proto = location.protocol==='https:'?'wss:':'ws:';
+  ws = new WebSocket(`${proto}//${location.host}/ws`);
+
+  ws.onopen = ()=>{
+    document.getElementById('wsStatus').innerHTML='● online';
+    document.getElementById('wsStatus').style.color='var(--success)';
+    logWs('Connected','sys');
+    if(challenge) wsSend({type:'join_challenge',challengeCode:challenge.code,userId:user?.id||''});
+  };
+  ws.onclose = ()=>{
+    document.getElementById('wsStatus').innerHTML='● offline';
+    document.getElementById('wsStatus').style.color='var(--error)';
+    logWs('Disconnected','sys');
+  };
+  ws.onerror = ()=>logWs('Error','err');
+  ws.onmessage = e=>{
+    const msg = JSON.parse(e.data);
+    logWs(JSON.stringify(msg),'recv');
+    handleMsg(msg);
+  };
+}
+
+function wsDisconnect(){ if(ws){ws.close();ws=null} }
+
+function wsSend(obj){
+  if(ws && ws.readyState===WebSocket.OPEN){
+    ws.send(JSON.stringify(obj));
+    logWs(JSON.stringify(obj),'sent');
+  }
+}
+
+function handleMsg(msg){
+  switch(msg.type){
+    case 'challenge:player_joined':
+      toast(`${msg.data.name} joined (${msg.data.participantCount}/${msg.data.maxParticipants})`,'info');
+      if(challenge) refreshRoom(challenge.code);
+      break;
+    case 'challenge:started':
+      toast('🚀 Challenge started!','success');
+      if(challenge){
+        challenge.status='active';
+        document.getElementById('roomStatus').textContent='active';
+        document.getElementById('roomTimer').style.display='';
+        document.getElementById('roomEndsAt').textContent=new Date(msg.data.endsAt).toLocaleTimeString();
+        refreshRoom(challenge.code);
+      }
+      break;
+    case 'challenge:player_submitted':
+      toast(`🏆 #${msg.data.rank} ${msg.data.name} submitted!`,'info');
+      if(challenge) refreshRoom(challenge.code);
+      break;
+    case 'challenge:finished':
+      toast('🎊 Challenge finished!','success');
+      if(challenge){
+        challenge.status='finished';
+        document.getElementById('roomStatus').textContent='finished';
+        renderParticipants(msg.data.rankings.map(r=>({...r,status:'submitted'})));
+      }
+      break;
+  }
+}
+
+function logWs(text, type){
+  const log = document.getElementById('wsLog');
+  const ts  = new Date().toLocaleTimeString('en',{hour12:false});
+  const prefix = {recv:'←',sent:'→',sys:'·',err:'!'}[type]||'·';
+  const div = document.createElement('div');
+  div.className=`ws-entry ${type}`;
+  div.innerHTML=`<span class="ts">[${ts}]</span> ${prefix} ${esc(text)}`;
+  log.appendChild(div);
+  log.scrollTop=log.scrollHeight;
+}
+
+/* ── Init ─────────────────────────────────────────────────────────────────── */
+document.getElementById('codeEditor').value = SNIPPETS[63];
+restoreSession().then(()=>{ loadDefault(); });
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ import {
   pullBatchResults,
   submitBatch,
 } from "../utils/judge0.utils";
-import {eq, sql} from "drizzle-orm";
+import {asc, eq, sql} from "drizzle-orm";
 import {isAuthenticated} from "../utils/auth.utils";
 import {asyncHandler} from "../utils/async-handler.utils";
 import {CreateProblem} from "src/validations";
@@ -150,6 +150,50 @@ export const createProblem = asyncHandler(
     new ApiResponse(201, "Problem created successfully", {
       problemId: createdProblem.id,
     }).send(res);
+  },
+);
+
+export const getProblemById = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isAuthenticated(req)) {
+      throw new ApiError(401, "Authentication required", "UNAUTHORIZED");
+    }
+    const {id} = req.params;
+
+    const problemRecord = await db
+      .select({
+        id: problem.id,
+        title: problem.title,
+        slug: problem.slug,
+        description: problem.description,
+        difficulty: problem.difficulty,
+        examples: problem.examples,
+        constraints: problem.constraints,
+        hints: problem.hints,
+        codeSnippets: problem.codeSnippets,
+        timeLimit: problem.timeLimit,
+        memoryLimit: problem.memoryLimit,
+      })
+      .from(problem)
+      .where(eq(problem.id, id))
+      .then((rows) => rows[0]);
+
+    if (!problemRecord) {
+      throw new ApiError(404, "Problem not found", "NOT_FOUND");
+    }
+
+    const testCases = await db
+      .select({
+        input: problemTestCase.input,
+        expectedOutput: problemTestCase.expectedOutput,
+        isSample: problemTestCase.isSample,
+        order: problemTestCase.order,
+      })
+      .from(problemTestCase)
+      .where(eq(problemTestCase.problemId, id))
+      .orderBy(asc(problemTestCase.order));
+
+    new ApiResponse(200, "Problem fetched", {problem: problemRecord, testCases}).send(res);
   },
 );
 
