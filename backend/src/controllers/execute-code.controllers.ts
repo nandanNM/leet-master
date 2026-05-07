@@ -11,11 +11,14 @@ import {
   submission as submissionTable,
   testCaseResult as testCaseResultTable,
   problem as problemTable,
+  challenge as challengeTable,
+  challengeParticipant as challengeParticipantTable,
+  user,
 } from "../db/schema";
 import {ApiResponse, ApiError, errorResponse} from "../utils/responses.utils";
 import {isAuthenticated} from "../utils/auth.utils";
 import {asyncHandler} from "../utils/async-handler.utils";
-import {eq} from "drizzle-orm";
+import {and, count, eq} from "drizzle-orm";
 
 export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   if (!isAuthenticated(req)) {
@@ -66,11 +69,10 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
       compile_output,
       status,
     } = result;
-    const stdout = actualOutput?.trim();
-    const expectedOutput = expected_outputs[index]?.trim();
+    const stdout = actualOutput?.trim() ?? "";
+    const expectedOutput = expected_outputs[index]?.trim() ?? "";
     const isTestCasePassed =
-      (stdout.replace(/\r\n/g, "\n") || "") ===
-      (expectedOutput.replace(/\r\n/g, "\n") || "");
+      stdout.replace(/\r\n/g, "\n") === expectedOutput.replace(/\r\n/g, "\n");
 
     if (!isTestCasePassed) allTestCasesPassed = false;
 
@@ -120,6 +122,9 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
       .values({
         userId,
         problemId,
+        submissionId: submission.id,
+        solutionCode: source_code,
+        language: getLanguage(Number(language_id)),
       })
       .onConflictDoNothing()
       .returning({id: solvedProblemTable.id});
@@ -128,13 +133,112 @@ export const executeCode = asyncHandler(async (req: Request, res: Response) => {
   // save individual test case results
   const testCaseResults = detailedResults.map((result) => ({
     submissionId: submission.id,
-    ...result,
+    passed: result.passed,
+    stdout: result.stdout,
+    expected: result.expected,
+    stderr: result.stderr ?? null,
+    compileOutput: result.compileOutput ?? null,
+    status: result.status,
+    memory: result.memory ?? null,
+    time: result.time ?? null,
   }));
   await db.insert(testCaseResultTable).values(testCaseResults).returning();
 
+  // Challenge mode: track the submission if this is part of an active challenge
+  let challengeUpdate: {status: string; rank?: number} | null = null;
+
+  if (allTestCasesPassed && req.body.challengeCode) {
+    const challengeCode = (req.body.challengeCode as string).toUpperCase();
+
+    const challengeRecord = await db
+      .select()
+      .from(challengeTable)
+      .where(
+        and(
+          eq(challengeTable.code, challengeCode),
+          eq(challengeTable.status, "active"),
+        ),
+      )
+      .then((rows) => rows[0]);
+
+    if (challengeRecord) {
+      const participant = await db
+        .select()
+        .from(challengeParticipantTable)
+        .where(
+          and(
+            eq(challengeParticipantTable.challengeId, challengeRecord.id),
+            eq(challengeParticipantTable.userId, userId),
+            eq(challengeParticipantTable.status, "joined"),
+          ),
+        )
+        .then((rows) => rows[0]);
+
+      if (participant) {
+        const [submittedResult] = await db
+          .select({value: count()})
+          .from(challengeParticipantTable)
+          .where(
+            and(
+              eq(challengeParticipantTable.challengeId, challengeRecord.id),
+              eq(challengeParticipantTable.status, "submitted"),
+            ),
+          );
+
+        const rank = Number(submittedResult.value) + 1;
+        const finishedAt = new Date();
+
+        await db
+          .update(challengeParticipantTable)
+          .set({status: "submitted", submissionId: submission.id, rank, finishedAt})
+          .where(eq(challengeParticipantTable.id, participant.id));
+
+        req.app.locals.broadcastChallengePlayerSubmitted?.(challengeCode, {
+          userId,
+          name: (req.user as any).name ?? "Unknown",
+          rank,
+          finishedAt: finishedAt.toISOString(),
+        });
+
+        const [totalResult] = await db
+          .select({value: count()})
+          .from(challengeParticipantTable)
+          .where(eq(challengeParticipantTable.challengeId, challengeRecord.id));
+
+        if (rank >= Number(totalResult.value)) {
+          await db
+            .update(challengeTable)
+            .set({status: "finished"})
+            .where(eq(challengeTable.id, challengeRecord.id));
+
+          const rankings = await db
+            .select({
+              userId: challengeParticipantTable.userId,
+              name: user.name,
+              rank: challengeParticipantTable.rank,
+            })
+            .from(challengeParticipantTable)
+            .innerJoin(user, eq(challengeParticipantTable.userId, user.id))
+            .where(eq(challengeParticipantTable.challengeId, challengeRecord.id))
+            .orderBy(challengeParticipantTable.rank);
+
+          req.app.locals.broadcastChallengeFinished?.(challengeCode, {
+            challengeId: challengeRecord.id,
+            rankings,
+          });
+
+          challengeUpdate = {status: "finished", rank};
+        } else {
+          challengeUpdate = {status: "active", rank};
+        }
+      }
+    }
+  }
+
   const submissionWithTestCases = {
     ...submission,
-    testCases: testCaseResults,
+    testCases: detailedResults,
+    ...(challengeUpdate && {challengeUpdate}),
   };
 
   new ApiResponse(

@@ -95,12 +95,12 @@ export const submission = pgTable(
     language: varchar("language", {length: 50}).notNull(),
     status: submissionStatusEnum("status"),
 
-    runtime: integer("runtime"), // in ms
-    memory: integer("memory"), // in KB
-
+    stdin: text("stdin"),
     stdout: text("stdout"),
     stderr: text("stderr"),
     compileOutput: text("compileOutput"),
+    memory: text("memory"), // JSON array of per-test-case "X KB" strings
+    time: text("time"),     // JSON array of per-test-case "X.Xs" strings
   },
   (t) => ({
     userProblemIdx: index("submissionUserProblemIdx").on(t.userId, t.problemId),
@@ -121,10 +121,11 @@ export const testCaseResult = pgTable(
     stdout: text("stdout"),
     expected: text("expected"),
     stderr: text("stderr"),
+    compileOutput: text("compileOutput"),
 
     status: varchar("status", {length: 50}),
-    memory: integer("memory"),
-    time: integer("time"),
+    memory: varchar("memory", {length: 30}), // e.g. "1024 KB"
+    time: varchar("time", {length: 30}),     // e.g. "0.500 s"
   },
   (t) => ({
     submissionIdx: index("testCaseSubmissionIdx").on(t.submissionId),

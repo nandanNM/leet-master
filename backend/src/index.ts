@@ -13,6 +13,7 @@ import submissionRoutes from "./routes/submission.routes";
 import playlistRoutes from "./routes/playlist.routes";
 import discussionRoutes from "./routes/discussion.route";
 import codeReviewRoutes from "./routes/codereview.route";
+import challengeRoutes from "./routes/challenge.routes";
 
 import {auth} from "./config/auth.config";
 import {asyncHandler} from "./utils/async-handler.utils";
@@ -92,6 +93,7 @@ app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/discussion", discussionRoutes);
 app.use("/api/v1/code-review", codeReviewRoutes);
+app.use("/api/v1/challenge", challengeRoutes);
 
 // Error Middleware
 
@@ -99,8 +101,19 @@ app.use(errorHandler);
 
 // WebSocket Server
 
-const {broadcastMatchCreated} = attachWebSocketServer(server);
+const {
+  broadcastMatchCreated,
+  broadcastChallengePlayerJoined,
+  broadcastChallengeStarted,
+  broadcastChallengePlayerSubmitted,
+  broadcastChallengeFinished,
+} = attachWebSocketServer(server);
+
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastChallengePlayerJoined = broadcastChallengePlayerJoined;
+app.locals.broadcastChallengeStarted = broadcastChallengeStarted;
+app.locals.broadcastChallengePlayerSubmitted = broadcastChallengePlayerSubmitted;
+app.locals.broadcastChallengeFinished = broadcastChallengeFinished;
 
 // Start Server
 
